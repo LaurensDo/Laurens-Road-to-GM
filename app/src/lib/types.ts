@@ -25,6 +25,8 @@ export interface Exercise {
   url: string;
   src: string;
   maia: { me: number | null; up: number | null; cls: string | null };
+  /** Letzter Zug des Gegners vor der Stellung: Brett davor (nur Figurenstellung), Zug als UCI und SAN */
+  prev?: { board: string; uci: string; san: string };
 }
 
 export interface ExerciseFile {
@@ -80,6 +82,8 @@ export interface Settings {
   newPerDay: number;
   /** Aufgaben pro Satz */
   setSize: number;
+  /** Vor der Aufgabe den letzten Zug des Gegners zeigen */
+  showLast: boolean;
   goalMinutes: number;
   theme: ThemeSetting;
   filters: Filters;
@@ -111,6 +115,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tolerance: true,
   newPerDay: 15,
   setSize: 10,
+  showLast: true,
   goalMinutes: 15,
   theme: 'system',
   filters: { phase: 'alle', cat: 'alle', motif: 'alle' },

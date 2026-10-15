@@ -53,10 +53,20 @@ await chooseSetSize(5);
 await page.locator('nav').getByText('Heute').click();
 ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Satzgröße 5 wird übernommen');
 
-// ---- Aufgabe 1: Tippen, Töne
+// ---- Aufgabe 1: letzter Zug, Tippen, Töne
+await sfxClear();
 await page.click('text=Satz starten (5 Aufgaben)');
-await page.waitForSelector('.board cg-board');
-await page.waitForTimeout(400);
+await page.waitForSelector('.board-wrap[data-live="0"]');
+ok(/0,0 s/.test(await page.textContent('.timer')), 'Vor der Freigabe läuft die Zeit noch nicht');
+await page.waitForSelector('.board-wrap[data-live="1"]');
+await page.waitForTimeout(300);
+{
+  const early = await sfx();
+  const mi = early.findIndex((x) => x === 'move' || x === 'capture');
+  ok(mi >= 0 && early.indexOf('start') > mi, `Zugton des Gegners kommt vor dem Start-Ton (${early.join(',')})`);
+  ok(await page.locator('.tag.last').count() === 1, `Tag zeigt den letzten Zug (${(await page.locator('.tag.last').textContent()).trim()})`);
+  ok(await page.locator('.board square.last-move').count() === 2, 'Letzter Zug ist auf dem Brett hervorgehoben');
+}
 await page.screenshot({ path: `${OUT}/2-aufgabe.png` });
 ok((await taskNo()).includes('Aufgabe 1 von 5'), `Satzfortschritt zeigt Aufgabe 1 von 5 (${await taskNo()})`);
 ok((await page.textContent('.side')).includes(ex.turn === 'w' ? 'Weiß' : 'Schwarz'), 'Seite am Zug stimmt');
@@ -78,7 +88,7 @@ ok((await page.textContent('.side')).includes(ex.turn === 'w' ? 'Weiß' : 'Schwa
   await page.screenshot({ path: `${OUT}/3-ergebnis.png`, fullPage: true });
 }
 await btn('Weiter').click();
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 await page.waitForTimeout(300);
 ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Weiter führt zu Aufgabe 2 von 5');
 
@@ -131,7 +141,7 @@ const ex2 = rest.find((e) => e.cat !== ex.cat) ?? rest[0];
 
 // ---- Aufgabe 3: Lösung zeigen, Variante, ausblenden
 await btn('Weiter').click();
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 await sfxClear();
 await page.click('text=Lösung zeigen');
 await page.waitForSelector('.result');
@@ -149,14 +159,14 @@ await page.waitForTimeout(300);
 }
 await page.screenshot({ path: `${OUT}/5-variante.png`, fullPage: true });
 await page.click('text=Diese Aufgabe nicht mehr zeigen');
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 4 von 5'), 'Nach dem Ausblenden geht es mit Aufgabe 4 weiter');
 
 // ---- Aufgabe 4 und 5: aufgeben, Satz abschließen
 await page.click('text=Lösung zeigen');
 await page.waitForSelector('.result');
 await btn('Weiter').click();
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 await page.click('text=Lösung zeigen');
 await page.waitForSelector('.result');
 ok(await btn('Ergebnis ansehen').count() === 1, 'Nach der letzten Aufgabe heißt der Knopf "Ergebnis ansehen"');
@@ -173,7 +183,7 @@ await page.screenshot({ path: `${OUT}/5b-satzergebnis.png`, fullPage: true });
 
 // ---- Zweiter Satz, pausieren, fortsetzen, beenden
 await btn('Nächster Satz').click();
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 1 von 5'), 'Nächster Satz startet bei Aufgabe 1');
 await page.click('text=Lösung zeigen');
 await page.waitForSelector('.result');
@@ -184,7 +194,7 @@ await btn('Später weitermachen').click();
 await page.waitForSelector('text=Tagesration');
 ok(await page.locator('text=Satz fortsetzen (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
 await page.click('text=Satz fortsetzen (1 von 5)');
-await page.waitForSelector('.board cg-board');
+await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Fortgesetzt wird bei Aufgabe 2');
 await page.getByRole('button', { name: 'Training beenden' }).click();
 await btn('Beenden und Ergebnis ansehen').click();
@@ -223,13 +233,24 @@ await page.locator('nav').getByText('Einstellungen').click();
 ok((await sfx()).length === 0, 'Bei "Ton aus" bleibt die App stumm');
 await page.getByRole('radiogroup', { name: 'Ton', exact: true }).getByRole('radio', { name: 'An', exact: true }).click();
 
+// ---- Letzter Zug aus
+await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Nicht zeigen', exact: true }).click();
+await page.locator('nav').getByText('Heute').click();
+await page.click('text=/Satz starten|Satz fortsetzen/');
+await page.waitForSelector('.board-wrap[data-live="1"]');
+ok(await page.locator('.tag.last').count() === 0 && await page.locator('.board square.last-move').count() === 0, 'Ohne Einstellung kein letzter Zug');
+await page.getByRole('button', { name: 'Training beenden' }).click();
+await page.waitForSelector('text=Tagesration');
+await page.locator('nav').getByText('Einstellungen').click();
+await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Zeigen', exact: true }).click();
+
 // ---- Uhr-Ton mit 5 Sekunden Limit
 await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '5 s', exact: true }).click();
 await page.locator('nav').getByText('Heute').click();
 await sfxClear();
 await page.click('text=Satz starten (5 Aufgaben)');
-await page.waitForSelector('.board cg-board');
-await page.waitForTimeout(6400);
+await page.waitForSelector('.board-wrap[data-live="1"]');
+await page.waitForTimeout(5800);
 {
   const s = (await sfx()).filter((x) => ['start', 'tick', 'tickLast', 'timeUp'].includes(x));
   ok(JSON.stringify(s) === JSON.stringify(['start', 'tick', 'tick', 'tickLast', 'timeUp']), `Uhr-Töne bei 5 s Limit: ${s.join(', ')}`);
@@ -272,7 +293,7 @@ for (const f of formats) {
   const p = await c.newPage();
   await p.goto(BASE, { waitUntil: 'networkidle' });
   await p.click('text=/Satz starten|Satz fortsetzen/');
-  await p.waitForSelector('.board cg-board');
+  await p.waitForSelector('.board-wrap[data-live="1"]');
   await p.waitForTimeout(300);
   await p.click('text=Lösung zeigen');
   await p.waitForSelector('.result');

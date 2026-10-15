@@ -25,6 +25,15 @@ export function explain(ex: Exercise): string[] {
   return out;
 }
 
+/** "14...Nf6" bzw. "7.Nf3": letzter Zug des Gegners mit Zugnummer. null, wenn er nicht bekannt ist. */
+export function lastMoveLabel(ex: Exercise): string | null {
+  if (!ex.prev) return null;
+  const full = Number(ex.fen.split(' ')[5]);
+  if (!Number.isFinite(full)) return ex.prev.san;
+  // Weiß am Zug: Der Gegner (Schwarz) hat gezogen, in der Zugnummer davor.
+  return ex.turn === 'w' ? `${full - 1}...${ex.prev.san}` : `${full}.${ex.prev.san}`;
+}
+
 export function sideName(turn: 'w' | 'b'): string {
   return turn === 'w' ? 'Weiß' : 'Schwarz';
 }

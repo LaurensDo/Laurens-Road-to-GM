@@ -190,12 +190,74 @@ export const VOICES: Record<Sfx, Voice> = {
   },
 };
 
+// ---- Mixer: nie zwei Töne gleichzeitig
+
+/**
+ * Jeder Ton hat einen Rang und eine Regel für den Fall, dass gerade etwas klingt:
+ *   cut    unterbricht Leiseres (kurzes Ausblenden) und klingt sofort, bei Gleichrang oder Höherem wird verworfen
+ *   queue  reiht sich hinter dem Laufenden ein (Ergebnis-Töne nach dem Zugton)
+ *   drop   wird verworfen, außer es unterbricht etwas mit niedrigerem Rang
+ * len ist die hörbare Länge in Sekunden (die berechneten Töne klingen kürzer als ihre Hüllkurve).
+ */
+export interface Rule {
+  prio: number;
+  mode: 'cut' | 'queue' | 'drop';
+  len: number;
+}
+
+export const RULES: Record<Sfx, Rule> = {
+  ui: { prio: 1, mode: 'drop', len: 0.03 },
+  select: { prio: 2, mode: 'cut', len: 0.05 },
+  tick: { prio: 2, mode: 'drop', len: 0.04 },
+  start: { prio: 3, mode: 'drop', len: 0.06 },
+  tickLast: { prio: 3, mode: 'drop', len: 0.06 },
+  move: { prio: 4, mode: 'cut', len: 0.09 },
+  capture: { prio: 4, mode: 'cut', len: 0.12 },
+  illegal: { prio: 4, mode: 'cut', len: 0.18 },
+  slow: { prio: 5, mode: 'queue', len: 0.22 },
+  correct: { prio: 5, mode: 'queue', len: 0.34 },
+  wrong: { prio: 5, mode: 'queue', len: 0.34 },
+  timeUp: { prio: 6, mode: 'cut', len: 0.33 },
+  done: { prio: 6, mode: 'queue', len: 0.72 },
+};
+
+export interface Slot {
+  name: Sfx;
+  start: number; // Sekunden auf einer gemeinsamen Uhr
+  end: number;
+  prio: number;
+}
+
+export type Plan = { action: 'drop' } | { action: 'play'; start: number; end: number; cut: Slot[] };
+
+const LEAD = 0.005; // Vorlauf bis zum Beginn
+const GAP = 0.03; // Pause zwischen hintereinander eingereihten Tönen
+const MAX_WAIT = 0.9; // länger als das darf ein eingereihter Ton nicht warten
+const FADE = 0.012; // Ausblenden eines unterbrochenen Tons
+
+/** Entscheidet, ob und wann ein Ton klingt. Reine Funktion der Uhrzeit und der gerade belegten Zeitfenster. */
+export function plan(slots: readonly Slot[], name: Sfx, now: number): Plan {
+  const r = RULES[name];
+  const busy = slots.filter((s) => s.end > now);
+  if (!busy.length) return { action: 'play', start: now + LEAD, end: now + LEAD + r.len, cut: [] };
+  if (r.mode === 'queue') {
+    const start = Math.max(...busy.map((s) => s.end)) + GAP;
+    if (start - now > MAX_WAIT) return { action: 'drop' };
+    return { action: 'play', start, end: start + r.len, cut: [] };
+  }
+  const canCut = busy.every((s) => r.prio > s.prio || (r.mode === 'cut' && r.prio === s.prio));
+  if (!canCut) return { action: 'drop' };
+  const start = now + LEAD + FADE;
+  return { action: 'play', start, end: start + r.len, cut: [...busy] };
+}
+
 // ---- Wiedergabe
 
 const VOLUME = { 1: 0.5, 2: 0.9, 3: 1.3 } as const;
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
-const lastPlayed = new Map<Sfx, number>();
+type Live = Slot & { out?: GainNode };
+let slots: Live[] = [];
 
 type AudioSessionNav = Navigator & { audioSession?: { type: string } };
 
@@ -235,23 +297,40 @@ function applyAudioSession(ignoreMute: boolean) {
   }
 }
 
-/** Spielt einen Ton, sofern Ton an ist. Mehrfachauslösung desselben Tons innerhalb von 25 ms wird verschluckt. */
-export function play(name: Sfx, opts: { delay?: number; gain?: number } = {}): void {
+const clock = () => (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+
+/** Spielt einen Ton, sofern Ton an ist. Der Mixer sorgt dafür, dass sich keine zwei Töne überlagern. */
+export function play(name: Sfx, opts: { gain?: number } = {}): void {
   const p = getPrefs();
   if (!p.sound) return;
+  const now = clock();
+  slots = slots.filter((s) => s.end > now - 1);
+  const decision = plan(slots, name, now);
+  if (decision.action === 'drop') return;
   if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('road-sfx', { detail: name }));
+
   const c = ensureContext();
+  const slot: Live = { name, start: decision.start, end: decision.end, prio: RULES[name].prio };
+  for (const cut of decision.cut) {
+    const old = slots.find((s) => s === cut);
+    if (!old) continue;
+    // schon laufend: nach dem Ausblenden zu Ende. Noch nicht begonnen (eingereiht): gestrichen.
+    old.end = old.start >= decision.start ? old.start : Math.min(old.end, decision.start);
+    if (c && old.out) {
+      old.out.gain.cancelScheduledValues(c.currentTime);
+      old.out.gain.setTargetAtTime(0, c.currentTime, FADE / 3);
+    }
+  }
+  slots.push(slot);
   if (!c || !master) return;
   applyAudioSession(p.ignoreMute);
   if (c.state !== 'running') void c.resume().catch(() => undefined);
-  const now = performance.now();
-  if (now - (lastPlayed.get(name) ?? -1e9) < 25 && !opts.delay) return;
-  lastPlayed.set(name, now);
   const out = c.createGain();
   out.gain.value = VOLUME[p.volume] * (opts.gain ?? 1);
   out.connect(master);
+  slot.out = out;
   try {
-    VOICES[name](c, out, c.currentTime + 0.005 + (opts.delay ?? 0));
+    VOICES[name](c, out, c.currentTime + Math.max(0, decision.start - now));
   } catch {
     // Ton ist nie wichtig genug, um die App zu stören
   }

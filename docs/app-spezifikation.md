@@ -129,6 +129,9 @@ Feinschliff am bestehenden Umfang, vor Phase 2:
 - **Aufgabensätze:** feste Runde (5/10/15/20, Standard 10) mit Ergebnisseite und Einordnung nach festen Regeln. Satz pausieren und fortsetzen, vorzeitig beenden. Verlauf der Sätze unter Fortschritt, heutige Sätze unter Heute. Sätze laufen über den Abgleich auf beide Geräte.
 - **Töne:** Figur anklicken, Zug, Schlagzug, unzulässiger Zug, richtig, richtig aber langsam, falsch, Uhr (Start, Ticks in den letzten 3 Sekunden, Ablauf), Auswahl in der Oberfläche, Satz geschafft. Im Browser erzeugt (keine Dateien, keine Lizenzfragen). Nur pro Gerät einstellbar.
 - **Layouts:** iPhone quer (Brett links in voller Höhe, Erklärung rechts), iPad hoch (größeres Brett, größere Schrift), iPad quer (Brett links, Erklärung rechts, Karten in zwei Spalten). „Weiter“ steht in einer festen Leiste und ist ohne Scrollen erreichbar.
+- **Letzter Gegnerzug vor der Aufgabe:** wird gespielt und hervorgehoben, danach läuft die Zeit (abschaltbar). Entspricht dem Partieverhalten, in dem man immer zuerst den Zug des Gegners sieht. Der Maia-Richtwert wurde ohne Zugvorgeschichte berechnet und ist dadurch eher vorsichtig.
+- **Töne ohne Überlagerung:** ein Mixer sorgt dafür, dass immer nur ein Ton klingt (Rang und Regel je Ton).
+- **Brett-Markierungen:** gewähltes Feld, erlaubte Zielfelder, Schach und letzter Zug sind jetzt farbig. Das Brett-Thema von chessground war bisher nicht eingebunden.
 - Version 1 ist im Repo als Commit `edcae70` festgehalten (ein Tag `v1.0` konnte aus der Cloud-Sitzung nicht gepusht werden).
 
 Offen aus 1.1: Töne und Layouts sind nur im simulierten Browser geprüft (Pegel und Abläufe), nicht auf echten Geräten gehört.

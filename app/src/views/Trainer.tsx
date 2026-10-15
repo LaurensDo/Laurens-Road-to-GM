@@ -6,8 +6,8 @@ import type { Key } from 'chessground/types';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.cburnett.css';
 import type { Role, SquareName } from 'chessops/types';
-import { destsOf, isCapture, isPromotion, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
-import { explain, sideName } from '../lib/explain';
+import { destsOf, isCapture, isPromotion, lastSquares, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
+import { explain, lastMoveLabel, sideName } from '../lib/explain';
 import { dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
 import { gradeFor, judge, type Judgement } from '../lib/judge';
 import { counts, pickNext, type PickKind } from '../lib/queue';
@@ -84,6 +84,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
   const [setId, setSetId] = useState<string | null>(null);
   const [summary, setSummary] = useState<Finished | null>(null);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [live, setLive] = useState(false);
 
   const boardEl = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
@@ -97,8 +98,10 @@ export function Trainer({ exercises, byId, onExit }: Props) {
   const durDone = useRef(false);
   const dragOrig = useRef<string | null>(null);
   const moved = useRef(false);
+  const liveRef = useRef(false);
 
   phaseRef.current = phase;
+  liveRef.current = live;
   curRef.current = current?.ex ?? null;
 
   const setEntries = useMemo(
@@ -194,6 +197,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     act.served.push(next.ex.id);
     saveActive(act);
     lastShown.current = { id: next.ex.id, cat: next.ex.cat };
+    setLive(false);
     setFinished(false);
     setSummary(null);
     setCurrent(next);
@@ -222,7 +226,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
   // Töne bei Berührung des Bretts
   const onSelectSquare = (key: Key) => {
     const g = cg.current;
-    if (!g || phaseRef.current !== 'ask') return;
+    if (!g || phaseRef.current !== 'ask' || !liveRef.current) return;
     const dests = g.state.movable.dests;
     const prev = g.state.selected;
     if (dests?.has(key)) {
@@ -262,50 +266,71 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     };
   }, []);
 
-  // Brett aufbauen bzw. neue Aufgabe setzen
+  // Brett aufbauen bzw. neue Aufgabe setzen. Mit letztem Zug: erst die Stellung davor, dann der Zug des Gegners, dann wird freigegeben.
   useEffect(() => {
     const ex = current?.ex;
     if (!ex || !boardEl.current) return;
     const pos = positionOf(ex.fen);
     const color = ex.turn === 'w' ? 'white' : 'black';
-    const config = {
-      fen: ex.fen,
+    const last = getState().settings.showLast ? ex.prev : undefined;
+    const lastSq = last ? lastSquares(ex) : undefined;
+    const common = {
       orientation: color,
-      turnColor: color,
-      check: pos.isCheck(),
-      lastMove: undefined,
       coordinates: true,
       blockTouchScroll: true,
-      animation: { enabled: true, duration: 150 },
+      animation: { enabled: true, duration: 260 },
       highlight: { lastMove: true, check: true },
-      draggable: { enabled: true, showGhost: true },
-      selectable: { enabled: true },
       premovable: { enabled: false },
       drawable: { enabled: true, visible: true, autoShapes: [] as DrawShape[] },
       events: { select: (key: Key) => onSelectSquare(key) },
-      movable: {
-        free: false,
-        color,
-        dests: destsOf(pos) as never,
-        showDests: true,
-        events: { after: (orig: Key, dest: Key) => onUserMove(orig as SquareName, dest as SquareName) },
-      },
-    } as const;
-    if (!cg.current) {
-      cg.current = Chessground(boardEl.current, config as never);
-    } else {
-      cg.current.set(config as never);
-    }
+    };
+    const locked = {
+      turnColor: color === 'white' ? 'black' : 'white',
+      check: false,
+      lastMove: undefined,
+      draggable: { enabled: false },
+      selectable: { enabled: false },
+      movable: { free: false, color: undefined, dests: new Map(), events: { after: (orig: Key, dest: Key) => onUserMove(orig as SquareName, dest as SquareName) } },
+    };
+    const unlocked = {
+      turnColor: color,
+      check: pos.isCheck(),
+      lastMove: lastSq as never,
+      draggable: { enabled: true, showGhost: true },
+      selectable: { enabled: true },
+      movable: { free: false, color, dests: destsOf(pos) as never, showDests: true, events: { after: (orig: Key, dest: Key) => onUserMove(orig as SquareName, dest as SquareName) } },
+    };
     resultShapes.current = [];
-    shownAt.current = performance.now();
-    shownWall.current = Date.now();
-    if (startCue(getPrefs().timerSound, getState().settings.timeLimit)) play('start', { delay: 0.05 });
+    setLive(false);
+    const goLive = () => {
+      cg.current?.set({ ...unlocked, fen: ex.fen } as never);
+      shownAt.current = performance.now();
+      shownWall.current = Date.now();
+      setLive(true);
+      if (startCue(getPrefs().timerSound, getState().settings.timeLimit)) play('start');
+    };
+    const timers: number[] = [];
+    const start = last ? { ...common, ...locked, fen: last.board } : { ...common, ...unlocked, fen: ex.fen };
+    if (!cg.current) cg.current = Chessground(boardEl.current, start as never);
+    else cg.current.set(start as never);
+    if (last) {
+      timers.push(
+        window.setTimeout(() => {
+          play(last.san.includes('x') ? 'capture' : 'move');
+          cg.current?.set({ fen: ex.fen, lastMove: lastSq as never, turnColor: color, check: pos.isCheck() } as never);
+        }, 260),
+        window.setTimeout(goLive, 260 + 340),
+      );
+    } else {
+      goLive();
+    }
+    return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
-  // Zeitanzeige und Uhr-Töne
+  // Zeitanzeige und Uhr-Töne: Die Zeit läuft erst, wenn das Brett freigegeben ist
   useEffect(() => {
-    if (phase !== 'ask' || !current) return;
+    if (phase !== 'ask' || !current || !live) return;
     let lastSec = 0;
     const id = window.setInterval(() => {
       const el = performance.now() - shownAt.current;
@@ -319,15 +344,17 @@ export function Trainer({ exercises, byId, onExit }: Props) {
       }
     }, 100);
     return () => window.clearInterval(id);
-  }, [phase, current]);
+  }, [phase, current, live]);
 
   const lockBoard = () => {
     cg.current?.set({ movable: { color: undefined, dests: new Map() } as never, draggable: { enabled: false } });
   };
 
+  const shownLast = (e: Exercise | null) => (e && getState().settings.showLast ? lastSquares(e) : undefined) as never;
+
   const showShapes = (shapes: DrawShape[], resetFen?: string) => {
     resultShapes.current = shapes;
-    cg.current?.set({ ...(resetFen ? { fen: resetFen, lastMove: undefined } : {}), drawable: { autoShapes: shapes } } as never);
+    cg.current?.set({ ...(resetFen ? { fen: resetFen, lastMove: shownLast(curRef.current) } : {}), drawable: { autoShapes: shapes } } as never);
   };
 
   const record = (ex: Exercise, verdict: Verdict, grade: Grade, ms: number, san: string | null, judgement: Judgement | null) => {
@@ -356,7 +383,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     const pos = positionOf(ex.fen);
     const san = sanOfMove(pos, orig, dest, role);
     if (!san) {
-      cg.current?.set({ fen: ex.fen } as never);
+      cg.current?.set({ fen: ex.fen, lastMove: shownLast(ex) } as never);
       play('illegal');
       return;
     }
@@ -369,7 +396,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     if (j.verdict !== 'best') shapes.push(shape(bf, bt, 'green'));
     if (!j.correct) shapes.push(shape(orig, dest, j.verdict === 'playable' ? 'yellow' : 'red'));
     record(ex, j.verdict, grade, ms, san, j);
-    play(j.correct ? (grade === 2 ? 'slow' : 'correct') : 'wrong', { delay: 0.14 });
+    play(j.correct ? (grade === 2 ? 'slow' : 'correct') : 'wrong');
     if (j.correct) showShapes(shapes);
     else showShapes(shapes, ex.fen);
   };
@@ -400,7 +427,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     const ms = Math.round(performance.now() - shownAt.current);
     const [bf, bt] = uciSquares(ex.lines[0].uci);
     record(ex, 'gaveup', 1, ms, null, null);
-    play('wrong', { gain: 0.7, delay: 0.05 });
+    play('wrong', { gain: 0.7 });
     showShapes([shape(bf, bt, 'green')], ex.fen);
   };
 
@@ -469,7 +496,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
         play(tok.includes('x') ? 'capture' : 'move');
       }
     } else if (phase === 'result') {
-      cg.current.set({ fen: current.ex.fen, lastMove: undefined, drawable: { autoShapes: resultShapes.current } } as never);
+      cg.current.set({ fen: current.ex.fen, lastMove: shownLast(current.ex), drawable: { autoShapes: resultShapes.current } } as never);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pv?.line, pv?.step]);
@@ -560,9 +587,14 @@ export function Trainer({ exercises, byId, onExit }: Props) {
         <span class={`side ${ex.turn}`}>{sideName(ex.turn)} am Zug</span>
         <span class="tag">{KIND_TEXT[current!.kind]}</span>
         <span class="tag">{ex.phase}</span>
+        {settings.showLast && lastMoveLabel(ex) && (
+          <span class="tag last" title="Letzter Zug des Gegners">
+            Gegner: <b class="mono">{lastMoveLabel(ex)}</b>
+          </span>
+        )}
       </div>
 
-      <div class="board-wrap">
+      <div class="board-wrap" data-live={live ? '1' : '0'}>
         <div ref={boardEl} class="board" role="img" aria-label={`Schachstellung, ${sideName(ex.turn)} am Zug`} />
         {promo && (
           <div class="promo" role="dialog" aria-label="Umwandlung wählen">
@@ -589,7 +621,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
       {phase === 'ask' && (
         <div class="actions ask">
           <p class="muted small">Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.</p>
-          <button class="btn secondary" onClick={giveUp}>
+          <button class="btn secondary" onClick={giveUp} disabled={!live}>
             Lösung zeigen
           </button>
         </div>

@@ -105,6 +105,19 @@ export function Settings({ exercises, generated }: Props) {
           <p class="muted small">Richtig, aber langsamer als das Limit, gilt als schwer und kommt früher wieder.</p>
         </div>
         <div class="field">
+          <label>Letzter Zug des Gegners</label>
+          <Segmented
+            label="Letzter Zug des Gegners"
+            value={s.showLast ? 'an' : 'aus'}
+            options={[
+              { value: 'an', label: 'Zeigen' },
+              { value: 'aus', label: 'Nicht zeigen' },
+            ]}
+            onChange={(v) => set({ showLast: v === 'an' })}
+          />
+          <p class="muted small">Vor jeder Aufgabe wird der letzte Zug des Gegners gespielt und hervorgehoben, wie in einer echten Partie. Danach läuft die Zeit.</p>
+        </div>
+        <div class="field">
           <label>Gleichwertige Züge</label>
           <Segmented
             label="Gleichwertige Züge"
@@ -277,7 +290,7 @@ export function Settings({ exercises, generated }: Props) {
       <p class="muted small center">
         {n0(exercises.length)} Übungen · Datenstand {new Date(generated).toLocaleDateString('de-DE')}
         <br />
-        Road to GM · Version 1.1
+        Road to GM · Version 1.1 · Stand {new Date(__BUILD__).toLocaleString('de-DE', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}
       </p>
     </section>
   );

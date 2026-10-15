@@ -36,7 +36,7 @@ python analysis/build_exercises.py         # -> app/public/data/exercises.json u
 ```
 
 `solutions.py` rechnet nur Stellungen der Maia-Klassen *Leichtsinn* und *Nächste Stufe*, größte Fehler zuerst.
-`build_exercises.py` behält nur Stellungen, in denen die tiefe Suche den Fehler bestätigt (mindestens 15 Prozentpunkte)
+`build_exercises.py` ergänzt pro Übung den letzten Zug des Gegners (`prev`, aus `data/games_raw.jsonl`) und behält nur Stellungen, in denen die tiefe Suche den Fehler bestätigt (mindestens 15 Prozentpunkte)
 und der beste Zug noch mindestens 15 % Gewinnchance hat. Übungs-ID = Hash aus Partie und Stellung, damit der Fortschritt
 bei neuen Daten erhalten bleibt.
 

@@ -34,7 +34,7 @@ async function connectWith(d, repo, token) {
 async function solveFirstNew(d, ex) {
   await d.page.click('nav >> text=Heute');
   await d.page.click('text=/Satz starten|Satz fortsetzen/');
-  await d.page.waitForSelector('.board cg-board');
+  await d.page.waitForSelector('.board-wrap[data-live="1"]');
   await d.page.waitForTimeout(300);
   const white = ex.turn === 'w';
   const box = await d.page.locator('.board cg-board').boundingBox();
@@ -50,7 +50,7 @@ async function solveFirstNew(d, ex) {
   if (best.san.includes('=')) { await d.page.waitForSelector('.promo'); await d.page.click('.promo >> text=Dame'); }
   await d.page.waitForSelector('.result');
   await d.page.getByRole('button', { name: 'Weiter', exact: true }).click();
-  await d.page.waitForSelector('.board cg-board');
+  await d.page.waitForSelector('.board-wrap[data-live="1"]');
   await d.page.getByRole('button', { name: 'Training beenden' }).click();
   await d.page.getByRole('button', { name: 'Beenden und Ergebnis ansehen', exact: true }).click();
   await d.page.getByRole('button', { name: 'Für heute fertig', exact: true }).click();

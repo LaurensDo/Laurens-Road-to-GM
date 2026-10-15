@@ -55,12 +55,22 @@ Jede Antwort im Verlauf trägt `set: { id, n }`. Dadurch laufen Sätze automatis
 Änderung am Dateiformat. Nur der laufende Satz liegt lokal (`localStorage`, wird nach 6 Stunden nicht mehr fortgesetzt).
 Die Wiederholungsplanung (FSRS) bleibt unverändert, ein Satz zieht nur Aufgaben aus derselben Warteschlange.
 
+## Letzter Zug des Gegners
+
+Vor jeder Aufgabe zeigt das Brett erst die Stellung davor, spielt dann den letzten Gegnerzug (mit Zugton, Hervorhebung und
+Tag „Gegner: 26.Ne5+“) und gibt erst danach frei. **Die Zeit läuft erst ab der Freigabe.** Abschaltbar unter Training
+(„Letzter Zug des Gegners“). Die Daten stehen in `exercises.json` als `prev` (Figurenstellung davor, Zug als UCI und SAN) und
+stammen aus den Rohpartien (`analysis/build_exercises.py`, braucht `data/games_raw.jsonl`).
+
 ## Töne
 
 Die Töne entstehen im Browser (Web Audio): Rauschstöße und Sinustöne, keine Dateien. Das ist lizenzfrei und funktioniert offline.
 Die Holzklänge von lichess („Standard“) stehen laut `COPYING.md` unter „nicht frei“, die freien Reihen (AGPL) klingen nach
 Science-Fiction. Töne: Figur anklicken, Zug, Schlagzug, unzulässiger Zug, richtig, richtig aber langsam, falsch, Uhr (Start,
-Ticks in den letzten 3 Sekunden, Ablauf), Auswahl im Menü, Satz geschafft. Lautstärke, Uhr-Ton und Stummschalter gelten nur
+Ticks in den letzten 3 Sekunden, Ablauf), Auswahl im Menü, Satz geschafft. **Nie zwei Töne gleichzeitig:** `sound.ts` enthält einen kleinen Mixer. Jeder Ton hat einen Rang und eine Regel
+(unterbrechen, einreihen oder verwerfen). Ergebnis-Töne reihen sich hinter dem Zugton ein, Klick-Töne werden verschluckt,
+solange etwas klingt, ein Zugton unterbricht leisere Töne mit kurzem Ausblenden. Das ist als reine Funktion getestet,
+auch mit Zufallsfolgen (`tests/sound.test.ts`). Lautstärke, Uhr-Ton und Stummschalter gelten nur
 für das jeweilige Gerät (`device.ts`) und werden nicht abgeglichen. In den Einstellungen unter „Töne anhören“ lässt sich jeder
 Ton einzeln abspielen.
 

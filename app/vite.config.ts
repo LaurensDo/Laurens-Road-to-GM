@@ -7,6 +7,8 @@ const base = process.env.BASE ?? '/Laurens-Road-to-GM/';
 
 export default defineConfig({
   base,
+  // Zeitpunkt des Builds: steht in den Einstellungen, damit man sieht, ob die installierte App aktuell ist
+  define: { __BUILD__: JSON.stringify(new Date().toISOString()) },
   plugins: [
     preact(),
     VitePWA({
@@ -20,7 +22,7 @@ export default defineConfig({
         start_url: base,
         scope: base,
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'any',
         background_color: '#f4f6f4',
         theme_color: '#1d6b58',
         icons: [

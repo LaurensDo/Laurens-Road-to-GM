@@ -6,6 +6,9 @@ Aufruf:
 Liest  data/training_positions.json, data/solutions.jsonl, data/report.json
 Schreibt app/public/data/exercises.json und app/public/data/meta.json
 
+Pro Übung wird, wenn die Rohpartie vorliegt, der letzte Zug des Gegners mit dem Brett davor mitgegeben (prev),
+damit die App ihn vor der Aufgabe zeigen kann.
+
 Qualitätstor: Eine Stellung wird nur Übung, wenn die tiefe Suche den Fehler bestätigt
 (dein Zug mindestens 15 Prozentpunkte unter dem besten) und die Stellung nicht schon
 verloren ist (bester Zug mindestens 15 % Gewinnchance).
@@ -15,6 +18,8 @@ import hashlib
 import json
 import re
 from pathlib import Path
+
+import chess
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
@@ -47,11 +52,44 @@ def platform_of(url):
     return "lichess" if "lichess.org" in url else "chess.com"
 
 
+def load_moves():
+    """url -> Zugliste (UCI) aus den Rohpartien. Fehlt die Datei, gibt es keinen letzten Zug in der App."""
+    path = DATA / "games_raw.jsonl"
+    if not path.exists():
+        return {}
+    out = {}
+    with path.open() as f:
+        for line in f:
+            g = json.loads(line)
+            out[g["url"]] = [m[0] for m in g["moves"]]
+    return out
+
+
+def last_move(moves, fen):
+    """Letzter Zug vor der Stellung `fen` (Zug des Gegners): Brett davor, UCI und SAN. None, wenn nicht ermittelbar."""
+    board = chess.Board()
+    prev = None  # (Brett vor dem Zug, Zug)
+    for uci in moves:
+        if board.fen() == fen:
+            if prev is None:
+                return None  # Stellung vor dem ersten Zug der Partie
+            before, mv = prev
+            return {"board": before.board_fen(), "uci": mv.uci(), "san": before.san(mv)}
+        mv = chess.Move.from_uci(uci)
+        if mv not in board.legal_moves:
+            return None
+        prev = (board.copy(), mv)
+        board.push(mv)
+    return None
+
+
 def main():
     positions = {key_of(p): p for p in json.loads((DATA / "training_positions.json").read_text())}
     report = json.loads((DATA / "report.json").read_text())
 
+    games = load_moves()
     exercises, dropped = [], {"kein_fehler": 0, "verloren": 0, "ohne_lösung": 0}
+    no_prev = 0
     for line in (DATA / "solutions.jsonl").open():
         s = json.loads(line)
         p = positions.get(s["key"])
@@ -72,6 +110,9 @@ def main():
             dropped["verloren"] += 1
             continue
         white = " w " in p["fen"]
+        prev = last_move(games[p["url"]], p["fen"]) if p["url"] in games else None
+        if prev is None:
+            no_prev += 1
         exercises.append({
             "id": ex_id(s["key"]),
             "fen": p["fen"],
@@ -89,6 +130,7 @@ def main():
             "url": p["url"],
             "src": platform_of(p["url"]),
             "maia": {"me": p.get("p_best_me"), "up": p.get("p_best_up"), "cls": p.get("maia_class")},
+            **({"prev": prev} if prev else {}),
         })
     exercises.sort(key=lambda e: -e["loss"])
 
@@ -124,7 +166,7 @@ def main():
     }
     (OUT / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     size = (OUT / "exercises.json").stat().st_size
-    print(f"{len(exercises)} Übungen ({size // 1024} KB), verworfen: {dropped}")
+    print(f"{len(exercises)} Übungen ({size // 1024} KB), verworfen: {dropped}, ohne letzten Zug: {no_prev}")
 
 
 if __name__ == "__main__":

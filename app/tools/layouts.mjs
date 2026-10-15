@@ -23,8 +23,8 @@ for (const [name, vp] of Object.entries(FORMATS)) {
   await page.waitForSelector('text=Tagesration');
   await page.screenshot({ path: `${OUT}/${name}-1-heute.png` });
   await page.click('text=/Training starten|Weiter üben|Satz starten|Nächster Satz/');
-  await page.waitForSelector('.board cg-board');
-  await page.waitForTimeout(400);
+  await page.waitForSelector('.board-wrap[data-live="1"]');
+  await page.waitForTimeout(200);
   await page.screenshot({ path: `${OUT}/${name}-2-aufgabe.png` });
   await page.click('text=Lösung zeigen');
   await page.waitForSelector('.result');

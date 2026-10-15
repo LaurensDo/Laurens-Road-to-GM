@@ -58,6 +58,11 @@ export function uciSquares(uci: string): [SquareName, SquareName] {
   return [uci.slice(0, 2) as SquareName, uci.slice(2, 4) as SquareName];
 }
 
+/** Start- und Zielfeld des letzten Gegnerzugs für die Hervorhebung. */
+export function lastSquares(ex: { prev?: { uci: string } }): [SquareName, SquareName] | undefined {
+  return ex.prev ? uciSquares(ex.prev.uci) : undefined;
+}
+
 /** Schlägt dieser Zug etwas (auch en passant)? Für den Ton, bevor die Umwandlung gewählt ist. */
 export function isCapture(pos: Chess, orig: SquareName, dest: SquareName): boolean {
   const from = parseSquare(orig);
