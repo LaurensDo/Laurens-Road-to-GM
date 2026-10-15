@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { pickQuote, readTimeMs } from '../lib/quotes';
 import { currentBand } from '../lib/viewport';
-import { PawnMark } from './Mark';
+import { KingMark } from './Mark';
 
 /** Mindestdauer richtet sich nach der Länge des Spruchs (siehe readTimeMs). Tippen überspringt, sobald Daten und Stand geladen sind. */
 const FADE_MS = 380;
@@ -38,7 +38,7 @@ export function Splash({ ready, onDone }: { ready: boolean; onDone: () => void }
     <div id="splash" class={leaving ? 'leaving' : ''} data-ready={ready ? '1' : '0'} style={{ '--band': band } as never} onClick={leave} role="presentation">
       <div class="splash-pattern" aria-hidden="true" />
       <div class="splash-mark" aria-hidden="true">
-        <PawnMark />
+        <KingMark />
       </div>
       <blockquote class="splash-quote">
         <p>„{quote.text}“</p>

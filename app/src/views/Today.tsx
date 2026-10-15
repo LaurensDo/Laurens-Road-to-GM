@@ -1,6 +1,6 @@
 import { counts } from '../lib/queue';
 import { dayKey, n0, n1, pct } from '../lib/format';
-import { PawnMark } from './Mark';
+import { KingMark } from './Mark';
 import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
@@ -33,7 +33,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
     <section class="screen">
       <header class="hero">
         <div class="hero-bg" aria-hidden="true" />
-        <PawnMark class="hero-pawn" />
+        <KingMark class="hero-mark" />
         <div class="hero-body">
           <div class="eyebrow">Road to GM</div>
           <h1>Heute</h1>

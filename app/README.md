@@ -28,7 +28,7 @@ npm run dev          # lokal mit Neuladen
 npm test             # Unit-Tests (Wertung, Wiederholung, Warteschlange, Schach-Regeln)
 npm run typecheck
 npm run build        # Produktions-Build nach dist/
-node tools/make-icons.mjs   # App-Symbole neu erzeugen
+node tools/brand.mjs        # Marke neu erzeugen: Brettfiguren, Startbild-Zeichen, App-Symbole
 ```
 
 Ende-zu-Ende-Tests (Chromium über Playwright):
@@ -77,6 +77,15 @@ Geräte: Eintrag in `DEVICES` im Skript und eine `<link>`-Zeile in `index.html`.
 **Anzeige-Info** (Einstellungen, ganz unten): Fenstergröße, sichtbarer Bereich, Sicherheitsränder, Modus und ein Verlauf der
 Fenstergröße seit dem Start. Eine kleine Messung im `<head>` von `index.html` schreibt schon vor Stil und App mit (Fenster, außen, Position, Zeitpunkte, erstes Zeichnen) und erscheint ebenfalls dort. Zur Fehlersuche bei Darstellungsproblemen auf dem iPad (z. B. Startbild im Querformat nicht mittig:
 im Testbrowser ist es in jeder Größe exakt mittig, das Verhalten von iPadOS ist von hier nicht nachstellbar).
+
+## Marke: Big Dog
+
+App-Symbol und Startbild zeigen den Bulldoggen-König (schwarz, heller Rand, goldene Krone und Stachelhalsband). Auf dem Brett
+sind Bauer (Bulldogge ohne Krone) und König (mit Krone) in Weiß und Schwarz ersetzt, die übrigen Figuren bleiben klassisch
+(cburnett). Alles entsteht aus einer Quelle: `tools/brand.mjs` schreibt `src/assets/pieces/{wP,bP,wK,bK}.svg`,
+`src/assets/brand/king.svg` und `public/icons/*`. Die Entwürfe und Alternativen liegen in `design/logo-optionen/`.
+Nach einer Änderung auch die iOS-Startbilder neu erzeugen (`tools/make-launch-images.mjs`). Ein neues Symbol auf dem
+Home-Bildschirm erscheint erst, wenn die App dort neu hinzugefügt wird.
 
 ## Letzter Zug des Gegners
 
