@@ -93,6 +93,22 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 
 Billig zu ändern: Texte, Farben, Reihenfolge der Bereiche, Namen, Anzahl der Aufgaben pro Tag.
 
+## 8a. Perspektive: Partie-Review und Claude-Kommentar (Entwurf, nicht abgestimmt)
+
+Idee: Nach einer Partie sofort eine persönliche Analyse. Aufgeteilt in drei Stufen:
+
+1. **Partie-Review in der App (Empfehlung, Version 2).** Du spielst weiter auf chess.com oder lichess. In der App tippst du auf „Letzte Partie holen“. Die Partien kommen direkt aus den öffentlichen Schnittstellen (am 15.10.2026 geprüft: lichess, chess.com, Endspieldatenbank und Explorer erlauben Abrufe aus dem Browser, CORS ist offen). Stockfish auf dem Handy bewertet die Partie, die App zeigt Zeitverlauf gegen das Zeitbudget, die drei wichtigsten Fehler mit Motiv und legt neue Fehlerstellungen im Trainer an. Läuft nur bei geöffneter App (iOS rechnet nicht im Hintergrund), grob 1 bis 2 Minuten pro Partie (noch zu messen). Kosten: keine.
+2. **Claude-Kommentar (Entscheidung später).**
+   - Variante A: auf Zuruf im Chat. Die App erzeugt eine Zusammenfassung der Partie zum Einfügen. Keine Zusatzkosten, nicht sofort.
+   - Variante B: in der App über die Claude-API. Braucht ein eigenes API-Konto und einen Schlüssel auf dem Gerät, dazu Ausgabenlimit. Grob 1 bis 4 Cent pro Partie je nach Modell (Preisliste vom 06.10.2026, ohne Denk-Token). Der Kommentar bekommt Engine-Linien und Motive als Fakten und formuliert nur. Jeder genannte Zug wird automatisch auf Legalität geprüft, der Kommentar ist als KI-Text gekennzeichnet.
+3. **Spielen in der App.** Nur gegen Bots für gezielte Drills (Gewinn-Drill, später evtl. Maia als menschlicher Sparringspartner). Kein Ersatz für chess.com oder lichess: chess.com bietet keine Schnittstelle zum Spielen, lichess hat eine, aber ein Blitz-Client mit Premoves, Wiederverbindung und Uhr wäre ein eigenes großes Projekt.
+
+Schon jetzt festgelegt, damit später nichts umgebaut werden muss:
+- Die Analyse ist ein eigenes Modul („Partie analysieren“), das Trainer und Review gemeinsam nutzen.
+- Das Datenformat hat ein Feld für Kommentare (pro Partie und pro Stellung).
+- Partien werden mit Zügen und Uhrzeiten gespeichert.
+- Analyse nur für beendete Partien, nie während einer laufenden.
+
 ## 9. Abgestimmte Entscheidungen (15.10.2026)
 
 - Hosting: GitHub Pages mit öffentlichem Repo. ✔
