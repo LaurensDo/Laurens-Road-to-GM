@@ -55,12 +55,18 @@ Jede Antwort im Verlauf trägt `set: { id, n }`. Dadurch laufen Sätze automatis
 Änderung am Dateiformat. Nur der laufende Satz liegt lokal (`localStorage`, wird nach 6 Stunden nicht mehr fortgesetzt).
 Die Wiederholungsplanung (FSRS) bleibt unverändert, ein Satz zieht nur Aufgaben aus derselben Warteschlange.
 
-## Start: Startbild und Begrüßung
+## Start: Startbild mit Zitat
 
-Beim Öffnen der App erscheint ein Startbild (Bauer, „Road to GM“, Gruß mit Tageszeit und Serie). Es bleibt, bis Daten und Stand geladen
-sind, mindestens 1,3 Sekunden, Tippen überspringt es. Abschaltbar unter Einstellungen → Darstellung → „Startbild“ (gilt nur für
-das Gerät). `Heute` beginnt mit einer Begrüßungsfläche (Tageszeit-Gruß, Serie, Tagesration, Kennzahlen, Hauptknopf) statt einer
-Reihe gleichartiger Karten. Die Startfarbe steht schon in `index.html`, damit beim Öffnen nichts weiß aufblitzt.
+Beim Öffnen erscheint ein Startbild mit einem Schach-Zitat, als Urheber steht „Big Dog“ (`src/lib/quotes.ts`, 28 Zitate sinngemäß
+ins Deutsche übertragen). Die Zitate werden gemischt und komplett durchlaufen, bevor sich eines wiederholt (Reihenfolge in
+`localStorage`, nur auf dem Gerät). Das Startbild bleibt mindestens 2,8 Sekunden (gut 1 s Einblenden, dann Lesezeit), solange
+Daten und Stand nicht geladen sind auch länger. Tippen überspringt es. Abschaltbar unter Einstellungen → Darstellung → „Startbild“.
+`Heute` beginnt mit einer dunkelgrünen Fläche (Fortschritt, Kennzahlen, Hauptknopf) statt einer Reihe gleichartiger Karten. Die
+Startfarbe steht schon in `index.html`, damit beim Öffnen nichts weiß aufblitzt.
+
+**Anzeige-Info** (Einstellungen, ganz unten): Fenstergröße, sichtbarer Bereich, Sicherheitsränder, Modus und ein Verlauf der
+Fenstergröße seit dem Start. Zur Fehlersuche bei Darstellungsproblemen auf dem iPad (z. B. Startbild im Querformat nicht mittig:
+im Testbrowser ist es in jeder Größe exakt mittig, das Verhalten von iPadOS ist von hier nicht nachstellbar).
 
 ## Letzter Zug des Gegners
 

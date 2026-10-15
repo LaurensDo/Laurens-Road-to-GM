@@ -346,11 +346,15 @@ cg-board square.check { background: radial-gradient(ellipse at center, rgba(231,
   color: var(--hero-ink); opacity: 1; transition: opacity 0.38s ease; cursor: pointer;
 }
 #splash.leaving { opacity: 0; pointer-events: none; }
-.splash-pattern { position: absolute; inset: 0; background-image: conic-gradient(rgba(255, 255, 255, 0.05) 0 25%, transparent 0 50%, rgba(255, 255, 255, 0.05) 0 75%, transparent 0); background-size: 104px 104px; -webkit-mask-image: radial-gradient(75% 62% at 50% 44%, #000 0%, transparent 82%); mask-image: radial-gradient(75% 62% at 50% 44%, #000 0%, transparent 82%); }
-.splash-center { position: relative; display: grid; justify-items: center; gap: 10px; padding: 24px; }
-.splash-mark { width: 112px; height: 112px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, rgba(159, 224, 200, 0.18), rgba(159, 224, 200, 0) 70%); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14) inset; color: var(--hero-ink); animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.splash-mark svg { width: 64px; height: 64px; }
-.splash-title { font: 700 2.5rem/1.1 var(--font-display); letter-spacing: 0.01em; margin-top: 8px; animation: rise 0.7s 0.12s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.splash-tag { color: var(--hero-muted); font-size: 1.02rem; animation: rise 0.7s 0.24s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.splash-greet { margin-top: 18px; font: 500 0.88rem var(--font-mono); letter-spacing: 0.04em; color: rgba(234, 244, 239, 0.62); animation: rise 0.7s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-pattern { position: absolute; inset: 0; background-image: conic-gradient(rgba(255, 255, 255, 0.05) 0 25%, transparent 0 50%, rgba(255, 255, 255, 0.05) 0 75%, transparent 0); background-size: 104px 104px; -webkit-mask-image: radial-gradient(75% 62% at 50% 50%, #000 0%, transparent 82%); mask-image: radial-gradient(75% 62% at 50% 50%, #000 0%, transparent 82%); }
+.splash-center { position: relative; display: grid; justify-items: center; gap: 22px; padding: 24px 28px; max-width: 34rem; }
+.splash-mark { width: 84px; height: 84px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, rgba(159, 224, 200, 0.18), rgba(159, 224, 200, 0) 70%); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14) inset; color: var(--hero-ink); animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-mark svg { width: 48px; height: 48px; }
+.splash-quote { margin: 0; display: grid; gap: 16px; }
+.splash-quote p { margin: 0; font: 600 1.5rem/1.35 var(--font-display); text-wrap: balance; animation: rise 0.7s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-author { font: 500 0.85rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hero-muted); animation: rise 0.7s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-author::before { content: '— '; }
+.splash-foot { position: absolute; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); color: rgba(234, 244, 239, 0.5); animation: rise 0.7s 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@media (min-width: 700px) { .splash-quote p { font-size: 2rem; } .splash-center { gap: 30px; max-width: 44rem; } .splash-mark { width: 96px; height: 96px; } .splash-mark svg { width: 56px; height: 56px; } }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.diag { margin: 8px 0 0; font: 400 0.75rem/1.5 var(--font-mono); white-space: pre-wrap; word-break: break-word; color: var(--ink-2); }

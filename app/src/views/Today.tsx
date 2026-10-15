@@ -1,8 +1,8 @@
 import { counts } from '../lib/queue';
-import { dayKey, greeting, n0, n1, pct } from '../lib/format';
+import { dayKey, n0, n1, pct } from '../lib/format';
 import { PawnMark } from './Mark';
 import { listSets, loadActive, rateOf } from '../lib/sets';
-import { streak, today } from '../lib/stats';
+import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
 import { SyncBadge } from './SyncCard';
 import type { Exercise, Meta } from '../lib/types';
@@ -19,7 +19,6 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
   const now = new Date();
   const c = counts(exercises, state, now);
   const t = today(state.log, now);
-  const days = streak(state.log, now);
   const goal = state.settings.goalMinutes;
   const done = Math.min(1, t.minutes / goal);
   const available = c.due + c.learning + c.newAvailable;
@@ -37,8 +36,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
         <PawnMark class="hero-pawn" />
         <div class="hero-body">
           <div class="eyebrow">Road to GM</div>
-          <h1>{greeting(now.getHours())}</h1>
-          <p class="hero-sub">{days > 0 ? `Serie: ${n0(days)} ${days === 1 ? 'Tag' : 'Tage'}. Bleib dran.` : 'Heute geht es los.'}</p>
+          <h1>Heute</h1>
           <div class="hero-prog">
             <div class="bar big" role="progressbar" aria-valuenow={Math.round(done * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Fortschritt der Tagesration">
               <i style={{ width: `${done * 100}%` }} />

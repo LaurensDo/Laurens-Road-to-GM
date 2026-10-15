@@ -48,12 +48,31 @@ const chooseSetSize = async (n) => {
 await page.goto(BASE, { waitUntil: 'commit' });
 await page.waitForSelector('#splash');
 ok(true, 'Startbild erscheint beim Öffnen');
-await page.waitForFunction(() => (document.querySelector('#splash .splash-greet')?.textContent ?? '').trim().length > 0);
+await page.waitForSelector('#splash[data-ready="1"]');
+await page.waitForTimeout(1300);
 await page.screenshot({ path: `${OUT}/0-startbild.png` });
+ok((await page.textContent('#splash .splash-quote p')).length > 10 && /Big Dog/.test(await page.textContent('#splash .splash-author')), 'Startbild zeigt ein Zitat von Big Dog');
 await page.mouse.click(200, 400);
 await page.waitForSelector('#splash', { state: 'detached', timeout: 2000 });
 ok(true, 'Tippen überspringt das Startbild');
-ok(/Guten (Morgen|Tag|Abend)/.test(await page.textContent('.hero h1')), 'Begrüßung auf Heute');
+ok(await page.locator('.hero h1').textContent() === 'Heute' && await page.locator('.hero-sub').count() === 0, 'Heute ohne Begrüßung und Serie');
+{
+  // Mindestdauer und Zitatwechsel: zwei weitere Starts ohne Tippen
+  const seen = new Set();
+  for (let i = 0; i < 2; i++) {
+    const c2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const q = await c2.newPage();
+    const t0 = Date.now();
+    await q.goto(BASE, { waitUntil: 'commit' });
+    await q.waitForSelector('#splash .splash-quote p');
+    seen.add(await q.textContent('#splash .splash-quote p'));
+    await q.waitForSelector('#splash', { state: 'detached', timeout: 8000 });
+    const dt = Date.now() - t0;
+    ok(dt >= 2600 && dt <= 6000, `Startbild bleibt ohne Tippen etwa ${(dt / 1000).toFixed(1)} s sichtbar`);
+    await c2.close();
+  }
+  ok(seen.size >= 1, 'Startbild zeigt bei jedem Start ein Zitat');
+}
 
 // ---- Heute und Satzgröße
 await page.waitForSelector('.hero');
@@ -230,6 +249,14 @@ await page.locator('nav').getByText('Einstellungen').click();
 await page.waitForSelector('text=Sicherung');
 ok(await page.locator('text=Ausgeblendete Aufgaben').count() === 1, 'Ausgeblendete Aufgabe wird in den Einstellungen gezählt');
 await page.screenshot({ path: `${OUT}/7-einstellungen.png`, fullPage: true });
+
+// ---- Anzeige-Info
+await page.click('text=Anzeige-Info (bei Darstellungsproblemen)');
+await page.waitForFunction(() => /Fenster jetzt/.test(document.querySelector('.diag')?.textContent ?? ''));
+{
+  const d = await page.textContent('.diag');
+  ok(/Verlauf seit dem Start/.test(d) && /Sicherheitsränder/.test(d), 'Anzeige-Info zeigt Fenster, Ränder und den Verlauf seit dem Start');
+}
 
 // ---- Ton-Einstellungen
 await page.click('text=Töne anhören');

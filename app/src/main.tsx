@@ -8,5 +8,7 @@ import '@fontsource/ibm-plex-mono/latin-400.css';
 import '@fontsource/ibm-plex-mono/latin-500.css';
 import './styles.css';
 import { App } from './app';
+import { startDiag } from './lib/diag';
 
+startDiag();
 render(<App />, document.getElementById('app')!);

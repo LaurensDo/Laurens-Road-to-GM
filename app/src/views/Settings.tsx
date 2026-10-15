@@ -6,6 +6,7 @@ import { SoundCard } from './SoundCard';
 import { setPrefs, usePrefs } from '../lib/device';
 import { SyncCard } from './SyncCard';
 import { saveActive } from '../lib/sets';
+import { diagText } from '../lib/diag';
 import { n0 } from '../lib/format';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
@@ -22,6 +23,7 @@ export function Settings({ exercises, generated }: Props) {
   const [showText, setShowText] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const prefs = usePrefs();
+  const [diag, setDiag] = useState('');
 
   const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
@@ -301,6 +303,14 @@ export function Settings({ exercises, generated }: Props) {
           </div>
         )}
       </div>
+
+      <details class="howto" data-nosound onToggle={(e) => (e.currentTarget as HTMLDetailsElement).open && setDiag(diagText())}>
+        <summary>Anzeige-Info (bei Darstellungsproblemen)</summary>
+        <pre class="diag">{diag}</pre>
+        <button class="btn secondary" onClick={() => void navigator.clipboard?.writeText(diag).catch(() => undefined)}>
+          Kopieren
+        </button>
+      </details>
 
       <p class="muted small center">
         {n0(exercises.length)} Übungen · Datenstand {new Date(generated).toLocaleDateString('de-DE')}

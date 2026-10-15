@@ -247,17 +247,3 @@ describe('Satz-Markierung im Abgleich', () => {
   });
 });
 
-describe('Begrüßung', () => {
-  it('nach Tageszeit', async () => {
-    const { greeting } = await import('../src/lib/format');
-    expect([4, 5, 10, 11, 17, 18, 23].map(greeting)).toEqual([
-      'Guten Abend',
-      'Guten Morgen',
-      'Guten Morgen',
-      'Guten Tag',
-      'Guten Tag',
-      'Guten Abend',
-      'Guten Abend',
-    ]);
-  });
-});
