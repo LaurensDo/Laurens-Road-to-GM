@@ -715,31 +715,30 @@ def main():
     leaks.sort(key=lambda x: -x["total_loss"])
     report["opening_leaks"] = leaks[:20]
 
-    # ---- Endspiele
-    eg = collections.defaultdict(list)
-    for g in games:
-        entry = next((r for r in g["recs"] if "eg_type" in r and r["mover_is_me"]), None)
-        if entry:
-            eg[entry["eg_type"]].append((g, entry))
+    # ---- Endspiele: jeder Endspielzug nach Typ, du vs. Gegner
+    def eg_stats(recs):
+        nt = [r for r in recs if not r["time_trouble"]]
+        return {
+            "moves": len(recs),
+            "blunders_no_tt": round(100 * sum(1 for r in nt if r["loss"] >= BLUNDER) / len(nt), 2) if nt else None,
+            "avg_loss_no_tt": round(st.mean(r["loss"] for r in nt), 2) if nt else None,
+            "tt_share": pct(len(recs) - len(nt), len(recs)),
+        }
+
     eg_rows = []
-    for t, items in eg.items():
-        gs = [g for g, _ in items]
-        exp_score = st.mean(e["wp_before"] / 100 for _, e in items)
-        act = st.mean(g["result"] for g in gs)
-        eg_recs = [r for g in gs for r in g["recs"] if r["mover_is_me"] and "eg_type" in r]
-        eg_rows.append({
-            "type": t, "n": len(gs), "expected": round(exp_score, 3), "actual": round(act, 3),
-            "diff": round(act - exp_score, 3),
-            "timeouts": sum(1 for g in gs if g["result"] == 0 and g["termination"] in ("timeout", "outoftime")),
-            "blunders_per_100": round(100 * sum(1 for r in eg_recs if r["loss"] >= BLUNDER) / len(eg_recs), 2) if eg_recs else None,
-            "tt_share": pct(sum(1 for r in eg_recs if r["time_trouble"]), len(eg_recs)),
-        })
-    eg_rows.sort(key=lambda r: -r["n"])
+    for t in sorted({r["eg_type"] for r in my_recs if "eg_type" in r}):
+        mine = [r for r in my_recs if r.get("eg_type") == t]
+        theirs = [r for r in opp_recs if r.get("eg_type") == t]
+        if len(mine) < 200:
+            continue
+        eg_rows.append({"type": t, "me": eg_stats(mine), "opp": eg_stats(theirs),
+                        "games": len({id(g) for g in games for r in g["recs"] if r.get("eg_type") == t and r["mover_is_me"]})})
+    eg_rows.sort(key=lambda r: -r["me"]["moves"])
     report["endgames"] = eg_rows
     eg_me = [r for r in my_recs if r["phase"] == "Endspiel"]
     eg_opp = [r for r in opp_recs if r["phase"] == "Endspiel"]
     report["endgame_overall"] = {
-        "games_reaching": sum(len(v) for v in eg.values()),
+        "games_reaching": sum(1 for g in games if any("eg_type" in r for r in g["recs"])),
         "me_blunders_per_100_no_tt": pct(sum(1 for r in eg_me if r["loss"] >= BLUNDER and not r["time_trouble"]),
                                          sum(1 for r in eg_me if not r["time_trouble"])),
         "me_blunders_per_100_tt": pct(sum(1 for r in eg_me if r["loss"] >= BLUNDER and r["time_trouble"]),
@@ -784,7 +783,11 @@ def main():
         drawn_games = {(k["platform"], k["id"]) for k in known if k["vb"] == 0} - won_games
         nt = [k for k in known if not k["tt"]]
         tt = [k for k in known if k["tt"]]
-        ex = sorted([k for k in errs if k["clock"] >= 15 and k["best"]], key=lambda k: k["date"], reverse=True)
+        ex, seen_games = [], set()
+        for k in sorted([k for k in errs if k["clock"] >= 15 and k["best"]], key=lambda k: k["date"], reverse=True):
+            if k["url"] not in seen_games:
+                seen_games.add(k["url"])
+                ex.append(k)
         report["tablebase"] = {
             "games": len({(k["platform"], k["id"]) for k in known}),
             "moves": len(known),

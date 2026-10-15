@@ -106,7 +106,7 @@ td.n, th.n { text-align: right; font-family: var(--font-mono); font-variant-nume
 
 /* Bretter */
 .boards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 24px; }
-.pos { display: grid; gap: 10px; align-content: start; }
+.poscard { display: grid; gap: 10px; align-content: start; }
 .board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 300px; aspect-ratio: 1; border: 1px solid var(--ink-2); border-radius: 3px; overflow: hidden; }
 .sq { position: relative; display: grid; place-items: center; font-size: clamp(16px, 6.4vw, 30px); line-height: 1; }
 .sq.l { background: var(--sq-light); }
@@ -134,6 +134,7 @@ td.n, th.n { text-align: right; font-family: var(--font-mono); font-variant-nume
 
 #tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .8rem; padding: 6px 9px; border-radius: 6px; max-width: 260px; z-index: 10; line-height: 1.35; }
 #tip[hidden] { display: none; }
+a { color: var(--accent); text-underline-offset: 2px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 520px) {
   body { font-size: 15px; padding-block: 20px 48px; }
@@ -225,9 +226,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
       </div>
     </div>
     <div class="figure">
-      <h3>Kritische Stellungen: Wie lange denkst du nach?</h3>
-      <div class="chart" id="c-crit"></div>
-      <div class="cap" id="crit-cap">Kritisch = nur ein Zug hält die Stellung, der zweitbeste ist mindestens 20 Prozentpunkte schlechter. Ohne Zeitnot.</div>
+      <h3>Bedenkzeit pro Zug nach Phase</h3>
+      <div class="chart" id="c-spent"></div>
+      <div class="cap">Durchschnitt in Sekunden, nur Züge außerhalb der Zeitnot.</div>
     </div>
   </section>
 
@@ -258,7 +259,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
     <div class="figure">
       <h3>Endspieltypen</h3>
       <div class="tablewrap"><table id="t-eg"></table></div>
-      <div class="cap">Erwartet = Gewinnchance beim Eintritt ins Endspiel. Erreicht = tatsächliches Ergebnis.</div>
+      <div class="cap">Jeder Endspielzug nach dem Material auf dem Brett. Patzer pro 100 Züge ohne Zeitnot. Rot = mindestens 15 % schlechter als deine Gegner, grün = mindestens 15 % besser.</div>
     </div>
     <div class="figure" id="tb-block">
       <h3>Geprüft mit der Endspieldatenbank (bis 7 Steine)</h3>
@@ -270,7 +271,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 
   <section>
     <div class="section-head">
-      <div class="eyebrow">Typische Fehler</div>
+      <div class="eyebrow">Taktik</div>
       <h2>So sehen deine Fehler aus</h2>
       <p class="lede" id="motif-lede"></p>
     </div>
@@ -354,6 +355,8 @@ const el = (tag, attrs = {}, parent) => {
   if (parent) parent.appendChild(e);
   return e;
 };
+const GENERIC = new Set(["Verteidigungszug", "Stiller Zug", "Vorgerückter Bauer", "Ungeschützter König", "Königsangriff"]);
+const firstMotif = (xs) => (xs || []).find((m) => !GENERIC.has(m));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 /* Tooltip */
@@ -423,7 +426,9 @@ function lines(id, xs, series, { yfmt = (v) => de(v), xfmt = (v) => v, height = 
     el("line", { x1: L, x2: W - Rp, y1: y(t), y2: y(t), class: "grid" }, svg);
     el("text", { x: L - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = yfmt(t);
   });
-  const xt = xs.length <= 10 ? xs.map((_, i) => i) : [0, Math.round((xs.length - 1) / 3), Math.round((2 * (xs.length - 1)) / 3), xs.length - 1];
+  const maxT = Math.max(2, Math.floor((W - L - Rp) / 64));
+  const xt = xs.length <= maxT ? xs.map((_, i) => i)
+    : Array.from({ length: Math.min(maxT, 4) }, (_, k) => Math.round((k * (xs.length - 1)) / (Math.min(maxT, 4) - 1)));
   xt.forEach((i) => { el("text", { x: x(i), y: H - 8, "text-anchor": "middle" }, svg).textContent = xfmt(xs[i]); });
   if (xlabel) el("text", { x: W - Rp, y: H - 8, "text-anchor": "end" }, svg);
   series.forEach((s) => {
@@ -559,11 +564,9 @@ function render() {
     { name: "Gegner", values: cc.map(([, v]) => v.opp), color: "var(--ref)" },
   ], { xfmt: (v) => "Zug " + v, yfmt: (v) => de(v) + " s", ymin: 0, ymax: 180 });
   pairbars("c-clockbl", R.blunder_by_clock.map((b) => ({ label: b.bucket + " Restzeit", me: b.me, opp: b.opp })), (v) => pctf(v, 1));
-  hbars("c-crit", R.critical_by_spent.map((b) => ({
-    label: "Bedenkzeit " + b.bucket, v: b.mistake_rate,
-    tip: `${de(b.n)} kritische Stellungen (${pctf(b.share_of_critical, 0)})<br>Fehlerquote ${pctf(b.mistake_rate, 1)}`,
-  })), { fmt: (v) => pctf(v, 0) });
-  document.getElementById("crit-cap").innerHTML += " " + F.crit_cap;
+  pairbars("c-spent", ["Eröffnung", "Mittelspiel", "Endspiel"].map((ph) => ({
+    label: ph, me: R.time_use.by_phase[ph].avg, opp: R.time_use.opp_by_phase[ph].avg,
+  })), (v) => de(v, 1) + " s");
 
   // Eröffnungen
   document.getElementById("open-lede").innerHTML = F.open_lede;
@@ -576,7 +579,7 @@ function render() {
       return `<tr><td>${esc(f.family)}</td><td>${f.color === "white" ? "Weiß" : "Schwarz"}</td><td class="n">${de(f.n)}</td><td class="n">${pctf(f.score * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(f.resid * 100, 0)} %</span></td><td class="n"><span class="chip ${wcls}">${pctf(f.wp_move12, 0)}</span></td></tr>`;
     }).join("") + "</tbody>";
   document.getElementById("b-leaks").innerHTML = R.opening_leaks.slice(0, 6).map((l) => `
-    <div class="pos">${boardHTML(l.fen, l.color === "black", marksFor(l.played_uci, l.best_uci))}
+    <div class="poscard">${boardHTML(l.fen, l.color === "black", marksFor(l.played_uci, l.best_uci))}
       <div class="posinfo">
         <div class="muted">${esc(l.opening || "")} · Zug ${l.fullmove} · ${l.color === "white" ? "Weiß" : "Schwarz"}</div>
         <div>Du spielst <span class="mv bad">${l.played.map(([m, n]) => `${esc(m)} (${n}×)`).join(", ")}</span></div>
@@ -588,17 +591,19 @@ function render() {
   document.getElementById("eg-lede").innerHTML = F.eg_lede;
   const cv = R.conversion, eo = R.endgame_overall;
   document.getElementById("conv-stats").innerHTML = [
-    [pctf(cv.winning_90.win, 0), "Gewinnstellungen verwertet", `Gegner: ${pctf(cv.opp_winning_90.win, 0)} · ${de(cv.winning_90.n)} Partien mit 90 % Gewinnchance`],
-    [pctf(cv.losing_10.win + cv.losing_10.draw, 0), "Verluststellungen gerettet", `${de(cv.losing_10.n)} Partien mit unter 10 % Gewinnchance`],
+    [pctf(cv.winning_90.win, 0), "Gewinnstellungen verwertet", `Gegner: ${pctf(cv.opp_winning_90.win, 0)} · ${de(cv.winning_90.n)} Partien mit mindestens 90 % Gewinnchance`],
+    [de(cv.winning_90.loss_on_time) + " / " + de(Math.round(cv.winning_90.n * cv.winning_90.loss / 100)), "verlorene Gewinnstellungen gingen auf Zeit verloren", "der Rest durch Fehler am Brett"],
+    [pctf(eo.me_tt_share, 0), "deiner Endspielzüge spielst du in Zeitnot", `Gegner: ${pctf(eo.opp_tt_share, 0)}`],
     [de(eo.me_blunders_per_100_no_tt, 1), "Patzer pro 100 Endspielzüge ohne Zeitnot", `Gegner: ${de(eo.opp_blunders_per_100_no_tt, 1)}`],
-    [de(eo.me_blunders_per_100_tt, 1), "Patzer pro 100 Endspielzüge in Zeitnot", `Gegner: ${de(eo.opp_blunders_per_100_tt, 1)}`],
   ].map(([b, l, s]) => `<div class="stat"><div class="big num">${b}</div><div class="lbl">${l}</div><div class="sub">${s}</div></div>`).join("");
+  const cmpChip = (me, opp, lowerIsBetter = true) => {
+    const d = (me - opp) / Math.max(opp, 0.01);
+    const bad = lowerIsBetter ? d >= 0.15 : d <= -0.15, good = lowerIsBetter ? d <= -0.15 : d >= 0.15;
+    return `<span class="chip ${bad ? "neg" : good ? "pos" : "neu"}">${de(me, 1)}</span>`;
+  };
   document.getElementById("t-eg").innerHTML =
-    `<thead><tr><th>Typ</th><th class="n">Partien</th><th class="n">Erwartet</th><th class="n">Erreicht</th><th class="n">Differenz</th><th class="n">Zeitverluste</th><th class="n">Züge in Zeitnot</th></tr></thead><tbody>` +
-    R.endgames.filter((e) => e.n >= 10).map((e) => {
-      const cls = e.diff <= -0.05 ? "neg" : e.diff >= 0.05 ? "pos" : "neu";
-      return `<tr><td>${esc(e.type)}</td><td class="n">${de(e.n)}</td><td class="n">${pctf(e.expected * 100, 0)}</td><td class="n">${pctf(e.actual * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(e.diff * 100, 0)} %</span></td><td class="n">${de(e.timeouts)}</td><td class="n">${pctf(e.tt_share, 0)}</td></tr>`;
-    }).join("") + "</tbody>";
+    `<thead><tr><th>Typ</th><th class="n">Partien</th><th class="n">Deine Züge</th><th class="n">Patzer/100 du</th><th class="n">Gegner</th><th class="n">In Zeitnot du</th><th class="n">Gegner</th></tr></thead><tbody>` +
+    R.endgames.map((e) => `<tr><td>${esc(e.type)}</td><td class="n">${de(e.games)}</td><td class="n">${de(e.me.moves)}</td><td class="n">${cmpChip(e.me.blunders_no_tt, e.opp.blunders_no_tt)}</td><td class="n">${de(e.opp.blunders_no_tt, 1)}</td><td class="n">${cmpChip(e.me.tt_share, e.opp.tt_share)} %</td><td class="n">${pctf(e.opp.tt_share, 0)}</td></tr>`).join("") + "</tbody>";
 
   // Endspieldatenbank
   const tb = R.tablebase;
@@ -612,8 +617,8 @@ function render() {
       [pctf(tb.error_rate_no_tt, 1), "deiner Endspielzüge verschenken das Ergebnis", `ohne Zeitnot · in Zeitnot: ${pctf(tb.error_rate_tt, 1)}`],
       [pctf(tb.tt_share, 0), "dieser Züge spielst du in Zeitnot", `${de(tb.moves)} Züge aus ${de(tb.games)} Partien`],
     ].map(([b, l, s]) => `<div class="stat"><div class="big num">${b}</div><div class="lbl">${l}</div><div class="sub">${s}</div></div>`).join("");
-    document.getElementById("b-tb").innerHTML = tb.examples.map((x) => `
-      <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, null))}
+    document.getElementById("b-tb").innerHTML = tb.examples.slice(0, 3).map((x) => `
+      <div class="poscard">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, null))}
         <div class="posinfo">
           <div class="muted">${esc(x.eg_type)} · ${esc(x.kind)} · ${new Date(x.date).toLocaleDateString("de-DE")}</div>
           <div>Du: <span class="mv bad">${esc(x.played)}</span> mit ${de(x.clock, 0)} s auf der Uhr</div>
@@ -636,13 +641,20 @@ function render() {
   }).join("");
 
   // Beispiele
-  document.getElementById("b-examples").innerHTML = R.examples.map((x) => `
-    <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
+  document.getElementById("b-examples").innerHTML = (() => {
+    // abwechselnd je Fehlerart, damit jede Kategorie vorkommt
+    const byCat = {};
+    R.examples.forEach((x) => (byCat[x.cat] = byCat[x.cat] || []).push(x));
+    const out = [];
+    for (let i = 0; out.length < 6 && i < 3; i++) Object.values(byCat).forEach((xs) => xs[i] && out.length < 6 && out.push(xs[i]));
+    return out;
+  })().map((x) => `
+    <div class="poscard">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
       <div class="posinfo">
         <div class="muted">${esc(x.cat)} · ${esc(x.phase)} · ${new Date(x.date).toLocaleDateString("de-DE")}</div>
         <div>Du: <span class="mv bad">${esc(x.played)}</span> nach ${de(x.spent, 1)} s · Besser: <span class="mv good">${esc(x.best)}</span></div>
         <div class="mv muted">${esc(x.pv)}</div>
-        <div class="muted">−${de(x.loss, 0)} Prozentpunkte${(x.motifs || []).length ? " · Motiv: " + esc(x.motifs[0]) : ""}${(x.missed_motifs || []).length ? " · verpasst: " + esc(x.missed_motifs[0]) : ""} · <a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
+        <div class="muted">−${de(x.loss, 0)} Prozentpunkte${firstMotif(x.motifs) ? " · Bestrafung: " + esc(firstMotif(x.motifs)) : ""}${firstMotif(x.missed_motifs) ? " · verpasst: " + esc(firstMotif(x.missed_motifs)) : ""} · <a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
       </div></div>`).join("");
 
   // Maia
@@ -658,10 +670,10 @@ function render() {
     ];
     document.getElementById("maia-stats").innerHTML = cls.map(([c, l, s]) =>
       `<div class="stat"><div class="big num">${pctf(mi.classes[c], 0)}</div><div class="lbl"><b>${c}</b>: ${l}</div><div class="sub">${s} · ${pctf(mi.loss_share[c], 0)} der verlorenen Prozentpunkte</div></div>`).join("");
-    document.getElementById("b-maia").innerHTML = (R.maia_examples || []).map((x) => `
-      <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
+    document.getElementById("b-maia").innerHTML = (R.maia_examples || []).slice(0, 3).map((x) => `
+      <div class="poscard">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
         <div class="posinfo">
-          <div class="muted">${esc(x.phase)} · ${new Date(x.date).toLocaleDateString("de-DE")}${(x.motifs || []).length ? " · " + esc(x.motifs[0]) : ""}</div>
+          <div class="muted">${esc(x.phase)} · ${new Date(x.date).toLocaleDateString("de-DE")}${firstMotif(x.motifs) ? " · Bestrafung: " + esc(firstMotif(x.motifs)) : ""}</div>
           <div>Du: <span class="mv bad">${esc(x.played)}</span> · Richtig: <span class="mv good">${esc(x.best)}</span></div>
           <div>Findet dein Niveau zu <b class="num">${pctf(100 * x.p_best_me, 0)}</b>, 300 Punkte mehr zu <b class="num">${pctf(100 * x.p_best_up, 0)}</b></div>
           <div class="muted"><a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>

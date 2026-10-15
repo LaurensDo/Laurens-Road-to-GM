@@ -139,14 +139,30 @@ Von dir gebraucht:
 
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
-| 0 – Diagnose | Partien laden, analysieren, Punkte-Verlust-Report als einmalige Auswertung | Klarheit, welche Module sich für dich lohnen |
+| 0 – Diagnose ✅ | Partien laden, analysieren, Punkte-Verlust-Report als einmalige Auswertung | Klarheit, welche Module sich für dich lohnen (siehe Abschnitt 10) |
 | 1 – MVP | Fehler-Trainer mit Spaced Repetition, Eröffnungs-Lecks, tägliche 10-Minuten-Session, Auto-Import | Erste nutzbare App |
 | 2 | Uhr-Coach, Tilt-Regeln, KI-Wochenbericht | Vollständiges Profil |
 | 3 | Chat-Coach, Maia-Sparring aus eigenen Stellungen, Fortschrittsmessung | Persönlicher Coach |
 
 **Erfolgsmessung**: Rating schwankt stark und ist deshalb nur Nebenmetrik. Hauptmetrik sind die verlorenen Punkte pro Partie je Kategorie: Sinken sie dort, wo trainiert wird?
 
-## 10. Open-Source-Bausteine
+## 10. Ergebnis Phase 0 (15.10.2026)
+
+Diagnose aus 1.606 Blitz-Partien (3 und 5 Minuten, seit Januar 2025, fast alle chess.com 3+0). Report als private Seite, erzeugt mit `analysis/`.
+
+| Befund | Zahl | Folge für die App |
+|---|---|---|
+| Die Uhr ist der größte Hebel | 317 von 755 Niederlagen auf Zeit, 109 davon in nicht verlorener Stellung; bei Zug 35 im Schnitt 46 s Restzeit, Gegner 64 s | **Uhr-Coach rückt nach vorn**: Zeitbudget pro Zugnummer, Nachbetrachtung der Zeitverluste |
+| Gewinnstellungen gehen auf Zeit verloren | 101 von 136 verlorenen Gewinnstellungen | Drill „Gewonnene Stellung schnell verwerten“ aus eigenen Partien |
+| Endspieltechnik ist gut | Ohne Zeitnot weniger Patzer als die Gegner in jedem Endspieltyp; aber 31 % der Endspielzüge in Zeitnot (Gegner 15 %) | Endspiel-Training auf **Tempo**, nicht auf Theorie |
+| Eröffnung ist kein Hauptproblem | 18 % der verlorenen Gewinnchancen; einzelne wiederkehrende Lecks | Leck-Drill statt Repertoire-Aufbau, niedrige Priorität |
+| Taktik: hängende Figuren, Gabeln | 23 bzw. 10 pro 100 Partien (Gegner 20 bzw. 9) | Eigene Fehlerstellungen + lichess-Themen hangingPiece, fork, mateIn1/2 |
+| 42 % der Fehler trainierbar (Maia) | 1.057 Stellungen aus eigenen Partien | Das ist der Inhalt des Fehler-Trainers |
+| Tilt | Kein deutlicher Effekt | Kein eigenes Modul nötig |
+
+Damit ändert sich die Reihenfolge der Module für Phase 1: **Fehler-Trainer und Uhr-Coach zuerst**, Eröffnungs-Lecks als kleiner Zusatz.
+
+## 11. Open-Source-Bausteine
 
 Grundsatz: nichts selbst bauen, was es schon gut und frei gibt. Externe Projekte bleiben eigenständige Abhängigkeiten und werden nicht ins Repo kopiert. Bei AGPL-Projekten ist das wichtig, falls die App jemals öffentlich betrieben wird.
 
@@ -158,13 +174,8 @@ Grundsatz: nichts selbst bauen, was es schon gut und frei gibt. Externe Projekte
 | [python-chess](https://github.com/niklasf/python-chess) | GPL-3.0 | Partien lesen, Züge, Brettlogik |
 | [lichess Tablebase-API](https://tablebase.lichess.ovh) (Syzygy) | frei nutzbar | Exakte Endspielbewertung bis 7 Steine: Wo wurde aus Gewinn Remis? |
 | [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings) | CC0 | Einheitliche Eröffnungsnamen für chess.com und lichess |
-
-### Vorbereitet, wartet auf Freigabe
-
-| Baustein | Lizenz | Wofür |
-|---|---|---|
-| [lichess-puzzler, Tagger](https://github.com/ornicar/lichess-puzzler) | AGPL-3.0 | Erkennt dieselben ~60 Motive wie die lichess-Puzzles (Gabel, Ablenkung, Überlastung …). Deine Fehler lassen sich damit direkt den lichess-Trainingsthemen zuordnen. |
-| [Maia-3](https://github.com/CSSLab/maia3) + PyTorch | AGPL-3.0 | Menschliche Zugvorhersage je Elo-Stufe. Trennt „Fehler, den auf deinem Niveau fast jeder macht“ von „Zug, den Spieler 300 Punkte über dir finden“. Das ist das Trainingsmaterial für die nächste Stufe. |
+| [lichess-puzzler, Tagger](https://github.com/ornicar/lichess-puzzler) | AGPL-3.0 | Erkennt dieselben ~60 Motive wie die lichess-Puzzles. Deine Fehler lassen sich damit direkt den lichess-Trainingsthemen zuordnen. Externer Checkout. |
+| [Maia-3](https://github.com/CSSLab/maia3) (79M) + PyTorch | AGPL-3.0 | Menschliche Zugvorhersage je Elo-Stufe. Trennt *Leichtsinn*, *Nächste Stufe* (Spieler mit +300 Elo finden den Zug) und *Schwer*. Externe Installation. |
 
 ### Für die App (Phase 1+)
 
@@ -189,7 +200,7 @@ Diese Projekte sind aus der Recherche bekannt und nicht im Detail geprüft:
 
 Ohne Code sofort nutzbar sind außerdem die Themen-Puzzles auf lichess (`lichess.org/training/<thema>`, z. B. [fork](https://lichess.org/training/fork)) und die Endspiel-Übungen unter [lichess.org/practice](https://lichess.org/practice).
 
-## 11. Referenzen
+## 12. Referenzen
 
 - lichess API: <https://lichess.org/api>
 - chess.com Published-Data API: <https://www.chess.com/news/view/published-data-api>
