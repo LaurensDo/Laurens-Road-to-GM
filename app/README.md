@@ -64,6 +64,14 @@ Daten und Stand nicht geladen sind auch länger. Tippen überspringt es. Abschal
 `Heute` beginnt mit einer dunkelgrünen Fläche (Fortschritt, Kennzahlen, Hauptknopf) statt einer Reihe gleichartiger Karten. Die
 Startfarbe steht schon in `index.html`, damit beim Öffnen nichts weiß aufblitzt.
 
+**iPad: fehlender Streifen und iOS-Startbild.** Gemessen auf einem iPad Pro 12,9" (quer): Bildschirm 1366×1024, Fenster der
+installierten App 1366×992, es fehlen 32 Punkte oben. Das Startbild wird auf Tablets um diesen Streifen nach oben verlängert
+(`src/lib/viewport.ts`) und deckt so den ganzen Bildschirm ab. Die Figur hat eine feste Stelle, das Zitat steht darunter. Davor zeigt
+iOS ein eigenes Startbild (`apple-touch-startup-image`, `public/launch/`, erzeugt mit `tools/make-launch-images.mjs` aus dem echten
+Startbild), damit der Übergang ohne Sprung bleibt. **Wichtig:** iOS liest das Startbild nur beim Hinzufügen zum Home-Bildschirm.
+Nach Änderungen die App vom Home-Bildschirm entfernen und neu hinzufügen (der Fortschritt kommt über den Abgleich zurück). Weitere
+Geräte: Eintrag in `DEVICES` im Skript und eine `<link>`-Zeile in `index.html`. Bisher nur iPad Pro 12,9".
+
 **Anzeige-Info** (Einstellungen, ganz unten): Fenstergröße, sichtbarer Bereich, Sicherheitsränder, Modus und ein Verlauf der
 Fenstergröße seit dem Start. Zur Fehlersuche bei Darstellungsproblemen auf dem iPad (z. B. Startbild im Querformat nicht mittig:
 im Testbrowser ist es in jeder Größe exakt mittig, das Verhalten von iPadOS ist von hier nicht nachstellbar).

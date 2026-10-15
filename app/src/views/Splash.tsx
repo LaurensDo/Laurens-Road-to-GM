@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { pickQuote } from '../lib/quotes';
+import { currentBand } from '../lib/viewport';
 import { PawnMark } from './Mark';
 
 /**
@@ -14,10 +15,16 @@ export function Splash({ ready, onDone }: { ready: boolean; onDone: () => void }
   const [quote] = useState(() => pickQuote());
   const [minDone, setMinDone] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [band, setBand] = useState(currentBand);
 
   useEffect(() => {
     const t = window.setTimeout(() => setMinDone(true), SPLASH_MIN_MS);
-    return () => window.clearTimeout(t);
+    const onResize = () => setBand(currentBand());
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   const leave = () => {
@@ -32,17 +39,15 @@ export function Splash({ ready, onDone }: { ready: boolean; onDone: () => void }
   }, [ready, minDone]);
 
   return (
-    <div id="splash" class={leaving ? 'leaving' : ''} data-ready={ready ? '1' : '0'} onClick={leave} role="presentation">
+    <div id="splash" class={leaving ? 'leaving' : ''} data-ready={ready ? '1' : '0'} style={{ '--band': band } as never} onClick={leave} role="presentation">
       <div class="splash-pattern" aria-hidden="true" />
-      <div class="splash-center">
-        <div class="splash-mark" aria-hidden="true">
-          <PawnMark />
-        </div>
-        <blockquote class="splash-quote">
-          <p>„{quote.text}“</p>
-          <footer class="splash-author">{quote.author}</footer>
-        </blockquote>
+      <div class="splash-mark" aria-hidden="true">
+        <PawnMark />
       </div>
+      <blockquote class="splash-quote">
+        <p>„{quote.text}“</p>
+        <footer class="splash-author">{quote.author}</footer>
+      </blockquote>
       <div class="splash-foot eyebrow">Road to GM</div>
     </div>
   );

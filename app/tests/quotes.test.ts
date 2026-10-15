@@ -51,3 +51,22 @@ describe('Zitate', () => {
     expect(grown.bag.order).toHaveLength(4);
   });
 });
+
+import { splashBand } from '../src/lib/viewport';
+
+describe('Startbild: fehlender Streifen oben', () => {
+  const ipadQuer = { screenW: 1024, screenH: 1366, innerW: 1366, innerH: 992, standalone: true };
+  it('iPad Pro 12,9" quer: 32 Punkte, wie in der Anzeige-Info gemessen', () => {
+    expect(splashBand(ipadQuer)).toBe(32);
+  });
+  it('Hochformat nutzt die lange Seite', () => {
+    expect(splashBand({ ...ipadQuer, innerW: 1024, innerH: 1334 })).toBe(32);
+    expect(splashBand({ ...ipadQuer, innerW: 1024, innerH: 1366 })).toBe(0);
+  });
+  it('nicht als App, auf Handys und in kleinen Fenstern: kein Ausgleich', () => {
+    expect(splashBand({ ...ipadQuer, standalone: false })).toBe(0);
+    expect(splashBand({ screenW: 390, screenH: 844, innerW: 390, innerH: 797, standalone: true })).toBe(0);
+    expect(splashBand({ ...ipadQuer, innerW: 700, innerH: 992 })).toBe(0); // Split View: kein Querformat, große Lücke
+    expect(splashBand({ ...ipadQuer, innerH: 700 })).toBe(0);
+  });
+});
