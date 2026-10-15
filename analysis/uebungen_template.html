@@ -1,0 +1,191 @@
+<title>Road to GM Übungen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,700&display=swap">
+<style>
+/* Layout: eine schmale Spalte für das Handy, oben die Schritte, darunter pro Seite eine Karte mit Kopieren-Knopf. */
+:root {
+  --bg: #f4f6f4;
+  --surface: #ffffff;
+  --ink: #17201d;
+  --ink-2: #4a5752;
+  --muted: #74817b;
+  --rule: #d9e0dc;
+  --accent: #1d6b58;
+  --accent-ink: #ffffff;
+  --accent-soft: #d6ebe4;
+  --font-display: "Source Serif 4", "Georgia", "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201d; --ink: #e5ebe8; --ink-2: #a9b6b0; --muted: #7d8a84;
+    --rule: #2a3531; --accent: #52b597; --accent-ink: #0c1512; --accent-soft: #1f3a32;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201d; --ink: #e5ebe8; --ink-2: #a9b6b0; --muted: #7d8a84;
+  --rule: #2a3531; --accent: #52b597; --accent-ink: #0c1512; --accent-soft: #1f3a32;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.page { max-width: 640px; margin: 0 auto; display: grid; gap: 32px; }
+h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(1.8rem, 7vw, 2.4rem); line-height: 1.1; }
+h2 { font-size: 1.3rem; line-height: 1.2; }
+p { margin: 0; }
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.lede { color: var(--ink-2); }
+
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 2rem 1fr; gap: 12px; counter-increment: s; }
+.steps li::before {
+  content: counter(s); font-family: var(--font-display); font-weight: 700; font-size: 1.3rem;
+  line-height: 1.3; color: var(--accent);
+}
+.steps b { font-weight: 600; }
+.steps .hint { color: var(--muted); font-size: .9rem; display: block; margin-top: 2px; }
+
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; display: grid; gap: 14px; }
+.card header { display: grid; gap: 4px; }
+.card .meta { color: var(--ink-2); font-size: .92rem; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: .92rem; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; font-weight: 500; }
+.btn {
+  appearance: none; border: 0; border-radius: 10px; min-height: 52px; width: 100%;
+  background: var(--accent); color: var(--accent-ink); font: 600 1.05rem var(--font-body);
+  cursor: pointer; padding: 12px 16px; touch-action: manipulation;
+}
+.btn:active { transform: translateY(1px); }
+.btn.done { background: var(--accent-soft); color: var(--accent); }
+.btn:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.status { min-height: 1.4em; font-size: .9rem; color: var(--ink-2); }
+details summary { cursor: pointer; color: var(--accent); font-weight: 500; padding: 6px 0; }
+textarea {
+  width: 100%; min-height: 180px; margin-top: 8px; padding: 10px 12px; resize: vertical;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--rule); border-radius: 8px;
+  font: 400 .78rem/1.45 var(--font-mono);
+}
+.tips { display: grid; gap: 8px; color: var(--ink-2); font-size: .95rem; padding-left: 1.1rem; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .btn:active { transform: none; } }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Road to GM · Fehlerstellungen</div>
+    <h1>Deine 60 Übungen für lichess</h1>
+    <p class="lede">Je 30 Stellungen mit Weiß und mit Schwarz am Zug, aus deinen eigenen Partien. Kopiere den Text und füge ihn in eine lichess-Studie ein. Eine Datei zum Herunterladen brauchst du nicht.</p>
+  </header>
+
+  <section>
+    <h2>So geht's</h2>
+    <ol class="steps" style="margin-top:14px">
+      <li><div>Öffne <b>lichess.org</b> im Browser und melde dich an. Erstelle unter <b>Lernen → Studien</b> eine neue <b>Studie</b>, Name „Road to GM Fehler“, Sichtbarkeit <b>privat</b>.</div></li>
+      <li><div>Tipp unten auf <b>Weiß-Übungen kopieren</b>. Wechsle zu lichess, tipp in der Studie auf <b>Kapitel hinzufügen</b> und wähle den Reiter <b>PGN</b>.</div></li>
+      <li><div>Tipp lange in das Textfeld und wähle <b>Einsetzen</b>. Stell <b>Ausrichtung: Weiß</b> und <b>Analysemodus: Interaktive Lektion</b> ein und erstelle das Kapitel. Daraus werden 30 Kapitel.<span class="hint">Die Bezeichnungen auf lichess können leicht abweichen.</span></div></li>
+      <li><div>Wiederhole das mit <b>Schwarz-Übungen kopieren</b>, diesmal mit <b>Ausrichtung: Schwarz</b>.</div></li>
+    </ol>
+  </section>
+
+  <section class="card" id="card-white">
+    <header>
+      <h2>Weiß am Zug</h2>
+      <p class="meta" id="meta-white"></p>
+    </header>
+    <button class="btn" type="button" data-target="ta-white" data-label="Weiß-Übungen kopieren">Weiß-Übungen kopieren</button>
+    <div class="status" id="st-white" role="status" aria-live="polite"></div>
+    <details>
+      <summary>Text ansehen oder von Hand kopieren</summary>
+      <textarea id="ta-white" readonly aria-label="PGN-Text Weiß"></textarea>
+    </details>
+  </section>
+
+  <section class="card" id="card-black">
+    <header>
+      <h2>Schwarz am Zug</h2>
+      <p class="meta" id="meta-black"></p>
+    </header>
+    <button class="btn" type="button" data-target="ta-black" data-label="Schwarz-Übungen kopieren">Schwarz-Übungen kopieren</button>
+    <div class="status" id="st-black" role="status" aria-live="polite"></div>
+    <details>
+      <summary>Text ansehen oder von Hand kopieren</summary>
+      <textarea id="ta-black" readonly aria-label="PGN-Text Schwarz"></textarea>
+    </details>
+  </section>
+
+  <section>
+    <h2>Üben</h2>
+    <ul class="tips" style="margin-top:12px">
+      <li>Fünf Kapitel pro Tag, den richtigen Zug in unter 10 Sekunden finden.</li>
+      <li>Kapitel, die du falsch hattest, notierst du dir und wiederholst sie am nächsten Tag.</li>
+      <li>Spielst du deinen damaligen Fehlzug, zeigt lichess die Erklärung: was er gekostet hat und wie oft Spieler deiner Stärke den richtigen Zug finden.</li>
+      <li>Nur die hinterlegte Lösung zählt als richtig. Gleich gute andere Züge wertet lichess als Fehler.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+function countGames(pgn) { return (pgn.match(/^\[Event /gm) || []).length; }
+
+for (const side of ["white", "black"]) {
+  const pgn = DATA[side];
+  document.getElementById("ta-" + side).value = pgn;
+  const n = countGames(pgn);
+  const dates = (pgn.match(/^\[Date "(\d{4})\.(\d{2})\.\d{2}"\]/gm) || []).map((l) => l.slice(7, 14).replace(".", "-")).sort();
+  const fmt = (d) => d ? new Date(d + "-01").toLocaleDateString("de-DE", { month: "short", year: "numeric" }) : "";
+  document.getElementById("meta-" + side).textContent =
+    n + " Stellungen aus Partien von " + fmt(dates[0]) + " bis " + fmt(dates.at(-1)) + ", " + Math.round(pgn.length / 1024) + " KB Text.";
+}
+
+function fallbackCopy(ta) {
+  try {
+    ta.removeAttribute("readonly");
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand && document.execCommand("copy");
+    ta.setAttribute("readonly", "");
+    return !!ok;
+  } catch (e) { return false; }
+}
+
+document.querySelectorAll(".btn").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const ta = document.getElementById(btn.dataset.target);
+    const side = btn.dataset.target.replace("ta-", "");
+    const status = document.getElementById("st-" + side);
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(ta.value);
+      ok = true;
+    } catch (e) {
+      ok = fallbackCopy(ta);
+    }
+    if (ok) {
+      btn.textContent = "Kopiert";
+      btn.classList.add("done");
+      status.textContent = "Jetzt auf lichess in das PGN-Feld einsetzen.";
+      setTimeout(() => { btn.textContent = btn.dataset.label; btn.classList.remove("done"); }, 3000);
+    } else {
+      const d = ta.closest("details");
+      d.open = true;
+      ta.focus();
+      ta.select();
+      status.textContent = "Kopieren hat nicht geklappt. Der Text ist unten markiert. Tipp darauf und wähle Kopieren.";
+    }
+  });
+});
+</script>
