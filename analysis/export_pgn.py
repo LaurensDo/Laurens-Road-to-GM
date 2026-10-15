@@ -8,8 +8,12 @@ du realistisch abstellen kannst), nach Verlust sortiert, je Partie höchstens ei
 Stellung. Jede Stellung wird ein eigenes Kapitel: Ausgangsstellung = vor deinem
 Fehler, Hauptvariante = richtige Lösung, dein Zug als Nebenvariante.
 
-Die Datei lässt sich in eine lichess-Studie importieren (max. 64 Kapitel pro Studie).
-Schreibt data/uebungen.pgn.
+Die Lösung wird wie ein Puzzle gekürzt: Sie endet mit dem eigenen Zug, der den größten
+Materialgewinn oder Matt erreicht. Die Dateien sind nach Seite am Zug getrennt, damit
+das Brett beim Import in eine lichess-Studie richtig herum steht (Modus "Interaktive
+Lektion": dein damaliger Fehlzug ist als Nebenvariante mit Erklärung hinterlegt).
+
+Schreibt data/uebungen_weiss.pgn und data/uebungen_schwarz.pgn (je höchstens 30 Kapitel).
 """
 
 import argparse
@@ -19,6 +23,8 @@ from pathlib import Path
 
 import chess
 import chess.pgn
+
+from report import trim_line
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 
@@ -57,9 +63,9 @@ def main():
         game.headers["Annotator"] = p.get("maia_class", "")
         # Kein Lösungshinweis im Kapitel-Kommentar: nur Phase und Uhr
         game.comment = f"{p['phase']} · in der Partie {p['clock']:.0f} s auf der Uhr"
-        # Lösung: Engine-Variante aus der SAN-Notation ("36...f6 37. Nd7 Kf7 ...")
-        node = game
+        # Lösung: Engine-Variante ("36...f6 37. Nd7 Kf7 ...") wie ein Puzzle kürzen
         b = board.copy()
+        ucis = []
         for tok in (p.get("pv") or "").split():
             san = re.sub(r"^\d+\.+", "", tok)
             if not san:
@@ -68,8 +74,11 @@ def main():
                 mv = b.parse_san(san)
             except ValueError:
                 break
-            node = node.add_variation(mv)
+            ucis.append(mv.uci())
             b.push(mv)
+        node = game
+        for uci in trim_line(board, ucis, board.turn) or ucis[:1]:
+            node = node.add_variation(chess.Move.from_uci(uci))
         if not game.variations:
             game.add_variation(chess.Move.from_uci(p["best_uci"]))
         played = game.add_variation(chess.Move.from_uci(p["played_uci"]))
@@ -79,11 +88,15 @@ def main():
         punish = f" Bestrafung: {', '.join(p['motifs'][:2])}." if p.get("motifs") else ""
         played.comment = (f"Dein Zug in der Partie ({p['cat']}), kostete {p['loss']:.0f} Prozentpunkte "
                           f"Gewinnchance.{punish}{maia}")
-        out.append(str(game))
+        out.append((board.turn, str(game)))
 
-    path = DATA / "uebungen.pgn"
-    path.write_text("\n\n".join(out) + "\n")
-    print(f"{path}: {len(out)} Stellungen")
+    for color, name in ((chess.WHITE, "weiss"), (chess.BLACK, "schwarz")):
+        games = [g for c, g in out if c == color][:30]
+        # Kapitel pro Datei fortlaufend nummerieren
+        games = [re.sub(r"Road to GM \d+", f"Road to GM {k:02d}", g, count=1) for k, g in enumerate(games, 1)]
+        path = DATA / f"uebungen_{name}.pgn"
+        path.write_text("\n\n".join(games) + "\n")
+        print(f"{path}: {len(games)} Stellungen")
 
 
 if __name__ == "__main__":
