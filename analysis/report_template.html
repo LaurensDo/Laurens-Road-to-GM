@@ -578,14 +578,27 @@ function render() {
       const wcls = f.wp_move12 < 45 ? "neg" : f.wp_move12 > 55 ? "pos" : "neu";
       return `<tr><td>${esc(f.family)}</td><td>${f.color === "white" ? "Weiß" : "Schwarz"}</td><td class="n">${de(f.n)}</td><td class="n">${pctf(f.score * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(f.resid * 100, 0)} %</span></td><td class="n"><span class="chip ${wcls}">${pctf(f.wp_move12, 0)}</span></td></tr>`;
     }).join("") + "</tbody>";
-  document.getElementById("b-leaks").innerHTML = R.opening_leaks.slice(0, 6).map((l) => `
+  document.getElementById("b-leaks").innerHTML = R.opening_leaks.slice(0, 6).map((l) => {
+    const ex = l.explorer;
+    const chip = !ex ? "" : ({
+      "bestätigt": '<span class="chip neg">Auch in der Praxis schlechter</span>',
+      "kaum Unterschied": '<span class="chip neu">Praxis: kaum Unterschied</span>',
+      "widerspricht": '<span class="chip pos">Praxis: dein Zug schneidet besser ab</span>',
+      "selten gespielt": '<span class="chip neu">Zu selten gespielt für einen Vergleich</span>',
+    })[ex.verdict] || "";
+    const stat = (m) => (m ? `${de(m.share, 1)} % spielen ihn, Score ${de(m.score, 0)} %` : "kaum gespielt");
+    const exLines = !ex ? "" : `
+        <div>${chip}</div>
+        <div class="muted">Spieler ${R.explorer.bucket} bis ${R.explorer.bucket + 199} auf lichess: dein Zug ${stat(ex.played)}. ${ex.best ? "Der Engine-Zug: " + stat(ex.best) + "." : ""}</div>`;
+    return `
     <div class="poscard">${boardHTML(l.fen, l.color === "black", marksFor(l.played_uci, l.best_uci))}
       <div class="posinfo">
         <div class="muted">${esc(l.opening || "")} · Zug ${l.fullmove} · ${l.color === "white" ? "Weiß" : "Schwarz"}</div>
         <div>Du spielst <span class="mv bad">${l.played.map(([m, n]) => `${esc(m)} (${n}×)`).join(", ")}</span></div>
-        <div>Besser: <span class="mv good">${esc(l.best)}</span></div>
+        <div>Besser: <span class="mv good">${esc(l.best)}</span></div>${exLines}
         <div class="muted">${l.bad} von ${l.seen} Mal ungenau, im Schnitt −${de(l.avg_loss, 0)} Prozentpunkte · <a href="${esc(l.example)}" target="_blank" rel="noopener">Beispielpartie</a></div>
-      </div></div>`).join("");
+      </div></div>`;
+  }).join("");
 
   // Endspiel
   document.getElementById("eg-lede").innerHTML = F.eg_lede;

@@ -713,7 +713,35 @@ def main():
             "example": bad[-1][0]["url"],
         })
     leaks.sort(key=lambda x: -x["total_loss"])
-    report["opening_leaks"] = leaks[:20]
+    leaks = leaks[:20]
+
+    # Praxis-Check mit dem lichess Opening Explorer (data/explorer.json, optional):
+    # Wie schneiden Spieler deiner Stärke mit deinem Zug und mit dem Engine-Zug ab?
+    ex_path = DATA / "explorer.json"
+    if ex_path.exists():
+        ex = json.loads(ex_path.read_text())
+        report["explorer"] = {"bucket": ex["bucket"], "upper": ex["upper"], "lichess_level": ex["lichess_level"]}
+        for leak in leaks:
+            e = ex["positions"].get(leak["fen"], {}).get("level")
+            if not e:
+                continue
+            by_uci = {m["uci"]: m for m in e["moves"]}
+            played, best = by_uci.get(leak["played_uci"]), by_uci.get(leak["best_uci"])
+            top = e["moves"][0] if e["moves"] else None
+            if played and best:
+                diff = best["score"] - played["score"]
+                verdict = "bestätigt" if diff >= 2.5 else ("widerspricht" if diff <= -1.0 else "kaum Unterschied")
+            else:
+                verdict = "selten gespielt"
+            leak["explorer"] = {"total": e["total"], "played": played, "best": best, "top": top, "verdict": verdict}
+        # In der Praxis bestätigte Lecks zuerst, danach nach Verlust
+        order = {"bestätigt": 0, "selten gespielt": 1, "kaum Unterschied": 2, "widerspricht": 3}
+        def gap(l):
+            e = l.get("explorer") or {}
+            return (e["best"]["score"] - e["played"]["score"]) if e.get("best") and e.get("played") else 0
+
+        leaks.sort(key=lambda l: (order.get(l.get("explorer", {}).get("verdict"), 1), -gap(l), -l["total_loss"]))
+    report["opening_leaks"] = leaks
 
     # ---- Endspiele: jeder Endspielzug nach Typ, du vs. Gegner
     def eg_stats(recs):
