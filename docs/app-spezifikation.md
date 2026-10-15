@@ -49,6 +49,15 @@ Grenzen: Auf dem iPhone langsamer als hier (ein Thread, kleineres Netz). Gut fü
 - Claude schreibt Erklärungen und den Wochenbericht auf Zuruf im Chat. Sie landen als Text in den Daten der App.
 - Optional später: Chat mit Claude in der App, nur mit eigenem API-Schlüssel.
 
+### Stockfish-Stärke
+
+Stärke ist an drei Stellen unterschiedlich wichtig:
+
+1. **Lösungen der Übungen (wichtigster Hebel):** Die Diagnose lief mit 50.000 Knoten pro Stellung, das ist schnell, aber nicht tief. Für die Übungs-Lösungen rechne ich neu mit mindestens 3 Millionen Knoten und MultiPV 5, dazu mit Stockfish 19 (npm-Paket `stockfish`) oder dem nativen Stockfish 16. Auf den Gewinnchancen der Lösungen beruht, was in der App als richtig zählt.
+2. **In der App:** Standard ist die Lite-Version (1,7 MB, immer dabei). Optional in den Einstellungen **„Starke Engine“**: Stockfish 19 mit vollem Netz (≈ 94 MB, einmaliger Download, danach offline), Mehrkern über einen Service-Worker-Trick, Bedenkzeit einstellbar (2 bis 5 s). Ob das auf deinem iPhone flüssig läuft, muss getestet werden. Fällt es durch, bleibt Lite.
+   Die große Datei kommt nicht ins Repo: Der Deploy-Workflow lädt sie beim Veröffentlichen aus npm.
+3. **Gegner im Gewinn-Drill:** bewusst schwächer (einstellbare Spielstärke), damit Gewinnstellungen realistisch bleiben.
+
 ## 5. Daten und neue Partien
 
 - **Start:** Die App kommt mit den vorhandenen Übungen (aus data-backup erzeugt).
@@ -84,7 +93,14 @@ Grenzen: Auf dem iPhone langsamer als hier (ein Thread, kleineres Netz). Gut fü
 
 Billig zu ändern: Texte, Farben, Reihenfolge der Bereiche, Namen, Anzahl der Aufgaben pro Tag.
 
-## 9. Reihenfolge
+## 9. Abgestimmte Entscheidungen (15.10.2026)
+
+- Hosting: GitHub Pages mit öffentlichem Repo. ✔
+- Gegnernamen aus dem Backup-Branch entfernt. ✔
+- Bereiche, Festlegungen aus Abschnitt 8 und Reihenfolge: wie vorgeschlagen. ✔
+- Stockfish: Lösungen tiefer neu rechnen, in der App Lite plus optional „Starke Engine“.
+
+## 10. Reihenfolge
 
 1. **Version 1:** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung.
 2. **Version 1.1:** Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill im Uhr-Coach.
