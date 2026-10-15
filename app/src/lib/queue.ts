@@ -73,8 +73,10 @@ export function pickNext(
   state: AppState,
   now: Date,
   last?: { id: string; cat: string },
+  /** Übungen, die in diesem Satz schon vorkamen und nicht noch einmal gewählt werden */
+  exclude?: ReadonlySet<string>,
 ): { ex: Exercise; kind: PickKind } | null {
-  const pool = poolOf(exercises, state);
+  const pool = poolOf(exercises, state).filter((e) => !exclude?.has(e.id));
   const t = now.getTime();
 
   const dueList: { ex: Exercise; d: number }[] = [];

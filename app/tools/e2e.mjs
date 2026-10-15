@@ -1,7 +1,10 @@
-// Ende-zu-Ende-Test im Handy-Format: Training starten, Aufgabe lösen, Neuladen, Offline-Betrieb.
+// Ende-zu-Ende-Test: Sätze, Töne, Ablauf, Speicherung, Offline und alle Geräteformate.
 // Aufruf: npx vite preview --port 4173 &  dann  node tools/e2e.mjs [Ausgabeordner]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
+import { Chess } from 'chessops/chess';
+import { parseFen } from 'chessops/fen';
+import { chessgroundDests } from 'chessops/compat';
 
 const BASE = 'http://localhost:4173/Laurens-Road-to-GM/';
 const OUT = process.argv[2] ?? '/tmp/e2e';
@@ -14,135 +17,277 @@ const ok = (cond, msg) => { log.push(`${cond ? 'OK  ' : 'FAIL'} ${msg}`); if (!c
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: 'light', hasTouch: true, isMobile: true });
+await ctx.addInitScript(() => {
+  window.__sfx = [];
+  window.addEventListener('road-sfx', (e) => window.__sfx.push(e.detail));
+});
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push('PAGEERROR ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 
-await page.goto(BASE, { waitUntil: 'networkidle' });
-await page.waitForSelector('text=Tagesration');
-await page.screenshot({ path: `${OUT}/1-heute.png` });
-ok(await page.locator('text=Training starten').count() === 1, 'Heute zeigt "Training starten"');
-
-await page.click('text=Training starten');
-await page.waitForSelector('.board cg-board');
-await page.waitForTimeout(400);
-await page.screenshot({ path: `${OUT}/2-aufgabe.png` });
-const side = await page.textContent('.side');
-ok(side.includes(ex.turn === 'w' ? 'Weiß' : 'Schwarz'), `Seite am Zug stimmt (${side})`);
-
-// Besten Zug per Tippen ausführen: Figur, dann Zielfeld
-const best = ex.lines[0];
-const from = best.uci.slice(0, 2), to = best.uci.slice(2, 4);
-const box = await page.locator('.board cg-board').boundingBox();
-const white = ex.turn === 'w';
-const pt = (sq) => {
+const sfx = () => page.evaluate(() => window.__sfx.slice());
+const sfxClear = () => page.evaluate(() => { window.__sfx.length = 0; });
+const btn = (name) => page.getByRole('button', { name, exact: true });
+const pointer = (box, white) => (sq) => {
   const f = sq.charCodeAt(0) - 97, r = Number(sq[1]) - 1;
   const col = white ? f : 7 - f, row = white ? 7 - r : r;
   return { x: box.x + (col + 0.5) * box.width / 8, y: box.y + (row + 0.5) * box.height / 8 };
 };
-await page.mouse.click(pt(from).x, pt(from).y);
-await page.waitForTimeout(150);
-await page.mouse.click(pt(to).x, pt(to).y);
-await page.waitForSelector('.result', { timeout: 5000 });
-await page.waitForTimeout(300);
-await page.screenshot({ path: `${OUT}/3-ergebnis.png`, fullPage: true });
-const verdict = await page.textContent('.verdict-row .chip');
-ok(/Richtig/.test(verdict), `Bester Zug ${best.san} wird als richtig gewertet (${verdict})`);
+const boardPoints = async (e) => pointer(await page.locator('.board cg-board').boundingBox(), e.turn === 'w');
+const legalDests = (e) => chessgroundDests(Chess.fromSetup(parseFen(e.fen).unwrap()).unwrap());
+const allSquares = [...'abcdefgh'].flatMap((f) => [1, 2, 3, 4, 5, 6, 7, 8].map((r) => `${f}${r}`));
+const taskNo = async () => (await page.locator('.counts').textContent()).replace(/\s+/g, ' ').trim();
+const chooseSetSize = async (n) => {
+  await page.locator('nav').getByText('Einstellungen').click();
+  await page.waitForSelector('text=Aufgaben pro Satz');
+  await page.getByRole('radiogroup', { name: 'Aufgaben pro Satz' }).getByRole('radio', { name: String(n), exact: true }).click();
+};
 
-await page.click('text=Weiter');
+// ---- Heute und Satzgröße
+await page.goto(BASE, { waitUntil: 'networkidle' });
+await page.waitForSelector('text=Tagesration');
+await page.screenshot({ path: `${OUT}/1-heute.png` });
+ok(await page.locator('text=Satz starten (10 Aufgaben)').count() === 1, 'Heute zeigt "Satz starten (10 Aufgaben)"');
+await chooseSetSize(5);
+await page.locator('nav').getByText('Heute').click();
+ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Satzgröße 5 wird übernommen');
+
+// ---- Aufgabe 1: Tippen, Töne
+await page.click('text=Satz starten (5 Aufgaben)');
+await page.waitForSelector('.board cg-board');
+await page.waitForTimeout(400);
+await page.screenshot({ path: `${OUT}/2-aufgabe.png` });
+ok((await taskNo()).includes('Aufgabe 1 von 5'), `Satzfortschritt zeigt Aufgabe 1 von 5 (${await taskNo()})`);
+ok((await page.textContent('.side')).includes(ex.turn === 'w' ? 'Weiß' : 'Schwarz'), 'Seite am Zug stimmt');
+{
+  const P = await boardPoints(ex);
+  const best = ex.lines[0];
+  await sfxClear();
+  const from = P(best.uci.slice(0, 2)), to = P(best.uci.slice(2, 4));
+  await page.mouse.click(from.x, from.y);
+  await page.waitForTimeout(150);
+  await page.mouse.click(to.x, to.y);
+  await page.waitForSelector('.result', { timeout: 5000 });
+  await page.waitForTimeout(400);
+  const s = await sfx();
+  ok(s.includes('select'), `Ton beim Anklicken der Figur (${s.join(',')})`);
+  ok(s.includes('move') || s.includes('capture'), 'Zugton beim Ziehen');
+  ok(s.includes('correct'), 'Ton "richtig" nach richtiger Antwort');
+  ok(/Richtig/.test(await page.textContent('.verdict-row .chip')), `Bester Zug ${best.san} wird als richtig gewertet`);
+  await page.screenshot({ path: `${OUT}/3-ergebnis.png`, fullPage: true });
+}
+await btn('Weiter').click();
 await page.waitForSelector('.board cg-board');
 await page.waitForTimeout(300);
-// Zweite Aufgabe per Ziehen lösen (gleiche Auswahlregel wie die App: erste neue mit anderer Fehlerart)
+ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Weiter führt zu Aufgabe 2 von 5');
+
+// ---- Aufgabe 2: unzulässige Züge, Ziehen
 const rest = data.exercises.slice(1, 9);
 const ex2 = rest.find((e) => e.cat !== ex.cat) ?? rest[0];
-const white2 = ex2.turn === 'w';
-const box2 = await page.locator('.board cg-board').boundingBox();
-const pt2 = (sq) => {
-  const f = sq.charCodeAt(0) - 97, r = Number(sq[1]) - 1;
-  const col = white2 ? f : 7 - f, row = white2 ? 7 - r : r;
-  return { x: box2.x + (col + 0.5) * box2.width / 8, y: box2.y + (row + 0.5) * box2.height / 8 };
-};
-const b2 = ex2.lines[0];
-const a = pt2(b2.uci.slice(0, 2)), z = pt2(b2.uci.slice(2, 4));
-await page.mouse.move(a.x, a.y);
-await page.mouse.down();
-await page.mouse.move((a.x + z.x) / 2, (a.y + z.y) / 2, { steps: 6 });
-await page.mouse.move(z.x, z.y, { steps: 6 });
-await page.mouse.up();
-if (b2.san.includes('=')) { await page.waitForSelector('.promo'); await page.click('.promo >> text=Dame'); }
-await page.waitForSelector('.result', { timeout: 5000 });
-const verdict2 = await page.textContent('.verdict-row .chip');
-ok(/Richtig/.test(verdict2), `Zweite Aufgabe per Ziehen gelöst: ${b2.san} (${verdict2})`);
-await page.screenshot({ path: `${OUT}/3b-ziehen.png`, fullPage: true });
-await page.click('text=Weiter');
+{
+  const P = await boardPoints(ex2);
+  const b2 = ex2.lines[0];
+  const dests = legalDests(ex2);
+  const origSq = b2.uci.slice(0, 2);
+  const targets = dests.get(origSq) ?? [];
+  const bad = allSquares.find((q) => q !== origSq && !targets.includes(q) && !dests.has(q));
+  const o = P(origSq), z = P(b2.uci.slice(2, 4)), x = P(bad);
+  // Tippen: Figur wählen, dann unzulässiges Feld
+  await sfxClear();
+  await page.mouse.click(o.x, o.y);
+  await page.waitForTimeout(150);
+  await page.mouse.click(x.x, x.y);
+  await page.waitForTimeout(250);
+  let s = await sfx();
+  ok(s.includes('select') && s.includes('illegal'), `Unzulässiges Zielfeld per Tippen: Ton "Zug nicht erlaubt" (${s.join(',')})`);
+  ok(await page.locator('.result').count() === 0, 'Unzulässiger Zug wird nicht gewertet');
+  // Ziehen auf ein unzulässiges Feld
+  await sfxClear();
+  await page.mouse.move(o.x, o.y);
+  await page.mouse.down();
+  await page.mouse.move((o.x + x.x) / 2, (o.y + x.y) / 2, { steps: 5 });
+  await page.mouse.move(x.x, x.y, { steps: 5 });
+  await page.mouse.up();
+  await page.waitForTimeout(250);
+  s = await sfx();
+  ok(s.includes('illegal'), `Unzulässiges Zielfeld per Ziehen: Ton "Zug nicht erlaubt" (${s.join(',')})`);
+  ok(await page.locator('.result').count() === 0, 'Figur springt zurück, Aufgabe bleibt offen');
+  // Richtig ziehen
+  await sfxClear();
+  await page.mouse.move(o.x, o.y);
+  await page.mouse.down();
+  await page.mouse.move((o.x + z.x) / 2, (o.y + z.y) / 2, { steps: 6 });
+  await page.mouse.move(z.x, z.y, { steps: 6 });
+  await page.mouse.up();
+  if (b2.san.includes('=')) { await page.waitForSelector('.promo'); await page.click('.promo >> text=Dame'); }
+  await page.waitForSelector('.result', { timeout: 5000 });
+  await page.waitForTimeout(400);
+  s = await sfx();
+  ok(/Richtig/.test(await page.textContent('.verdict-row .chip')), `Zweite Aufgabe per Ziehen gelöst: ${b2.san}`);
+  ok(s.includes('correct') && (s.includes('move') || s.includes('capture')), 'Zug- und Richtig-Ton beim Ziehen');
+  await page.screenshot({ path: `${OUT}/3b-ziehen.png`, fullPage: true });
+}
+
+// ---- Aufgabe 3: Lösung zeigen, Variante, ausblenden
+await btn('Weiter').click();
 await page.waitForSelector('.board cg-board');
+await sfxClear();
 await page.click('text=Lösung zeigen');
 await page.waitForSelector('.result');
-const verdict3 = await page.textContent('.verdict-row .chip');
-ok(/Lösung angezeigt/.test(verdict3), 'Lösung zeigen wird als nicht gelöst gewertet');
+await page.waitForTimeout(300);
+ok(/Lösung angezeigt/.test(await page.textContent('.verdict-row .chip')), 'Lösung zeigen wird als nicht gelöst gewertet');
+ok((await sfx()).includes('wrong'), 'Ton "falsch" bei angezeigter Lösung');
 await page.screenshot({ path: `${OUT}/4-loesung.png`, fullPage: true });
 await page.click('text=Variante ansehen');
+await sfxClear();
 await page.click('[aria-label="Ein Zug vor"]');
 await page.waitForTimeout(300);
+{
+  const s = await sfx();
+  ok(s.includes('move') || s.includes('capture'), 'Zugton beim Durchsehen der Variante');
+}
 await page.screenshot({ path: `${OUT}/5-variante.png`, fullPage: true });
 await page.click('text=Diese Aufgabe nicht mehr zeigen');
 await page.waitForSelector('.board cg-board');
-await page.click('text=Beenden');
-await page.waitForSelector('text=Tagesration');
+ok((await taskNo()).includes('Aufgabe 4 von 5'), 'Nach dem Ausblenden geht es mit Aufgabe 4 weiter');
 
-// Speicherung: neu laden, Stand bleibt
+// ---- Aufgabe 4 und 5: aufgeben, Satz abschließen
+await page.click('text=Lösung zeigen');
+await page.waitForSelector('.result');
+await btn('Weiter').click();
+await page.waitForSelector('.board cg-board');
+await page.click('text=Lösung zeigen');
+await page.waitForSelector('.result');
+ok(await btn('Ergebnis ansehen').count() === 1, 'Nach der letzten Aufgabe heißt der Knopf "Ergebnis ansehen"');
+await sfxClear();
+await btn('Ergebnis ansehen').click();
+await page.waitForSelector('text=Satz geschafft');
+await page.waitForTimeout(300);
+ok((await sfx()).includes('done'), 'Ton bei geschafftem Satz');
+ok(await page.locator('.tasklist li').count() === 5, 'Ergebnis listet alle 5 Aufgaben');
+ok(await page.locator('h2:has-text("Einordnung")').count() === 1, 'Ergebnis enthält die Einordnung');
+const head = await page.locator('h1').textContent();
+ok(/Satz/.test(head), `Ergebnis hat eine Überschrift (${head})`);
+await page.screenshot({ path: `${OUT}/5b-satzergebnis.png`, fullPage: true });
+
+// ---- Zweiter Satz, pausieren, fortsetzen, beenden
+await btn('Nächster Satz').click();
+await page.waitForSelector('.board cg-board');
+ok((await taskNo()).includes('Aufgabe 1 von 5'), 'Nächster Satz startet bei Aufgabe 1');
+await page.click('text=Lösung zeigen');
+await page.waitForSelector('.result');
+await page.getByRole('button', { name: 'Training beenden' }).click();
+await page.waitForSelector('text=Satz beenden?');
+await page.screenshot({ path: `${OUT}/5c-dialog.png` });
+await btn('Später weitermachen').click();
+await page.waitForSelector('text=Tagesration');
+ok(await page.locator('text=Satz fortsetzen (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
+await page.click('text=Satz fortsetzen (1 von 5)');
+await page.waitForSelector('.board cg-board');
+ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Fortgesetzt wird bei Aufgabe 2');
+await page.getByRole('button', { name: 'Training beenden' }).click();
+await btn('Beenden und Ergebnis ansehen').click();
+await page.waitForSelector('text=Satz beendet nach 1 von 5');
+ok(true, 'Vorzeitig beendeter Satz zeigt Ergebnis');
+await btn('Für heute fertig').click();
+await page.waitForSelector('text=Tagesration');
+ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Nach dem Beenden gibt es keinen offenen Satz mehr');
+
+// ---- Speicherung
 await page.waitForTimeout(500);
 await page.reload({ waitUntil: 'networkidle' });
 await page.waitForSelector('text=Tagesration');
-const doneText = await page.locator('text=Heute erledigt').locator('..').textContent();
-ok(/3/.test(doneText), `Fortschritt bleibt nach dem Neuladen erhalten (${doneText.replace(/\s+/g, ' ').slice(0, 60)})`);
-
-await page.click('nav >> text=Fortschritt');
+{
+  const done = (await page.locator('text=Heute erledigt').locator('..').textContent()).replace(/\s+/g, ' ');
+  ok(/Satz mit 5 Aufgaben/.test(done) && /Satz mit 1 Aufgabe:/.test(done), `Heutige Sätze bleiben nach dem Neuladen erhalten (${done.slice(0, 120)})`);
+}
+await page.locator('nav').getByText('Fortschritt').click();
 await page.waitForSelector('text=Letzte 14 Tage');
+ok(await page.locator('text=Aufgabensätze').count() === 1, 'Fortschritt zeigt die Sätze');
 await page.screenshot({ path: `${OUT}/6-fortschritt.png`, fullPage: true });
-await page.click('nav >> text=Einstellungen');
+await page.locator('nav').getByText('Einstellungen').click();
 await page.waitForSelector('text=Sicherung');
 ok(await page.locator('text=Ausgeblendete Aufgaben').count() === 1, 'Ausgeblendete Aufgabe wird in den Einstellungen gezählt');
 await page.screenshot({ path: `${OUT}/7-einstellungen.png`, fullPage: true });
 
-// Dunkelmodus
+// ---- Ton-Einstellungen
+await page.click('text=Töne anhören');
+await sfxClear();
+await page.getByRole('button', { name: 'Schlagzug', exact: true }).click();
+ok((await sfx()).includes('capture'), 'Töne anhören spielt den Schlagzug');
+await page.getByRole('radiogroup', { name: 'Ton', exact: true }).getByRole('radio', { name: 'Aus', exact: true }).click();
+await sfxClear();
+await page.locator('nav').getByText('Heute').click();
+await page.locator('nav').getByText('Einstellungen').click();
+ok((await sfx()).length === 0, 'Bei "Ton aus" bleibt die App stumm');
+await page.getByRole('radiogroup', { name: 'Ton', exact: true }).getByRole('radio', { name: 'An', exact: true }).click();
+
+// ---- Uhr-Ton mit 5 Sekunden Limit
+await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '5 s', exact: true }).click();
+await page.locator('nav').getByText('Heute').click();
+await sfxClear();
+await page.click('text=Satz starten (5 Aufgaben)');
+await page.waitForSelector('.board cg-board');
+await page.waitForTimeout(6400);
+{
+  const s = (await sfx()).filter((x) => ['start', 'tick', 'tickLast', 'timeUp'].includes(x));
+  ok(JSON.stringify(s) === JSON.stringify(['start', 'tick', 'tick', 'tickLast', 'timeUp']), `Uhr-Töne bei 5 s Limit: ${s.join(', ')}`);
+}
+await page.screenshot({ path: `${OUT}/5d-zeit-ueber.png` });
+await page.getByRole('button', { name: 'Training beenden' }).click();
+await page.waitForSelector('text=Tagesration');
+await page.locator('nav').getByText('Einstellungen').click();
+await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '10 s', exact: true }).click();
+
+// ---- Dunkelmodus
 await page.emulateMedia({ colorScheme: 'dark' });
-await page.click('nav >> text=Heute');
+await page.locator('nav').getByText('Heute').click();
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${OUT}/8-heute-dunkel.png` });
 
-// Offline
+// ---- Offline
 await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
 await page.waitForTimeout(1500);
 await ctx.setOffline(true);
 await page.reload({ waitUntil: 'load' });
 await page.waitForSelector('text=Tagesration', { timeout: 8000 });
 ok(true, 'App startet offline');
-await page.click('text=Weiter üben');
+await page.click('text=/Satz starten|Satz fortsetzen/');
 await page.waitForSelector('.board cg-board', { timeout: 8000 });
 ok(true, 'Training läuft offline');
 await ctx.setOffline(false);
+await ctx.close();
 
-// iPad im Querformat: Brett und Erklärung nebeneinander
-{
-  const ctxI = await browser.newContext({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, hasTouch: true });
-  const pI = await ctxI.newPage();
-  await pI.goto(BASE, { waitUntil: 'networkidle' });
-  await pI.click('text=/Training starten|Weiter üben/');
-  await pI.waitForSelector('.board cg-board');
-  await pI.waitForTimeout(300);
-  await pI.screenshot({ path: `${OUT}/9-ipad-aufgabe.png` });
-  await pI.click('text=Lösung zeigen');
-  await pI.waitForSelector('.result');
-  await pI.waitForTimeout(300);
-  await pI.screenshot({ path: `${OUT}/10-ipad-ergebnis.png` });
-  const bb = await pI.locator('.board').boundingBox();
-  const rb = await pI.locator('.result').boundingBox();
-  ok(rb.x > bb.x + bb.width - 2, `iPad quer: Erklärung steht rechts neben dem Brett (Brett ${Math.round(bb.width)} px)`);
-  await ctxI.close();
+// ---- Geräteformate
+const formats = [
+  { name: 'iPhone quer', vp: { width: 844, height: 390 }, mobile: true, minBoard: 340 },
+  { name: 'iPhone Max quer', vp: { width: 932, height: 430 }, mobile: true, minBoard: 380 },
+  { name: 'iPad hoch', vp: { width: 820, height: 1180 }, mobile: false, minBoard: 700, portrait: true },
+  { name: 'iPad quer', vp: { width: 1180, height: 820 }, mobile: false, minBoard: 640 },
+  { name: 'iPhone hoch', vp: { width: 390, height: 844 }, mobile: true, minBoard: 340, portrait: true },
+];
+for (const f of formats) {
+  const c = await browser.newContext({ viewport: f.vp, deviceScaleFactor: 1, hasTouch: true, isMobile: f.mobile });
+  const p = await c.newPage();
+  await p.goto(BASE, { waitUntil: 'networkidle' });
+  await p.click('text=/Satz starten|Satz fortsetzen/');
+  await p.waitForSelector('.board cg-board');
+  await p.waitForTimeout(300);
+  await p.click('text=Lösung zeigen');
+  await p.waitForSelector('.result');
+  await p.waitForTimeout(300);
+  const slug = f.name.replace(/\s+/g, '-').toLowerCase();
+  await p.screenshot({ path: `${OUT}/9-${slug}.png` });
+  const bb = await p.locator('.board').boundingBox();
+  const rb = await p.locator('.result').boundingBox();
+  const db = await p.locator('.dock').boundingBox();
+  ok(bb.width >= f.minBoard, `${f.name}: Brett ${Math.round(bb.width)} px (mindestens ${f.minBoard})`);
+  ok(db.y + db.height <= f.vp.height + 1 && db.y >= 0, `${f.name}: "Weiter" ohne Scrollen sichtbar`);
+  if (!f.portrait) ok(rb.x > bb.x + bb.width - 2, `${f.name}: Erklärung steht rechts neben dem Brett`);
+  await c.close();
 }
 
-ok(errors.length === 0, `Keine Konsolenfehler ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
+ok(errors.length === 0, errors.length ? `Konsolenfehler: ${errors.slice(0, 3).join(' | ')}` : 'Keine Konsolenfehler');
 await browser.close();
 console.log(log.join('\n'));

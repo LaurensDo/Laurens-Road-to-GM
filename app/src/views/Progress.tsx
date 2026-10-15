@@ -1,6 +1,7 @@
 import { useMemo } from 'preact/hooks';
 import { dayLabel, n0, n1, pct } from '../lib/format';
 import { breakdown, cardCounts, correct, lastDays, streak, today, windowStats } from '../lib/stats';
+import { listSets, rateOf } from '../lib/sets';
 import { useAppState } from '../lib/store';
 import type { Exercise, Meta } from '../lib/types';
 
@@ -41,6 +42,27 @@ function Bars({ days }: { days: ReturnType<typeof lastDays> }) {
           </g>
         );
       })}
+    </svg>
+  );
+}
+
+function SetBars({ rates }: { rates: number[] }) {
+  const W = 320;
+  const H = 90;
+  const bw = W / Math.max(rates.length, 10);
+  return (
+    <svg viewBox={`0 0 ${W} ${H + 6}`} role="img" aria-label="Quote der letzten Sätze" class="chart">
+      {[0.5, 1].map((f) => (
+        <line key={f} x1="0" x2={W} y1={H - f * H} y2={H - f * H} class="grid" />
+      ))}
+      {rates.map((r, i) => (
+        <g key={i}>
+          <rect x={i * bw + 3} y={H - (r / 100) * H} width={bw - 6} height={(r / 100) * H} rx="3" class="bar-right" />
+          <text x={i * bw + bw / 2} y={H - (r / 100) * H - 3} text-anchor="middle" class="val">
+            {Math.round(r)}
+          </text>
+        </g>
+      ))}
     </svg>
   );
 }
@@ -87,6 +109,9 @@ export function Progress({ exercises, byId, meta }: Props) {
   const byPhase = useMemo(() => breakdown(state.log, byId, 'phase'), [state.log.length]);
   const byMotif = useMemo(() => breakdown(state.log, byId, 'motif'), [state.log.length]);
   const b = meta?.baseline;
+  const runs = useMemo(() => listSets(state.log).filter((r) => r.entries.length >= Math.min(r.planned, 3)), [state.log.length]);
+  const lastRuns = runs.slice(-10);
+  const lastRates = lastRuns.map(rateOf);
 
   return (
     <section class="screen">
@@ -120,6 +145,17 @@ export function Progress({ exercises, byId, meta }: Props) {
           </dl>
         )}
       </div>
+
+      {runs.length > 0 && (
+        <div class="card">
+          <h2>Aufgabensätze</h2>
+          <SetBars rates={lastRates} />
+          <p class="muted">
+            {n0(runs.length)} Sätze insgesamt. Quote der letzten {n0(lastRates.length)}: Ø {pct(lastRates.reduce((a, x) => a + x, 0) / lastRates.length)}, bester{' '}
+            {pct(Math.max(...lastRates))}.
+          </p>
+        </div>
+      )}
 
       <div class="card">
         <h2>Letzte 14 Tage</h2>

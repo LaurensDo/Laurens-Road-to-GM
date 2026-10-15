@@ -2,7 +2,7 @@ import { Chess, normalizeMove } from 'chessops/chess';
 import { makeFen, parseFen } from 'chessops/fen';
 import { chessgroundDests } from 'chessops/compat';
 import { makeSan, parseSan } from 'chessops/san';
-import { makeSquare, parseSquare, squareRank } from 'chessops/util';
+import { makeSquare, parseSquare, squareFile, squareRank } from 'chessops/util';
 import type { NormalMove, Role, SquareName } from 'chessops/types';
 
 export function positionOf(fen: string): Chess {
@@ -56,4 +56,14 @@ export function walkVariation(fen: string, sans: string[]): Step[] {
 /** "Nf3" -> Zielfeld-Paar für Pfeile: aus UCI des Engine-Zugs (e1g1 bleibt e1g1). */
 export function uciSquares(uci: string): [SquareName, SquareName] {
   return [uci.slice(0, 2) as SquareName, uci.slice(2, 4) as SquareName];
+}
+
+/** Schlägt dieser Zug etwas (auch en passant)? Für den Ton, bevor die Umwandlung gewählt ist. */
+export function isCapture(pos: Chess, orig: SquareName, dest: SquareName): boolean {
+  const from = parseSquare(orig);
+  const to = parseSquare(dest);
+  if (from === undefined || to === undefined) return false;
+  if (pos.board.has(to)) return true;
+  const piece = pos.board.get(from);
+  return !!piece && piece.role === 'pawn' && squareFile(from) !== squareFile(to);
 }

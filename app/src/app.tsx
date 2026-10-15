@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { loadData, type Loaded } from './lib/data';
 import { loadState, useAppState } from './lib/store';
 import { initSync } from './lib/syncRunner';
+import { installAudioUnlock, play } from './lib/sound';
 import { Progress } from './views/Progress';
 import { Settings } from './views/Settings';
 import { Today } from './views/Today';
@@ -29,6 +30,19 @@ export function App() {
     loadData()
       .then(setData)
       .catch((e: Error) => setError(e.message));
+  }, []);
+
+  // Ton: beim ersten Tippen freischalten, danach leiser Klick bei Auswahl in der Oberfläche
+  useEffect(() => {
+    installAudioUnlock();
+    const onClick = (e: Event) => {
+      const el = (e.target as Element | null)?.closest?.('button, a, summary, select, label, [role="radio"], input[type="checkbox"]');
+      if (!el || el.closest('[data-nosound], .cg-wrap')) return;
+      if ((el as HTMLButtonElement).disabled) return;
+      play('ui');
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   // Darstellung (System, Hell, Dunkel)
@@ -62,7 +76,7 @@ export function App() {
   if (training) {
     return (
       <main>
-        <Trainer exercises={data.exercises} onExit={() => setTraining(false)} />
+        <Trainer exercises={data.exercises} byId={data.byId} onExit={() => setTraining(false)} />
       </main>
     );
   }

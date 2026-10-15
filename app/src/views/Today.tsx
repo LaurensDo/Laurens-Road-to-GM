@@ -1,5 +1,6 @@
 import { counts } from '../lib/queue';
-import { n0, n1, pct } from '../lib/format';
+import { dayKey, n0, n1, pct } from '../lib/format';
+import { listSets, loadActive, rateOf } from '../lib/sets';
 import { streak, today } from '../lib/stats';
 import { useAppState } from '../lib/store';
 import { SyncBadge } from './SyncCard';
@@ -23,6 +24,10 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
   const available = c.due + c.learning + c.newAvailable;
   const filtered = state.settings.filters.phase !== 'alle' || state.settings.filters.cat !== 'alle' || state.settings.filters.motif !== 'alle';
   const b = meta?.baseline;
+  const active = loadActive();
+  const activeDone = active ? state.log.filter((e) => e.set?.id === active.id).length : 0;
+  const resumable = !!active && activeDone > 0 && activeDone < active.size;
+  const todaySets = listSets(state.log).filter((r) => dayKey(r.startTs) === dayKey(now.getTime()));
 
   return (
     <section class="screen">
@@ -61,7 +66,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
           </div>
         </dl>
         <button class="btn" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
-          {t.n > 0 ? 'Weiter üben' : 'Training starten'}
+          {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
         </button>
         {filtered && (
           <p class="muted small">
@@ -75,6 +80,17 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
 
       <div class="card">
         <h2>Heute erledigt</h2>
+        {todaySets.length > 0 && (
+          <ul class="plain sets-today">
+            {todaySets.map((r) => (
+              <li key={r.id}>
+                <span class="mono">{new Date(r.startTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>{' '}
+                Satz mit {n0(r.entries.length)} {r.entries.length === 1 ? 'Aufgabe' : 'Aufgaben'}: <b class="mono">{pct(rateOf(r))}</b> richtig
+                {r.entries.length < r.planned && <span class="muted"> (nicht fertig)</span>}
+              </li>
+            ))}
+          </ul>
+        )}
         {t.n === 0 ? (
           <p class="muted">Noch keine Aufgabe. Fünf Minuten reichen für den Anfang.</p>
         ) : (

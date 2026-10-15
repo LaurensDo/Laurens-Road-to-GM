@@ -122,8 +122,19 @@ Schon jetzt festgelegt, damit später nichts umgebaut werden muss:
 - iPad: wird genutzt. Querformat zeigt Brett links und Erklärung rechts, Karten in zwei Spalten. ✔
 - Abgleich der Geräte: Weg C (privates GitHub-Repo) von Anfang an. ✔
 
+## 9a. Version 1.1 (umgesetzt)
+
+Feinschliff am bestehenden Umfang, vor Phase 2:
+
+- **Aufgabensätze:** feste Runde (5/10/15/20, Standard 10) mit Ergebnisseite und Einordnung nach festen Regeln. Satz pausieren und fortsetzen, vorzeitig beenden. Verlauf der Sätze unter Fortschritt, heutige Sätze unter Heute. Sätze laufen über den Abgleich auf beide Geräte.
+- **Töne:** Figur anklicken, Zug, Schlagzug, unzulässiger Zug, richtig, richtig aber langsam, falsch, Uhr (Start, Ticks in den letzten 3 Sekunden, Ablauf), Auswahl in der Oberfläche, Satz geschafft. Im Browser erzeugt (keine Dateien, keine Lizenzfragen). Nur pro Gerät einstellbar.
+- **Layouts:** iPhone quer (Brett links in voller Höhe, Erklärung rechts), iPad hoch (größeres Brett, größere Schrift), iPad quer (Brett links, Erklärung rechts, Karten in zwei Spalten). „Weiter“ steht in einer festen Leiste und ist ohne Scrollen erreichbar.
+- Version 1 ist im Repo als Commit `edcae70` festgehalten (ein Tag `v1.0` konnte aus der Cloud-Sitzung nicht gepusht werden).
+
+Offen aus 1.1: Töne und Layouts sind nur im simulierten Browser geprüft (Pegel und Abläufe), nicht auf echten Geräten gehört.
+
 ## 10. Reihenfolge
 
-1. **Version 1 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, iPad-Layout.
-2. **Version 1.1:** Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill im Uhr-Coach.
+1. **Version 1 (gebaut) und 1.1 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

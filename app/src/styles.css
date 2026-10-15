@@ -55,6 +55,7 @@ body {
   overscroll-behavior-y: none;
 }
 #app { max-width: 640px; margin: 0 auto; min-height: 100dvh; }
+.setresult { padding-bottom: 8px; }
 main { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 .trainer { padding-bottom: 24px; }
 h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
@@ -220,28 +221,84 @@ input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
 .sync-hint { font-size: 0.85rem; color: var(--muted); }
 .sync-hint.bad { color: var(--bad); }
 
-/* iPad: größeres Brett im Hochformat, Brett und Erklärung nebeneinander im Querformat */
+/* Aufgabensätze */
+.setbar { display: flex; gap: 4px; }
+.setbar > i { flex: 1; height: 6px; border-radius: 99px; background: var(--rule); min-width: 4px; }
+.setbar > i.ok { background: var(--good); }
+.setbar > i.slow { background: var(--warn); }
+.setbar > i.bad { background: var(--bad); }
+.setbar > i.now { background: var(--accent); opacity: 0.5; }
+.score-main { display: flex; align-items: baseline; gap: 10px; }
+.score .big { font-size: 2.6rem; font-weight: 600; line-height: 1; }
+.score .big small { font-size: 1.3rem; color: var(--muted); font-weight: 400; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips .chip { font-size: 0.85rem; padding: 5px 10px; }
+.tip { background: var(--accent-soft); color: var(--ink); border-radius: 10px; padding: 10px 12px; }
+.tasklist { list-style: none; margin: 0; padding: 0; display: grid; }
+.tasklist li { display: grid; grid-template-columns: 24px 1fr auto; gap: 4px 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.task-text { display: grid; gap: 2px; min-width: 0; }
+.task-main { font-weight: 500; }
+.task-side { display: grid; justify-items: end; gap: 2px; }
+.tasklist li:last-child { border-bottom: 0; }
+.tasklist .mark { font-weight: 700; text-align: center; }
+.tasklist .mark.ok { color: var(--good); }
+.tasklist .mark.slow { color: var(--warn); }
+.tasklist .mark.bad { color: var(--bad); }
+.tasklist a { color: var(--accent); }
+.sets-today { margin-bottom: 4px; }
+.sfx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+.sfx-grid .btn { min-height: 44px; font-size: 0.9rem; }
+
+/* Untere Leiste mit der Hauptaktion: bleibt beim Scrollen sichtbar */
+.dock {
+  position: sticky; bottom: 0; z-index: 10; display: grid; gap: 2px;
+  margin-inline: calc(-1 * var(--gutter)); padding: 12px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to bottom, transparent, var(--bg) 22%);
+}
+.setresult .dock { gap: 8px; }
+
+/* Dialog */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.45); display: grid; place-items: center; padding: 20px; }
+.modal-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 20px; display: grid; gap: 12px; width: min(100%, 420px); }
+
+/* ---- Größere Bildschirme ---- */
+/* Hochformat auf dem iPad: größere Schrift, breiterer Inhalt, so großes Brett wie die Höhe erlaubt */
 @media (min-width: 700px) {
-  #app { max-width: 720px; }
-  .board-wrap { width: min(100%, calc(100dvh - 360px), 640px); }
+  body { font-size: 17px; }
+  #app { max-width: 800px; }
+  .board-wrap { width: min(100%, calc(100dvh - 450px), 760px); }
   h1 { font-size: 2.4rem; }
 }
-@media (min-width: 1000px) {
-  #app { max-width: 1120px; }
-  .screen:not(.trainer) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 16px; }
-  .screen:not(.trainer) > .page-head { grid-column: 1 / -1; }
+
+/* Querformat (iPad quer, iPhone quer): Brett links in voller Höhe, alles andere rechts daneben */
+@media (orientation: landscape) and (min-width: 640px) {
+  #app { max-width: none; }
+  main { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .screen.trainer {
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
-    grid-template-areas: 'top top' 'prompt side' 'board side' 'timer side' 'ask side';
-    column-gap: 32px;
-    align-items: start;
+    --bs: min(calc(100dvh - 20px - env(safe-area-inset-bottom, 0px)), 60vw);
+    height: 100dvh; padding-block: 10px; padding-bottom: 0; gap: 8px 22px;
+    grid-template-columns: var(--bs) minmax(260px, 1fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas: 'board top' 'board bar' 'board prompt' 'board timer' 'board main' 'board dock';
+    align-content: start;
   }
   .trainer > .topbar { grid-area: top; }
+  .trainer > .setbar { grid-area: bar; }
   .trainer > .prompt { grid-area: prompt; }
-  .trainer > .board-wrap { grid-area: board; width: min(100%, calc(100dvh - 190px), 680px); margin: 0; }
-  .trainer > .timer { grid-area: timer; width: min(100%, calc(100dvh - 190px), 680px); }
-  .trainer > .actions.ask { grid-area: ask; }
-  .trainer > .result { grid-area: side; align-self: start; position: sticky; top: 12px; max-height: calc(100dvh - 90px); overflow-y: auto; padding-right: 4px; }
-  .trainer > .actions.ask { grid-area: side; align-self: start; }
+  .trainer > .board-wrap { grid-area: board; width: var(--bs); min-width: 0; margin: 0; align-self: start; }
+  .trainer > .timer { grid-area: timer; }
+  .trainer > .actions.ask, .trainer > .result { grid-area: main; min-height: 0; overflow-y: auto; align-content: start; padding-right: 4px; }
+  .trainer > .dock { grid-area: dock; margin: 0; padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); background: none; position: static; }
   .trainer > .card.center { grid-column: 1 / -1; }
+  /* Tab-Leiste flacher, damit im Querformat Platz bleibt */
+  .tabbar { padding-block: 2px calc(2px + env(safe-area-inset-bottom, 0px)); }
+  .tabbar button { grid-auto-flow: column; min-height: 42px; gap: 8px; align-items: center; justify-content: center; font-size: 0.85rem; }
+  .tabbar button svg { width: 20px; height: 20px; }
+}
+
+/* Sehr breit (iPad quer, große Fenster): Karten in zwei Spalten */
+@media (min-width: 1000px) {
+  #app { max-width: 1180px; }
+  .screen:not(.trainer) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 16px; }
+  .screen:not(.trainer) > .page-head, .screen:not(.trainer) > .dock { grid-column: 1 / -1; }
 }

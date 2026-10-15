@@ -6,19 +6,37 @@ import type { Key } from 'chessground/types';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.cburnett.css';
 import type { Role, SquareName } from 'chessops/types';
-import { destsOf, isPromotion, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
+import { destsOf, isCapture, isPromotion, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
 import { explain, sideName } from '../lib/explain';
 import { dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
 import { gradeFor, judge, type Judgement } from '../lib/judge';
 import { counts, pickNext, type PickKind } from '../lib/queue';
+import { getPrefs } from '../lib/device';
+import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type ActiveSet, type SetSummary } from '../lib/sets';
+import { play, startCue, timerCue } from '../lib/sound';
 import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
 import type { Exercise, Grade, ReviewEntry, Verdict } from '../lib/types';
+import { SetBar, SetResult } from './SetResult';
 
 interface Props {
   exercises: Exercise[];
+  byId: Map<string, Exercise>;
   onExit: () => void;
+}
+
+interface Finished {
+  s: SetSummary;
+  entries: ReviewEntry[];
+  moreAvailable: boolean;
+}
+
+function pointOf(e: Event): [number, number] | null {
+  const t = e as TouchEvent;
+  if (t.changedTouches && t.changedTouches.length) return [t.changedTouches[0].clientX, t.changedTouches[0].clientY];
+  const m = e as MouseEvent;
+  return typeof m.clientX === 'number' ? [m.clientX, m.clientY] : null;
 }
 
 interface Result {
@@ -52,7 +70,7 @@ function shape(orig: SquareName, dest: SquareName, brush: string): DrawShape {
   return { orig: orig as Key, dest: dest as Key, brush };
 }
 
-export function Trainer({ exercises, onExit }: Props) {
+export function Trainer({ exercises, byId, onExit }: Props) {
   const state = useAppState();
   const settings = state.settings;
 
@@ -63,6 +81,9 @@ export function Trainer({ exercises, onExit }: Props) {
   const [promo, setPromo] = useState<{ orig: SquareName; dest: SquareName } | null>(null);
   const [pv, setPv] = useState<{ line: number; step: number } | null>(null);
   const [finished, setFinished] = useState(false);
+  const [setId, setSetId] = useState<string | null>(null);
+  const [summary, setSummary] = useState<Finished | null>(null);
+  const [confirmExit, setConfirmExit] = useState(false);
 
   const boardEl = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
@@ -72,9 +93,20 @@ export function Trainer({ exercises, onExit }: Props) {
   const curRef = useRef<Exercise | null>(null);
   const phaseRef = useRef<'ask' | 'result'>('ask');
   const resultShapes = useRef<DrawShape[]>([]);
+  const activeRef = useRef<ActiveSet | null>(null);
+  const durDone = useRef(false);
+  const dragOrig = useRef<string | null>(null);
+  const moved = useRef(false);
 
   phaseRef.current = phase;
   curRef.current = current?.ex ?? null;
+
+  const setEntries = useMemo(
+    () => (setId ? state.log.filter((e) => e.set?.id === setId).sort((a, b) => a.ts - b.ts) : []),
+    [state.log, setId],
+  );
+  const answered = setEntries.length;
+  const setSize = activeRef.current?.size ?? settings.setSize;
 
   // Bildschirm anlassen, solange trainiert wird
   useEffect(() => {
@@ -98,27 +130,136 @@ export function Trainer({ exercises, onExit }: Props) {
     };
   }, []);
 
+  const destroyBoard = () => {
+    cg.current?.destroy();
+    cg.current = null;
+  };
+
+  const startSet = () => {
+    const now = Date.now();
+    const act: ActiveSet = { id: newSetId(now), startedAt: now, size: getState().settings.setSize, served: [] };
+    activeRef.current = act;
+    saveActive(act);
+    setSetId(act.id);
+    setSummary(null);
+    setFinished(false);
+  };
+
+  const showSummary = () => {
+    const act = activeRef.current;
+    if (!act) return;
+    const st = getState();
+    const entries = st.log.filter((e) => e.set?.id === act.id).sort((a, b) => a.ts - b.ts);
+    const previous = listSets(st.log)
+      .filter((r) => r.id !== act.id && r.entries.length >= r.planned)
+      .map(rateOf);
+    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, previous });
+    const moreAvailable = !!pickNext(exercises, st, new Date());
+    destroyBoard();
+    saveActive(null);
+    setCurrent(null);
+    setResult(null);
+    setPromo(null);
+    setPv(null);
+    setSummary({ s, entries, moreAvailable });
+    play('done');
+  };
+
   const loadNext = useCallback(() => {
-    const next = pickNext(exercises, getState(), new Date(), lastShown.current);
+    const act = activeRef.current;
+    if (!act) return;
+    const st = getState();
+    const done = st.log.filter((e) => e.set?.id === act.id).length;
+    durDone.current = false;
     setPv(null);
     setPromo(null);
     setResult(null);
     setPhase('ask');
     setElapsed(0);
-    if (!next) {
-      setCurrent(null);
-      setFinished(true);
+    if (done >= act.size) {
+      showSummary();
       return;
     }
+    const next = pickNext(exercises, st, new Date(), lastShown.current, new Set(act.served));
+    if (!next) {
+      if (done > 0) {
+        showSummary();
+      } else {
+        destroyBoard();
+        setCurrent(null);
+        setFinished(true);
+      }
+      return;
+    }
+    act.served.push(next.ex.id);
+    saveActive(act);
     lastShown.current = { id: next.ex.id, cat: next.ex.cat };
     setFinished(false);
+    setSummary(null);
     setCurrent(next);
-  }, [exercises]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercises, byId]);
 
   useEffect(() => {
+    const st = getState();
+    let act = loadActive();
+    if (act) {
+      const answeredIds = new Set(st.log.filter((e) => e.set?.id === act!.id).map((e) => e.id));
+      act.served = act.served.filter((id) => answeredIds.has(id));
+      if (answeredIds.size >= act.size) act = null;
+    }
+    if (act) {
+      activeRef.current = act;
+      setSetId(act.id);
+    } else {
+      startSet();
+    }
     loadNext();
-    return () => cg.current?.destroy();
+    return () => destroyBoard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Töne bei Berührung des Bretts
+  const onSelectSquare = (key: Key) => {
+    const g = cg.current;
+    if (!g || phaseRef.current !== 'ask') return;
+    const dests = g.state.movable.dests;
+    const prev = g.state.selected;
+    if (dests?.has(key)) {
+      moved.current = false;
+      dragOrig.current = key;
+      play('select');
+      return;
+    }
+    if (prev && dests && key !== prev && !dests.get(prev)?.includes(key)) play('illegal');
+  };
+
+  // Figur auf ein unzulässiges Feld gezogen und losgelassen: chessground meldet das nicht, deshalb hier prüfen
+  useEffect(() => {
+    const onUp = (e: Event) => {
+      const orig = dragOrig.current;
+      if (!orig) return;
+      dragOrig.current = null;
+      const g = cg.current;
+      const pt = pointOf(e);
+      if (!g || !pt || phaseRef.current !== 'ask') return;
+      const key = g.getKeyAtDomPos(pt);
+      window.setTimeout(() => {
+        if (moved.current) {
+          moved.current = false;
+          return;
+        }
+        if (!key || key === orig) return;
+        const dests = cg.current?.state.movable.dests;
+        if (dests && !dests.get(orig as Key)?.includes(key)) play('illegal');
+      }, 0);
+    };
+    document.addEventListener('mouseup', onUp, true);
+    document.addEventListener('touchend', onUp, true);
+    return () => {
+      document.removeEventListener('mouseup', onUp, true);
+      document.removeEventListener('touchend', onUp, true);
+    };
   }, []);
 
   // Brett aufbauen bzw. neue Aufgabe setzen
@@ -141,6 +282,7 @@ export function Trainer({ exercises, onExit }: Props) {
       selectable: { enabled: true },
       premovable: { enabled: false },
       drawable: { enabled: true, visible: true, autoShapes: [] as DrawShape[] },
+      events: { select: (key: Key) => onSelectSquare(key) },
       movable: {
         free: false,
         color,
@@ -157,13 +299,25 @@ export function Trainer({ exercises, onExit }: Props) {
     resultShapes.current = [];
     shownAt.current = performance.now();
     shownWall.current = Date.now();
+    if (startCue(getPrefs().timerSound, getState().settings.timeLimit)) play('start', { delay: 0.05 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
-  // Zeitanzeige
+  // Zeitanzeige und Uhr-Töne
   useEffect(() => {
     if (phase !== 'ask' || !current) return;
-    const id = window.setInterval(() => setElapsed(performance.now() - shownAt.current), 100);
+    let lastSec = 0;
+    const id = window.setInterval(() => {
+      const el = performance.now() - shownAt.current;
+      setElapsed(el);
+      const sec = Math.floor(el / 1000);
+      if (sec - lastSec > 2) lastSec = sec - 1; // nach einer Pause nicht alle verpassten Ticks nachholen
+      while (lastSec < sec) {
+        lastSec++;
+        const cue = timerCue(getPrefs().timerSound, getState().settings.timeLimit, lastSec);
+        if (cue) play(cue.sfx, { gain: cue.gain });
+      }
+    }, 100);
     return () => window.clearInterval(id);
   }, [phase, current]);
 
@@ -178,8 +332,18 @@ export function Trainer({ exercises, onExit }: Props) {
 
   const record = (ex: Exercise, verdict: Verdict, grade: Grade, ms: number, san: string | null, judgement: Judgement | null) => {
     const now = new Date();
+    const act = activeRef.current;
     const rec = applyReview(getState().cards[ex.id], grade, now);
-    const entry: ReviewEntry = { id: ex.id, ts: now.getTime(), grade, verdict, ms, dur: ms, san: san ?? undefined };
+    const entry: ReviewEntry = {
+      id: ex.id,
+      ts: now.getTime(),
+      grade,
+      verdict,
+      ms,
+      dur: ms,
+      san: san ?? undefined,
+      ...(act ? { set: { id: act.id, n: act.size } } : {}),
+    };
     update((s) => ({ ...s, cards: { ...s.cards, [ex.id]: rec }, log: [...s.log, entry] }));
     setResult({ verdict, judgement, san, ms, grade, nextDue: dueDate(rec), ts: entry.ts });
     setPhase('result');
@@ -193,6 +357,7 @@ export function Trainer({ exercises, onExit }: Props) {
     const san = sanOfMove(pos, orig, dest, role);
     if (!san) {
       cg.current?.set({ fen: ex.fen } as never);
+      play('illegal');
       return;
     }
     const ms = Math.round(performance.now() - shownAt.current);
@@ -204,6 +369,7 @@ export function Trainer({ exercises, onExit }: Props) {
     if (j.verdict !== 'best') shapes.push(shape(bf, bt, 'green'));
     if (!j.correct) shapes.push(shape(orig, dest, j.verdict === 'playable' ? 'yellow' : 'red'));
     record(ex, j.verdict, grade, ms, san, j);
+    play(j.correct ? (grade === 2 ? 'slow' : 'correct') : 'wrong', { delay: 0.14 });
     if (j.correct) showShapes(shapes);
     else showShapes(shapes, ex.fen);
   };
@@ -211,7 +377,9 @@ export function Trainer({ exercises, onExit }: Props) {
   const onUserMove = (orig: SquareName, dest: SquareName) => {
     const ex = curRef.current;
     if (!ex || phaseRef.current !== 'ask') return;
+    moved.current = true;
     const pos = positionOf(ex.fen);
+    play(isCapture(pos, orig, dest) ? 'capture' : 'move');
     if (isPromotion(pos, orig, dest)) {
       setPromo({ orig, dest });
       return;
@@ -232,7 +400,27 @@ export function Trainer({ exercises, onExit }: Props) {
     const ms = Math.round(performance.now() - shownAt.current);
     const [bf, bt] = uciSquares(ex.lines[0].uci);
     record(ex, 'gaveup', 1, ms, null, null);
+    play('wrong', { gain: 0.7, delay: 0.05 });
     showShapes([shape(bf, bt, 'green')], ex.fen);
+  };
+
+  /** Gesamtzeit mit der Aufgabe nachtragen, sobald man sie verlässt */
+  const commitDur = () => {
+    const r = result;
+    const ex = current?.ex;
+    if (r && ex && !durDone.current) {
+      durDone.current = true;
+      const dur = Math.min(180000, Date.now() - shownWall.current);
+      update((s) => ({
+        ...s,
+        log: s.log.map((e) => (e.id === ex.id && e.ts === r.ts ? { ...e, dur } : e)),
+      }));
+    }
+  };
+
+  const next = () => {
+    commitDur();
+    loadNext();
   };
 
   const hideAndNext = () => {
@@ -241,16 +429,27 @@ export function Trainer({ exercises, onExit }: Props) {
     next();
   };
 
-  const next = () => {
-    const r = result;
-    const ex = current?.ex;
-    if (r && ex) {
-      const dur = Math.min(180000, Date.now() - shownWall.current);
-      update((s) => ({
-        ...s,
-        log: s.log.map((e) => (e.id === ex.id && e.ts === r.ts ? { ...e, dur } : e)),
-      }));
+  const requestExit = () => {
+    commitDur();
+    if (summary || finished || !activeRef.current) {
+      if (finished) saveActive(null);
+      onExit();
+      return;
     }
+    if (answered === 0) {
+      saveActive(null);
+      onExit();
+      return;
+    }
+    if (answered >= activeRef.current.size) {
+      showSummary();
+      return;
+    }
+    setConfirmExit(true);
+  };
+
+  const nextSet = () => {
+    startSet();
     loadNext();
   };
 
@@ -265,6 +464,10 @@ export function Trainer({ exercises, onExit }: Props) {
     if (pv && steps) {
       const st = steps[Math.min(pv.step, steps.length - 1)];
       cg.current.set({ fen: st.fen, lastMove: st.lastMove as never, drawable: { autoShapes: [] } } as never);
+      if (pv.step > 0) {
+        const tok = current.ex.lines[pv.line].pv[pv.step - 1] ?? '';
+        play(tok.includes('x') ? 'capture' : 'move');
+      }
     } else if (phase === 'result') {
       cg.current.set({ fen: current.ex.fen, lastMove: undefined, drawable: { autoShapes: resultShapes.current } } as never);
     }
@@ -279,11 +482,25 @@ export function Trainer({ exercises, onExit }: Props) {
   const over = limit > 0 && elapsed > limit * 1000;
   const barPct = limit > 0 ? Math.min(100, (elapsed / (limit * 1000)) * 100) : 0;
 
+  if (summary) {
+    return (
+      <SetResult
+        summary={summary.s}
+        entries={summary.entries}
+        byId={byId}
+        limit={limit}
+        moreAvailable={summary.moreAvailable}
+        onNext={nextSet}
+        onExit={onExit}
+      />
+    );
+  }
+
   if (finished || !ex) {
     return (
       <section class="screen">
         <header class="topbar">
-          <button class="link" onClick={onExit}>
+          <button class="link" onClick={requestExit}>
             ← Zurück
           </button>
         </header>
@@ -303,13 +520,14 @@ export function Trainer({ exercises, onExit }: Props) {
                   const n = (s.bonus && s.bonus.day === day ? s.bonus.n : 0) + 5;
                   return { ...s, bonus: { day, n } };
                 });
+                startSet();
                 loadNext();
               }}
             >
               5 weitere neue Aufgaben
             </button>
           )}
-          <button class="btn" onClick={onExit}>
+          <button class="btn" onClick={requestExit}>
             Fertig
           </button>
         </div>
@@ -321,19 +539,22 @@ export function Trainer({ exercises, onExit }: Props) {
   const alts = ex.lines.slice(1).filter((l) => best.wp - l.wp <= 10);
   const correctNow = result && (result.verdict === 'best' || result.verdict === 'equal');
   const slow = result && correctNow && result.grade === 2;
+  const lastOfSet = answered >= setSize;
+  const taskNo = Math.min(setSize, phase === 'ask' ? answered + 1 : answered);
 
   return (
     <section class="screen trainer">
       <header class="topbar">
-        <button class="link" onClick={onExit} aria-label="Training beenden">
+        <button class="link" onClick={requestExit} aria-label="Training beenden">
           ← Beenden
         </button>
-        <div class="counts" aria-label="Warteschlange">
-          <span title="fällig">{n0(c.due)} fällig</span>
-          <span title="Lernschritte">{n0(c.learning)} lernen</span>
-          <span title="neu heute">{n0(c.newAvailable)} neu</span>
+        <div class="counts" aria-label="Fortschritt im Satz">
+          <span>
+            Aufgabe {n0(taskNo)} von {n0(setSize)}
+          </span>
         </div>
       </header>
+      <SetBar size={setSize} entries={setEntries} limit={limit} open={phase === 'ask'} />
 
       <div class="prompt">
         <span class={`side ${ex.turn}`}>{sideName(ex.turn)} am Zug</span>
@@ -416,7 +637,7 @@ export function Trainer({ exercises, onExit }: Props) {
           </p>
 
           {pv && steps ? (
-            <div class="pv">
+            <div class="pv" data-nosound>
               <div class="pv-moves mono">
                 {ex.lines[pv.line].pv.slice(0, steps.length - 1).map((m, i) => (
                   <button key={i} class={`pv-move ${i + 1 === pv.step ? 'on' : ''}`} onClick={() => setPv({ line: pv.line, step: i + 1 })}>
@@ -451,13 +672,49 @@ export function Trainer({ exercises, onExit }: Props) {
               </a>
             </div>
           )}
+        </div>
+      )}
 
+      {phase === 'result' && result && (
+        <div class="dock">
           <button class="btn" onClick={next}>
-            Weiter
+            {lastOfSet ? 'Ergebnis ansehen' : 'Weiter'}
           </button>
           <button class="link muted" onClick={hideAndNext}>
             Diese Aufgabe nicht mehr zeigen
           </button>
+        </div>
+      )}
+
+      {confirmExit && (
+        <div class="modal" role="dialog" aria-modal="true" aria-label="Satz beenden">
+          <div class="modal-card">
+            <h2>Satz beenden?</h2>
+            <p class="muted">
+              Du hast {n0(answered)} von {n0(setSize)} Aufgaben beantwortet. Deine Antworten sind schon gezählt.
+            </p>
+            <button
+              class="btn"
+              onClick={() => {
+                setConfirmExit(false);
+                onExit();
+              }}
+            >
+              Später weitermachen
+            </button>
+            <button
+              class="btn secondary"
+              onClick={() => {
+                setConfirmExit(false);
+                showSummary();
+              }}
+            >
+              Beenden und Ergebnis ansehen
+            </button>
+            <button class="link" onClick={() => setConfirmExit(false)}>
+              Zurück zur Aufgabe
+            </button>
+          </div>
         </div>
       )}
     </section>

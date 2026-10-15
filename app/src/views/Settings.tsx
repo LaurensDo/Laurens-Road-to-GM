@@ -1,35 +1,16 @@
 import { useState } from 'preact/hooks';
 import { exportJson, importJson, replaceState, update, useAppState } from '../lib/store';
 import { hiddenCount } from '../lib/queue';
+import { Segmented } from './Segmented';
+import { SoundCard } from './SoundCard';
 import { SyncCard } from './SyncCard';
+import { saveActive } from '../lib/sets';
 import { n0 } from '../lib/format';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
 interface Props {
   exercises: Exercise[];
   generated: string;
-}
-
-function Segmented<T extends string | number>({
-  value,
-  options,
-  onChange,
-  label,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-  label: string;
-}) {
-  return (
-    <div class="segmented" role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button key={String(o.value)} role="radio" aria-checked={o.value === value} class={o.value === value ? 'on' : ''} onClick={() => onChange(o.value)}>
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 export function Settings({ exercises, generated }: Props) {
@@ -98,6 +79,16 @@ export function Settings({ exercises, generated }: Props) {
 
       <div class="card">
         <h2>Training</h2>
+        <div class="field">
+          <label>Aufgaben pro Satz</label>
+          <Segmented
+            label="Aufgaben pro Satz"
+            value={s.setSize}
+            options={[5, 10, 15, 20].map((v) => ({ value: v, label: String(v) }))}
+            onChange={(v) => set({ setSize: v })}
+          />
+          <p class="muted small">Ein Satz ist eine Runde mit fester Zahl Aufgaben. Am Ende gibt es Ergebnis und Einordnung. Gilt ab dem nächsten Satz.</p>
+        </div>
         <div class="field">
           <label>Zeitlimit pro Aufgabe</label>
           <Segmented
@@ -183,7 +174,9 @@ export function Settings({ exercises, generated }: Props) {
       {hiddenCount(state) > 0 && (
         <div class="card">
           <h2>Ausgeblendete Aufgaben</h2>
-          <p class="muted">{n0(hiddenCount(state))} Aufgaben werden nicht mehr gezeigt.</p>
+          <p class="muted">
+            {hiddenCount(state) === 1 ? '1 Aufgabe wird' : `${n0(hiddenCount(state))} Aufgaben werden`} nicht mehr gezeigt.
+          </p>
           <button
             class="btn secondary"
             onClick={() =>
@@ -197,6 +190,8 @@ export function Settings({ exercises, generated }: Props) {
           </button>
         </div>
       )}
+
+      <SoundCard />
 
       <div class="card">
         <h2>Darstellung</h2>
@@ -263,6 +258,7 @@ export function Settings({ exercises, generated }: Props) {
                 class="btn danger"
                 onClick={() => {
                   const keep = state.settings;
+                  saveActive(null);
                   replaceState({ ...emptyState(), settings: keep, settingsTs: state.settingsTs, hidden: state.hidden, epoch: Date.now() });
                   setConfirmReset(false);
                   setMsg('Trainingsstand gelöscht.');
@@ -281,7 +277,7 @@ export function Settings({ exercises, generated }: Props) {
       <p class="muted small center">
         {n0(exercises.length)} Übungen · Datenstand {new Date(generated).toLocaleDateString('de-DE')}
         <br />
-        Road to GM · Version 1.0
+        Road to GM · Version 1.1
       </p>
     </section>
   );

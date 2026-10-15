@@ -33,7 +33,7 @@ async function connectWith(d, repo, token) {
 }
 async function solveFirstNew(d, ex) {
   await d.page.click('nav >> text=Heute');
-  await d.page.click('text=/Training starten|Weiter üben/');
+  await d.page.click('text=/Satz starten|Satz fortsetzen/');
   await d.page.waitForSelector('.board cg-board');
   await d.page.waitForTimeout(300);
   const white = ex.turn === 'w';
@@ -49,9 +49,11 @@ async function solveFirstNew(d, ex) {
   await d.page.mouse.click(pt(best.uci.slice(2, 4)).x, pt(best.uci.slice(2, 4)).y);
   if (best.san.includes('=')) { await d.page.waitForSelector('.promo'); await d.page.click('.promo >> text=Dame'); }
   await d.page.waitForSelector('.result');
-  await d.page.click('text=Weiter');
+  await d.page.getByRole('button', { name: 'Weiter', exact: true }).click();
   await d.page.waitForSelector('.board cg-board');
-  await d.page.click('text=Beenden');
+  await d.page.getByRole('button', { name: 'Training beenden' }).click();
+  await d.page.getByRole('button', { name: 'Beenden und Ergebnis ansehen', exact: true }).click();
+  await d.page.getByRole('button', { name: 'Für heute fertig', exact: true }).click();
   await d.page.waitForSelector('text=Tagesration');
 }
 const doneCount = async (d) => {
@@ -78,7 +80,11 @@ await phone.page.screenshot({ path: `${OUT}/1-fehler.png`, fullPage: true });
 // Richtig verbinden
 await phone.page.fill('#sync-token', 'ghp_mock');
 await phone.page.getByRole('button', { name: 'Verbinden', exact: true }).click();
-await phone.page.waitForSelector('text=Verbunden mit', { timeout: 8000 });
+await phone.page.waitForSelector('text=Verbunden mit', { timeout: 8000 }).catch(async (e) => {
+  await phone.page.screenshot({ path: `${OUT}/fehler-verbinden.png`, fullPage: true });
+  console.log('Sicht:', (await phone.page.locator('.card').first().textContent()).replace(/\s+/g, ' ').slice(0, 400));
+  throw e;
+});
 ok(true, 'iPhone verbunden');
 await phone.page.screenshot({ path: `${OUT}/2-verbunden.png`, fullPage: true });
 

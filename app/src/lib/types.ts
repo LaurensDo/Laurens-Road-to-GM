@@ -54,6 +54,8 @@ export interface ReviewEntry {
   ms: number; // Zeit bis zur Antwort
   dur: number; // gesamte Zeit mit der Aufgabe (inkl. Auswertung), begrenzt
   san?: string;
+  /** Aufgabensatz, zu dem die Antwort gehört (id) und dessen geplante Größe. Fehlt bei Einzelaufgaben. */
+  set?: { id: string; n: number };
 }
 
 /** Karte im Wiederholungsplan (ts-fsrs-Karte als JSON) */
@@ -76,6 +78,8 @@ export interface Settings {
   timeLimit: number; // Sekunden, 0 = aus
   tolerance: boolean; // gleichwertige Züge zählen
   newPerDay: number;
+  /** Aufgaben pro Satz */
+  setSize: number;
   goalMinutes: number;
   theme: ThemeSetting;
   filters: Filters;
@@ -106,6 +110,7 @@ export const DEFAULT_SETTINGS: Settings = {
   timeLimit: 10,
   tolerance: true,
   newPerDay: 15,
+  setSize: 10,
   goalMinutes: 15,
   theme: 'system',
   filters: { phase: 'alle', cat: 'alle', motif: 'alle' },
