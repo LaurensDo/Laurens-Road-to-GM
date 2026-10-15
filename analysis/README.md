@@ -7,12 +7,24 @@ Pipeline, die alle Blitz-Partien (3 bis 5 Minuten) von lichess und chess.com lä
 - Python 3.11+ mit `chess` (`pip install chess`)
 - Stockfish im `PATH` oder unter `/usr/games/stockfish`
 
+Optional, als eigene Checkouts **neben** diesem Repo (werden nicht ins Repo kopiert, beide AGPL-3.0):
+
+- [lichess-puzzler](https://github.com/ornicar/lichess-puzzler) unter `../ornicar/lichess-puzzler`
+  (oder Pfad zum `tagger`-Ordner in `LICHESS_TAGGER`). Liefert die Motive wie bei lichess-Puzzles.
+- [Maia-3](https://github.com/CSSLab/maia3): `pip install torch --index-url https://download.pytorch.org/whl/cpu`
+  und `pip install -e ../csslab/maia3`. Das Modell (79M) lädt beim ersten Lauf von Hugging Face.
+
+Ohne diese beiden läuft alles, nur mit einfacherer Motiv-Erkennung und ohne Maia-Einordnung.
+
 ## Ablauf
 
 ```bash
 python analysis/fetch_games.py --lichess Poquitonator --chesscom laurens3495   # ~4 min
 python analysis/analyze_games.py --since 2025-01-01 --workers 4                 # ~1 h, fortsetzbar
-python analysis/report.py                                                       # Kennzahlen -> data/report.json
+python analysis/tablebase.py --since 2025-01-01                                 # Endspiele ≤ 7 Steine, ~30 min
+python analysis/report.py                                                       # Kennzahlen + Übungsstellungen
+python analysis/maia_difficulty.py --model 79m                                  # optional, Maia-3-Einordnung
+python analysis/report.py                                                       # erneut, mit Maia-Daten
 python analysis/build_report.py                                                 # Seite -> data/diagnose.html
 ```
 
@@ -29,3 +41,9 @@ python analysis/build_report.py                                                 
 - **Uhr** aus den `%clk`-Angaben: Restzeit, Bedenkzeit, Zeitnot (unter 20 s bei 3 min, unter 30 s bei 5 min).
 - **Kritikalität**: Abstand zwischen bestem und zweitbestem Zug.
 - **Vergleich**: Dieselben Kennzahlen für die Gegner in denselben Partien (gleiches Niveau).
+- **Endspieldatenbank**: Syzygy über die lichess-API für alle Stellungen mit höchstens 7 Steinen.
+  Zeigt, wo ein theoretisches Ergebnis verschenkt wurde.
+- **Eröffnungsnamen**: einheitlich über den Katalog [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings) (CC0).
+- **Maia-3**: Wahrscheinlichkeit, dass ein Mensch deiner Stärke (bzw. +300 Elo) den richtigen Zug findet.
+  Daraus folgen die Klassen *Leichtsinn* (eigenes Niveau findet ihn meist), *Nächste Stufe*
+  (+300 Elo findet ihn oft) und *Schwer*.

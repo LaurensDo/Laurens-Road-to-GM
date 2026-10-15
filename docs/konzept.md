@@ -146,7 +146,50 @@ Von dir gebraucht:
 
 **Erfolgsmessung**: Rating schwankt stark und ist deshalb nur Nebenmetrik. Hauptmetrik sind die verlorenen Punkte pro Partie je Kategorie: Sinken sie dort, wo trainiert wird?
 
-## 10. Referenzen
+## 10. Open-Source-Bausteine
+
+Grundsatz: nichts selbst bauen, was es schon gut und frei gibt. Externe Projekte bleiben eigenständige Abhängigkeiten und werden nicht ins Repo kopiert. Bei AGPL-Projekten ist das wichtig, falls die App jemals öffentlich betrieben wird.
+
+### In Phase 0 im Einsatz
+
+| Baustein | Lizenz | Wofür |
+|---|---|---|
+| [Stockfish](https://github.com/official-stockfish/Stockfish) | GPL-3.0 | Bewertung jeder Stellung |
+| [python-chess](https://github.com/niklasf/python-chess) | GPL-3.0 | Partien lesen, Züge, Brettlogik |
+| [lichess Tablebase-API](https://tablebase.lichess.ovh) (Syzygy) | frei nutzbar | Exakte Endspielbewertung bis 7 Steine: Wo wurde aus Gewinn Remis? |
+| [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings) | CC0 | Einheitliche Eröffnungsnamen für chess.com und lichess |
+
+### Vorbereitet, wartet auf Freigabe
+
+| Baustein | Lizenz | Wofür |
+|---|---|---|
+| [lichess-puzzler, Tagger](https://github.com/ornicar/lichess-puzzler) | AGPL-3.0 | Erkennt dieselben ~60 Motive wie die lichess-Puzzles (Gabel, Ablenkung, Überlastung …). Deine Fehler lassen sich damit direkt den lichess-Trainingsthemen zuordnen. |
+| [Maia-3](https://github.com/CSSLab/maia3) + PyTorch | AGPL-3.0 | Menschliche Zugvorhersage je Elo-Stufe. Trennt „Fehler, den auf deinem Niveau fast jeder macht“ von „Zug, den Spieler 300 Punkte über dir finden“. Das ist das Trainingsmaterial für die nächste Stufe. |
+
+### Für die App (Phase 1+)
+
+| Baustein | Lizenz | Wofür |
+|---|---|---|
+| [chessground](https://github.com/lichess-org/chessground) | GPL-3.0 | Brett-Oberfläche (dieselbe wie auf lichess), touch-tauglich |
+| [chessops](https://github.com/niklasf/chessops) | GPL-3.0 | Schachlogik in TypeScript |
+| [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) / [py-fsrs](https://github.com/open-spaced-repetition/py-fsrs) | MIT | Moderner Spaced-Repetition-Planer (FSRS, auch in Anki) |
+| [lichess Puzzle-Datenbank](https://database.lichess.org/#puzzles) | CC0 | Rund 5 Mio. Puzzles mit Thema und Rating, um zu deinen Schwächen passende Aufgaben zu ziehen |
+| [lichess Opening Explorer](https://lichess.org/api#tag/Opening-Explorer) | API | Was Spieler deiner Stärke in einer Stellung spielen und wie es ausgeht. Braucht einen kostenlosen lichess-API-Token. |
+
+### Gesichtet als Vorbild, nicht übernommen
+
+Diese Projekte sind aus der Recherche bekannt und nicht im Detail geprüft:
+
+- **Hires Chess Trainer** (MIT): eigene Fehler mit Stockfish finden und per Spaced Repetition üben. Kommt der Idee am nächsten, ist aber eine Windows-Desktop-App (pygame).
+- **[chessli2](https://github.com/pwenker/chessli2)**: lichess-Fehler als Anki-Karten.
+- **[isuckatchess](https://github.com/calint/isuckatchess)**: Puzzles aus den eigenen chess.com-Fehlern.
+- **[chess-postmortem-skills](https://github.com/brumar/chess-postmortem-skills)**: Schwächen-Report mit Trainingsplan.
+- **[En Croissant](https://github.com/franciscoBSalgueiro/en-croissant)**: Desktop-Schach-GUI mit Repertoire-Training. Gut für tiefere Eröffnungsarbeit am Rechner.
+- **[Chesskit](https://github.com/GuillaumeSD/Chesskit)**: offene Partieanalyse im Browser, ähnlich wie Game Review auf chess.com.
+
+Ohne Code sofort nutzbar sind außerdem die Themen-Puzzles auf lichess (`lichess.org/training/<thema>`, z. B. [fork](https://lichess.org/training/fork)) und die Endspiel-Übungen unter [lichess.org/practice](https://lichess.org/practice).
+
+## 11. Referenzen
 
 - lichess API: <https://lichess.org/api>
 - chess.com Published-Data API: <https://www.chess.com/news/view/published-data-api>

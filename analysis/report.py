@@ -11,12 +11,16 @@ Schreibt data/report.json            (alle Kennzahlen für die Report-Seite)
 import collections
 import datetime as dt
 import json
+import logging
 import math
+import os
+import sys
 import statistics as st
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import chess
+import chess.pgn
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 TZ = ZoneInfo("Europe/Berlin")
@@ -85,21 +89,132 @@ def endgame_type(board):
     return "Turm + Leichtfigur(en)"
 
 
+OPENINGS_URL = "https://raw.githubusercontent.com/lichess-org/chess-openings/master/{}.tsv"
+OPENINGS_LOCAL = DATA.parent.parent / "lichess-org" / "chess-openings"
+
+
+def load_openings():
+    """EPD -> (ECO, Name) aus dem offenen Eröffnungskatalog von lichess (CC0)."""
+    cache = DATA / "openings"
+    cache.mkdir(exist_ok=True)
+    book = {}
+    for part in "abcde":
+        local = OPENINGS_LOCAL / f"{part}.tsv"
+        cached = cache / f"{part}.tsv"
+        if local.exists():
+            text = local.read_text()
+        elif cached.exists():
+            text = cached.read_text()
+        else:
+            import urllib.request
+            text = urllib.request.urlopen(OPENINGS_URL.format(part), timeout=60).read().decode()
+            cached.write_text(text)
+        for line in text.splitlines()[1:]:
+            eco, name, pgn = line.split("\t")
+            board = chess.Board()
+            for tok in pgn.split():
+                if tok.endswith("."):
+                    continue
+                board.push_san(tok)
+            book[board.epd()] = (eco, name)
+    return book
+
+
+def name_opening(moves, book):
+    """Tiefster bekannter Katalogeintrag entlang der ersten 30 Halbzüge."""
+    board = chess.Board()
+    best = None
+    for uci, _ in moves[:30]:
+        board.push_uci(uci)
+        hit = book.get(board.epd())
+        if hit:
+            best = hit
+    return best
+
+
 def opening_family(name):
-    if not name:
-        return "Unbekannt"
-    words = name.replace(":", " ").replace("-", " ").replace("'", "").split()
-    for i, w in enumerate(words):
-        if w in ("Defense", "Opening", "Game", "Gambit", "Attack", "System", "Countergambit"):
-            return " ".join(words[: i + 1])
-    return " ".join(words[:2])
+    """Katalognamen haben die Form "Familie: Variante, Untervariante"."""
+    return name.split(":")[0] if name else "Unbekannt"
 
 
 def time_trouble_limit(base):
     return 20 if base <= 180 else 30
 
 
-# ---------------------------------------------------------------- Motive
+# ---------------------------------------------------------------- Motive (lichess-Tagger)
+
+# Der Motiv-Tagger von lichess (https://github.com/ornicar/lichess-puzzler, AGPL-3.0) wird
+# als separater Checkout eingebunden, nicht ins Repo kopiert. Ohne ihn greift die einfache
+# eigene Erkennung weiter unten.
+# Gesucht wird neben dem Repo-Ordner (../ornicar/lichess-puzzler) oder über LICHESS_TAGGER.
+TAGGER_DIR = Path(os.environ.get("LICHESS_TAGGER", DATA.parent.parent / "ornicar" / "lichess-puzzler" / "tagger"))
+try:
+    sys.path.insert(0, str(TAGGER_DIR))
+    import cook as _cook  # noqa: E402
+    from model import Puzzle as _Puzzle  # noqa: E402
+    logging.getLogger("cook").setLevel(logging.WARNING)
+except ImportError:
+    _cook = None
+
+# Motive, die im Report auftauchen: lichess-Schlüssel -> deutscher Name
+THEMES = {
+    "hangingPiece": "Hängende Figur", "fork": "Gabel", "pin": "Fesselung", "skewer": "Spieß",
+    "discoveredAttack": "Abzugsangriff", "doubleCheck": "Doppelschach", "deflection": "Ablenkung",
+    "attraction": "Hinlenkung", "overloading": "Überlastung", "trappedPiece": "Gefangene Figur",
+    "xRayAttack": "Röntgenangriff", "capturingDefender": "Verteidiger schlagen", "intermezzo": "Zwischenzug",
+    "clearance": "Linienräumung", "interference": "Unterbrechung", "quietMove": "Stiller Zug",
+    "sacrifice": "Opfer", "exposedKing": "Ungeschützter König", "kingsideAttack": "Königsangriff",
+    "advancedPawn": "Vorgerückter Bauer", "promotion": "Umwandlung", "attackingF2F7": "Angriff auf f2/f7",
+    "mateIn1": "Matt in 1", "mateIn2": "Matt in 2", "mateIn3": "Matt in 3", "backRankMate": "Grundreihenmatt",
+    "smotheredMate": "Ersticktes Matt", "defensiveMove": "Verteidigungszug",
+}
+
+
+def trim_line(board, pv, punisher):
+    """Kürzt eine Engine-Variante wie ein Puzzle: endet mit dem Zug des Angreifers,
+    der den größten Materialgewinn (oder Matt) erreicht."""
+    b = board.copy(stack=False)
+    start = balance(b, punisher)
+    best_gain, cut = None, 0
+    for i, mv in enumerate(pv):
+        try:
+            m = chess.Move.from_uci(mv)
+        except ValueError:
+            break
+        if m not in b.legal_moves:
+            break
+        b.push(m)
+        if b.is_checkmate():
+            return pv[: i + 1]
+        if i % 2 == 0:
+            gain = balance(b, punisher) - start
+            if best_gain is None or gain > best_gain:
+                best_gain, cut = gain, i + 1
+    return pv[:cut]
+
+
+def lichess_tags(board, setup_move, pv, cp):
+    """Motive nach lichess-Puzzle-Logik für: Ausgangsstellung -> Fehlerzug -> Bestrafung."""
+    if _cook is None:
+        return None
+    after = board.copy(stack=False)
+    after.push(setup_move)
+    line = trim_line(after, pv, after.turn)
+    if not line:
+        return []
+    # Ohne Zugstapel: from_board würde sonst die ganze Partie ab Zug 1 übernehmen
+    game = chess.pgn.Game.from_board(chess.Board(board.fen()))
+    node = game.add_variation(setup_move)
+    for mv in line:
+        node = node.add_variation(chess.Move.from_uci(mv))
+    try:
+        tags = _cook.cook(_Puzzle("x", game, min(abs(cp), 1000)))
+    except Exception:
+        return []
+    return [t for t in tags if t in THEMES]
+
+
+# ---------------------------------------------------------------- Motive (eigene Erkennung)
 
 def line_net_loss(board, pv, victim):
     """Materialverlust (Bauerneinheiten) für `victim`, wenn die Variante gespielt wird.
@@ -243,8 +358,8 @@ def walk_game(raw, ana):
     board = chess.Board()
     clocks = {chess.WHITE: float(base), chess.BLACK: float(base)}
     out = []
-    prev_loss = {chess.WHITE: 0.0, chess.BLACK: 0.0}
     last_loss_of = {}
+    prev_board, prev_move = None, None
     for i, (uci, clk) in enumerate(raw["moves"]):
         entry = plies[i] if i < len(plies) else {}
         mover = board.turn
@@ -252,6 +367,7 @@ def walk_game(raw, ana):
         cp_before = entry.get("cp")
         cp_after = plies[i + 1].get("cp") if i + 1 < len(plies) else ana.get("final_cp")
         if cp_before is None or cp_after is None:
+            prev_board, prev_move = board.copy(stack=False), move
             board.push(move)
             continue
         sign = 1 if mover == chess.WHITE else -1
@@ -310,6 +426,10 @@ def walk_game(raw, ana):
             rec["motifs"] = motifs_in_line(board_after, refutation, not mover) if cat in TACTIC_CATS else []
             if missed_punish:
                 rec["missed_motifs"] = motifs_in_line(board, entry.get("pv", []), mover)
+            if cat in ("Figur eingestellt", "Gegnerische Taktik übersehen", "Matt übersehen"):
+                rec["lt"] = lichess_tags(board, move, refutation, cp_after)
+            if missed_punish and prev_board is not None:
+                rec["lt_missed"] = lichess_tags(prev_board, prev_move, entry.get("pv", []), cp_before)
             rec["fen"] = board.fen()
             rec["epd"] = board.epd()
             rec["san"] = board.san(move)
@@ -338,6 +458,7 @@ def walk_game(raw, ana):
             rec["eg_type"] = endgame_type(board)
         last_loss_of[mover] = loss
         out.append(rec)
+        prev_board, prev_move = board.copy(stack=False), move
         board.push(move)
     return out
 
@@ -364,9 +485,13 @@ def main():
         raw[(g["platform"], g["id"])] = g
     analyses = [json.loads(l) for l in (DATA / "analysis.jsonl").open()]
 
+    book = load_openings()
     games = []
     for a in analyses:
         g = raw[(a["platform"], a["id"])]
+        hit = name_opening(g["moves"], book)
+        if hit:
+            g["eco"], g["opening"] = hit
         g["recs"] = walk_game(g, a)
         if g["recs"]:
             games.append(g)
@@ -503,24 +628,31 @@ def main():
         "n_me": len(mist_nt),
     }
 
-    # ---- Motive
-    mot_victim = collections.Counter()
-    mot_missed = collections.Counter()
-    opp_mot_victim = collections.Counter()
-    for r in my_recs:
-        if r["loss"] >= MISTAKE:
-            for t in r.get("motifs", [])[:1]:
-                mot_victim[t] += 1
-            for t in r.get("missed_motifs", [])[:1]:
-                mot_missed[t] += 1
-    for r in opp_recs:
-        if r["loss"] >= MISTAKE:
-            for t in r.get("motifs", [])[:1]:
-                opp_mot_victim[t] += 1
-    report["motifs_against_me"] = [{"motif": k, "n": v, "per_100_games": round(100 * v / n_games, 1),
-                                    "opp_per_100_games": round(100 * opp_mot_victim[k] / n_games, 1)}
-                                   for k, v in mot_victim.most_common()]
-    report["motifs_missed"] = [{"motif": k, "n": v} for k, v in mot_missed.most_common()]
+    # ---- Motive (lichess-Themen, mehrere pro Fehler möglich)
+    report["motif_source"] = "lichess-puzzler" if _cook is not None else "eigene Erkennung"
+
+    def motif_counts(recs, key_lt, key_old):
+        c = collections.Counter()
+        for r in recs:
+            if r["loss"] < MISTAKE:
+                continue
+            tags = r.get(key_lt) if _cook is not None else r.get(key_old)
+            for t in set(tags or []):
+                c[t] += 1
+        return c
+
+    def motif_rows(me_c, opp_c):
+        rows = []
+        for k in set(me_c) | set(opp_c):
+            rows.append({"key": k, "motif": THEMES.get(k, k),
+                         "me": round(100 * me_c[k] / n_games, 1), "opp": round(100 * opp_c[k] / n_games, 1),
+                         "n": me_c[k]})
+        rows.sort(key=lambda r: -r["me"])
+        return rows
+
+    report["motifs_against_me"] = motif_rows(motif_counts(my_recs, "lt", "motifs"), motif_counts(opp_recs, "lt", "motifs"))
+    report["motifs_missed"] = motif_rows(motif_counts(my_recs, "lt_missed", "missed_motifs"),
+                                         motif_counts(opp_recs, "lt_missed", "missed_motifs"))
     cats_me = collections.Counter(r["cat"] for r in my_recs if r["loss"] >= MISTAKE)
     cats_opp = collections.Counter(r["cat"] for r in opp_recs if r["loss"] >= MISTAKE)
     report["mistake_types_per_100_games"] = [
@@ -620,6 +752,59 @@ def main():
         "opp_tt_share": pct(sum(1 for r in eg_opp if r["time_trouble"]), len(eg_opp)),
     }
 
+    # ---- Endspieldatenbank (≤ 7 Steine): Züge, die das theoretische Ergebnis verschlechtern
+    tb_path = DATA / "tablebase.jsonl"
+    if tb_path.exists():
+        tb_value = {"win": 1, "cursed-win": 0, "draw": 0, "blessed-loss": 0, "loss": -1}
+        by_game = {(g["platform"], g["id"]): g for g in games}
+        tb = [json.loads(l) for l in tb_path.open()]
+        tb = [t for t in tb if (t["platform"], t["id"]) in by_game]
+        known = []
+        for t in tb:
+            vb, va = tb_value.get(t["before"]), tb_value.get(t["after"])
+            if vb is None or va is None:
+                continue
+            g = by_game[(t["platform"], t["id"])]
+            mover = chess.WHITE if g["color"] == "white" else chess.BLACK
+            # Restzeit vor dem Zug: Uhr nach dem eigenen vorherigen Zug
+            prev = [c for k, (_, c) in enumerate(g["moves"][: t["ply"]]) if k % 2 == t["ply"] % 2 and c is not None]
+            clock = prev[-1] if prev else g["base"]
+            known.append({**t, "vb": vb, "va": va, "clock": clock,
+                          "tt": clock < time_trouble_limit(g["base"]),
+                          "eg_type": endgame_type(chess.Board(t["fen"])), "url": g["url"], "color": g["color"],
+                          "date": dt.datetime.fromtimestamp(g["end_ts"], TZ).date().isoformat()})
+        errs = [k for k in known if k["va"] < k["vb"]]
+        kinds = collections.Counter(
+            {(1, 0): "Gewinn → Remis", (1, -1): "Gewinn → Verlust", (0, -1): "Remis → Verlust"}[(k["vb"], k["va"])] for k in errs)
+        per_type = collections.defaultdict(lambda: {"moves": 0, "errors": 0})
+        for k in known:
+            per_type[k["eg_type"]]["moves"] += 1
+            per_type[k["eg_type"]]["errors"] += k["va"] < k["vb"]
+        won_games = {(k["platform"], k["id"]) for k in known if k["vb"] == 1}
+        drawn_games = {(k["platform"], k["id"]) for k in known if k["vb"] == 0} - won_games
+        nt = [k for k in known if not k["tt"]]
+        tt = [k for k in known if k["tt"]]
+        ex = sorted([k for k in errs if k["clock"] >= 15 and k["best"]], key=lambda k: k["date"], reverse=True)
+        report["tablebase"] = {
+            "games": len({(k["platform"], k["id"]) for k in known}),
+            "moves": len(known),
+            "errors": len(errs),
+            "kinds": dict(kinds),
+            "error_rate_no_tt": pct(sum(1 for k in nt if k["va"] < k["vb"]), len(nt)),
+            "error_rate_tt": pct(sum(1 for k in tt if k["va"] < k["vb"]), len(tt)),
+            "tt_share": pct(len(tt), len(known)),
+            "won_games": len(won_games),
+            "won_games_converted": sum(1 for key in won_games if by_game[key]["result"] == 1),
+            "drawn_games": len(drawn_games),
+            "drawn_games_lost": sum(1 for key in drawn_games if by_game[key]["result"] == 0),
+            "by_type": sorted([{"type": t, **v, "rate": pct(v["errors"], v["moves"])} for t, v in per_type.items()],
+                              key=lambda r: -r["moves"]),
+            "examples": [{"fen": k["fen"], "played": k["played_san"], "played_uci": k["uci"], "best": k["best"],
+                          "kind": {(1, 0): "Gewinn → Remis", (1, -1): "Gewinn → Verlust", (0, -1): "Remis → Verlust"}[(k["vb"], k["va"])],
+                          "eg_type": k["eg_type"], "clock": k["clock"], "url": k["url"], "color": k["color"],
+                          "date": k["date"]} for k in ex[:4]],
+        }
+
     # ---- Verwertung / Rettung
     def conversion(threshold_hi, side_me=True):
         res = collections.Counter()
@@ -696,12 +881,56 @@ def main():
                 training.append({
                     "fen": r["fen"], "played": r["san"], "best": r["best_san"], "pv": r.get("pv_san"),
                     "played_uci": r["uci"], "best_uci": r.get("best_uci"),
-                    "loss": round(r["loss"], 1), "cat": r["cat"], "motifs": r.get("motifs", []),
-                    "missed_motifs": r.get("missed_motifs", []), "phase": r["phase"],
+                    "loss": round(r["loss"], 1), "cat": r["cat"],
+                    "motifs": [THEMES[t] for t in (r.get("lt") or [])] if _cook else r.get("motifs", []),
+                    "missed_motifs": [THEMES[t] for t in (r.get("lt_missed") or [])] if _cook else r.get("missed_motifs", []),
+                    "themes": r.get("lt") or [], "missed_themes": r.get("lt_missed") or [], "phase": r["phase"],
                     "clock": r["clock"], "spent": r["spent"], "url": g["url"],
                     "date": dt.datetime.fromtimestamp(g["end_ts"], TZ).date().isoformat(),
                 })
     report["training_positions"] = len(training)
+
+    # ---- Maia-3: Wie menschlich sind deine Fehler? (falls data/maia.jsonl existiert)
+    maia_path = DATA / "maia.jsonl"
+    if maia_path.exists():
+        maia = {(m["url"], m["fen"]): m for m in map(json.loads, maia_path.open())}
+        for t in training:
+            m = maia.get((t["url"], t["fen"]))
+            if not m:
+                continue
+            t.update({k: m[k] for k in ("p_best_me", "p_best_up", "p_played_me", "p_played_up")})
+            if m["p_best_me"] >= 0.5:
+                t["maia_class"] = "Leichtsinn"
+            elif m["p_best_up"] >= 0.3:
+                t["maia_class"] = "Nächste Stufe"
+            else:
+                t["maia_class"] = "Schwer"
+            t["trap"] = m["p_played_me"] >= 0.3
+        mt = [t for t in training if "maia_class" in t]
+        classes = ("Leichtsinn", "Nächste Stufe", "Schwer")
+
+        def share(xs, cls):
+            return pct(sum(1 for t in xs if t["maia_class"] == cls), len(xs))
+
+        fast = [t for t in mt if t["spent"] is not None and t["spent"] < 2]
+        slow = [t for t in mt if t["spent"] is not None and t["spent"] >= 5]
+        report["maia"] = {
+            "n": len(mt),
+            "classes": {c: share(mt, c) for c in classes},
+            "loss_share": {c: pct(sum(t["loss"] for t in mt if t["maia_class"] == c), sum(t["loss"] for t in mt))
+                           for c in classes},
+            "by_phase": {ph: {c: share([t for t in mt if t["phase"] == ph], c) for c in classes}
+                         for ph in ("Eröffnung", "Mittelspiel", "Endspiel")},
+            "fast_leichtsinn": share(fast, "Leichtsinn"),
+            "slow_leichtsinn": share(slow, "Leichtsinn"),
+            "n_fast": len(fast), "n_slow": len(slow),
+            "traps": pct(sum(1 for t in mt if t["trap"]), len(mt)),
+            "avg_p_best_me": round(st.mean(t["p_best_me"] for t in mt), 3),
+            "avg_p_best_up": round(st.mean(t["p_best_up"] for t in mt), 3),
+        }
+        nxt = sorted([t for t in mt if t["maia_class"] == "Nächste Stufe" and t["clock"] >= 30 and t.get("pv")],
+                     key=lambda t: (t["p_best_up"] - t["p_best_me"]), reverse=True)
+        report["maia_examples"] = [{**t, "color": "white" if " w " in t["fen"] else "black"} for t in nxt[:4]]
     # Typische Beispiele je Fehlerart: jüngste, deutliche Fehler ohne Zeitnot
     examples = []
     for cat in ("Figur eingestellt", "Gegnerische Taktik übersehen", "Gegnerfehler nicht bestraft", "Matt übersehen"):

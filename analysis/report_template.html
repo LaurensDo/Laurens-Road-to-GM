@@ -260,15 +260,53 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
       <div class="tablewrap"><table id="t-eg"></table></div>
       <div class="cap">Erwartet = Gewinnchance beim Eintritt ins Endspiel. Erreicht = tatsächliches Ergebnis.</div>
     </div>
+    <div class="figure" id="tb-block">
+      <h3>Geprüft mit der Endspieldatenbank (bis 7 Steine)</h3>
+      <p class="lede" id="tb-lede"></p>
+      <div class="stats" id="tb-stats"></div>
+      <div class="boards" id="b-tb"></div>
+    </div>
   </section>
 
   <section>
     <div class="section-head">
       <div class="eyebrow">Typische Fehler</div>
       <h2>So sehen deine Fehler aus</h2>
-      <p class="lede">Aktuelle Beispiele aus deinen Partien, jeweils mit mehr als 30 Sekunden auf der Uhr. Rot ist dein Zug, grün der bessere.</p>
+      <p class="lede" id="motif-lede"></p>
     </div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Du</span><span><i style="background:var(--ref)"></i>Gegner</span></div>
+    <div class="cols">
+      <div class="figure">
+        <h3>Taktiken, die dich treffen</h3>
+        <div class="chart" id="c-mot"></div>
+        <div class="cap">Pro 100 Partien: Wie oft wurde ein Fehler mit diesem Motiv bestraft?</div>
+      </div>
+      <div class="figure">
+        <h3>Taktiken, die du auslässt</h3>
+        <div class="chart" id="c-motmiss"></div>
+        <div class="cap">Pro 100 Partien: Der Gegner patzt, und du findest die Bestrafung mit diesem Motiv nicht.</div>
+      </div>
+    </div>
+    <div class="figure">
+      <h3>Direkt üben auf lichess</h3>
+      <div class="legend" id="motif-links"></div>
+    </div>
+    <h3>Beispiele</h3>
+    <p class="cap">Aktuelle Fälle aus deinen Partien, jeweils mit mehr als 30 Sekunden auf der Uhr. Rot ist dein Zug, grün der bessere.</p>
     <div class="boards" id="b-examples"></div>
+  </section>
+
+  <section id="maia-section">
+    <div class="section-head">
+      <div class="eyebrow">Maia-3 · menschliche Einordnung</div>
+      <h2>Welche Fehler dich von der nächsten Stufe trennen</h2>
+      <p class="lede" id="maia-lede"></p>
+    </div>
+    <div class="stats" id="maia-stats"></div>
+    <div class="figure">
+      <h3>Beispiele: Diese Züge finden Spieler 300 Punkte über dir deutlich öfter</h3>
+      <div class="boards" id="b-maia"></div>
+    </div>
   </section>
 
   <section>
@@ -562,6 +600,41 @@ function render() {
       return `<tr><td>${esc(e.type)}</td><td class="n">${de(e.n)}</td><td class="n">${pctf(e.expected * 100, 0)}</td><td class="n">${pctf(e.actual * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(e.diff * 100, 0)} %</span></td><td class="n">${de(e.timeouts)}</td><td class="n">${pctf(e.tt_share, 0)}</td></tr>`;
     }).join("") + "</tbody>";
 
+  // Endspieldatenbank
+  const tb = R.tablebase;
+  if (!tb || !tb.moves) {
+    document.getElementById("tb-block").hidden = true;
+  } else {
+    document.getElementById("tb-lede").innerHTML = F.tb_lede || "";
+    document.getElementById("tb-stats").innerHTML = [
+      [de(tb.won_games_converted) + " / " + de(tb.won_games), "theoretisch gewonnene Endspiele gewonnen", "laut Datenbank am Brett gewonnen"],
+      [de(tb.drawn_games_lost) + " / " + de(tb.drawn_games), "theoretische Remis-Endspiele verloren", "obwohl Remis möglich war"],
+      [pctf(tb.error_rate_no_tt, 1), "deiner Endspielzüge verschenken das Ergebnis", `ohne Zeitnot · in Zeitnot: ${pctf(tb.error_rate_tt, 1)}`],
+      [pctf(tb.tt_share, 0), "dieser Züge spielst du in Zeitnot", `${de(tb.moves)} Züge aus ${de(tb.games)} Partien`],
+    ].map(([b, l, s]) => `<div class="stat"><div class="big num">${b}</div><div class="lbl">${l}</div><div class="sub">${s}</div></div>`).join("");
+    document.getElementById("b-tb").innerHTML = tb.examples.map((x) => `
+      <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, null))}
+        <div class="posinfo">
+          <div class="muted">${esc(x.eg_type)} · ${esc(x.kind)} · ${new Date(x.date).toLocaleDateString("de-DE")}</div>
+          <div>Du: <span class="mv bad">${esc(x.played)}</span> mit ${de(x.clock, 0)} s auf der Uhr</div>
+          <div>Richtig: <span class="mv good">${x.best.map(esc).join(", ")}</span></div>
+          <div class="muted"><a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
+        </div></div>`).join("");
+  }
+
+  // Motive
+  document.getElementById("motif-lede").innerHTML = F.motif_lede || "";
+  const skip = new Set(["defensiveMove", "quietMove", "advancedPawn", "exposedKing", "kingsideAttack"]);
+  const motA = R.motifs_against_me.filter((m) => !skip.has(m.key)).slice(0, 8);
+  const motM = R.motifs_missed.filter((m) => !skip.has(m.key)).slice(0, 8);
+  pairbars("c-mot", motA.map((m) => ({ label: m.motif, me: m.me, opp: m.opp })), (v) => de(v, 1));
+  pairbars("c-motmiss", motM.map((m) => ({ label: m.motif, me: m.me, opp: m.opp })), (v) => de(v, 1));
+  const linkKeys = [...new Set([...motA.slice(0, 5), ...motM.slice(0, 3)].map((m) => m.key))];
+  document.getElementById("motif-links").innerHTML = linkKeys.map((k) => {
+    const m = [...motA, ...motM].find((x) => x.key === k);
+    return `<a href="https://lichess.org/training/${encodeURIComponent(k)}" target="_blank" rel="noopener">${esc(m.motif)} →</a>`;
+  }).join("");
+
   // Beispiele
   document.getElementById("b-examples").innerHTML = R.examples.map((x) => `
     <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
@@ -571,6 +644,29 @@ function render() {
         <div class="mv muted">${esc(x.pv)}</div>
         <div class="muted">−${de(x.loss, 0)} Prozentpunkte${(x.motifs || []).length ? " · Motiv: " + esc(x.motifs[0]) : ""}${(x.missed_motifs || []).length ? " · verpasst: " + esc(x.missed_motifs[0]) : ""} · <a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
       </div></div>`).join("");
+
+  // Maia
+  const mi = R.maia;
+  if (!mi) {
+    document.getElementById("maia-section").hidden = true;
+  } else {
+    document.getElementById("maia-lede").innerHTML = F.maia_lede || "";
+    const cls = [
+      ["Leichtsinn", "Den richtigen Zug hätte ein Spieler deiner Stärke meistens gefunden", "Maia auf deinem Niveau: über 50 %"],
+      ["Nächste Stufe", "Den richtigen Zug finden Spieler 300 Punkte über dir oft", "Maia +300 Elo: mindestens 30 %"],
+      ["Schwer", "Auch 300 Punkte stärkere Spieler finden den Zug selten", "Maia +300 Elo: unter 30 %"],
+    ];
+    document.getElementById("maia-stats").innerHTML = cls.map(([c, l, s]) =>
+      `<div class="stat"><div class="big num">${pctf(mi.classes[c], 0)}</div><div class="lbl"><b>${c}</b>: ${l}</div><div class="sub">${s} · ${pctf(mi.loss_share[c], 0)} der verlorenen Prozentpunkte</div></div>`).join("");
+    document.getElementById("b-maia").innerHTML = (R.maia_examples || []).map((x) => `
+      <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
+        <div class="posinfo">
+          <div class="muted">${esc(x.phase)} · ${new Date(x.date).toLocaleDateString("de-DE")}${(x.motifs || []).length ? " · " + esc(x.motifs[0]) : ""}</div>
+          <div>Du: <span class="mv bad">${esc(x.played)}</span> · Richtig: <span class="mv good">${esc(x.best)}</span></div>
+          <div>Findet dein Niveau zu <b class="num">${pctf(100 * x.p_best_me, 0)}</b>, 300 Punkte mehr zu <b class="num">${pctf(100 * x.p_best_up, 0)}</b></div>
+          <div class="muted"><a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
+        </div></div>`).join("");
+  }
 
   // Rhythmus
   document.getElementById("tilt-lede").innerHTML = F.tilt_lede;
