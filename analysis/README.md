@@ -28,6 +28,22 @@ python analysis/report.py                                                       
 python analysis/build_report.py                                                 # Seite -> data/diagnose.html
 ```
 
+### Übungen für die App
+
+```bash
+python analysis/solutions.py --workers 3   # tiefe Lösungen: 5 beste Züge + dein Zug, 3 Mio. Knoten, fortsetzbar (~1 h)
+python analysis/build_exercises.py         # -> app/public/data/exercises.json und meta.json
+```
+
+`solutions.py` rechnet nur Stellungen der Maia-Klassen *Leichtsinn* und *Nächste Stufe*, größte Fehler zuerst.
+`build_exercises.py` behält nur Stellungen, in denen die tiefe Suche den Fehler bestätigt (mindestens 15 Prozentpunkte)
+und der beste Zug noch mindestens 15 % Gewinnchance hat. Übungs-ID = Hash aus Partie und Stellung, damit der Fortschritt
+bei neuen Daten erhalten bleibt.
+
+Weitere Skripte: `ratings.py` (Umrechnung chess.com → lichess-Skala, damit Maia und Explorer die richtige Stärke
+bekommen), `explorer.py` (lichess-Eröffnungsdatenbank, braucht `LICHESS_TOKEN` als Umgebungsvariable), `export_pgn.py`
+(Fehlerstudien für lichess), `restore_data.sh` (holt `data/` aus dem Branch `data-backup`).
+
 `data/` ist nicht im Repo (persönliche Partiedaten, Zwischenergebnisse).
 
 ## Was gemessen wird

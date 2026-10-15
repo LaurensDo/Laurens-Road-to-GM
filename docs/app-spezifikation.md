@@ -63,7 +63,9 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 - **Start:** Die App kommt mit den vorhandenen Übungen (aus data-backup erzeugt).
 - **Neue Partien (Variante A, manuell):** Du sagst im Chat „neue Runde“, Claude importiert, analysiert, erzeugt Übungen und veröffentlicht die Daten. Die App holt sie beim Öffnen.
 - **Neue Partien (Variante B, automatisch):** Ein GitHub-Workflow läuft nachts, holt neue Partien von lichess und chess.com, rechnet Stockfish, schreibt neue Übungen. Kostenlos bei öffentlichem Repo. Empfohlen für Version 2.
-- **Fortschritt:** liegt auf dem iPhone (IndexedDB). Knopf für Export und Import als Sicherung. Installierte Home-Bildschirm-Apps unterliegen nach heutigem Stand nicht der 7-Tage-Löschregel von Safari, die Sicherung ist trotzdem Pflicht.
+- **Fortschritt:** liegt lokal auf dem Gerät (IndexedDB). Knopf für Export und Import als Sicherung. Installierte Home-Bildschirm-Apps unterliegen nach heutigem Stand nicht der 7-Tage-Löschregel von Safari, die Sicherung ist trotzdem Pflicht.
+- **Abgleich iPhone und iPad (Weg C, umgesetzt):** Eine Datei in einem privaten GitHub-Repository, erreicht über die Contents-API mit einem Token nur für dieses Repository. Kein Server, kein Konto bei Dritten außer GitHub. Die App ist offline-first, der Abgleich holt nach, sobald Netz da ist. Zusammenführung ohne Verlust: Antwort-Protokolle werden vereinigt, Karten daraus neu berechnet. Details in `app/README.md`. Offene Prüfung: Verhalten gegen die echte GitHub-API (CORS) ist erst auf dem Gerät belegt, im Test lief ein Mock.
+- **iOS-Besonderheit:** Die installierte App und Safari haben getrennten Speicher. Erst installieren, dann trainieren. iCloud gleicht Web-Speicher nicht ab, deshalb der Abgleich über GitHub.
 
 ## 6. Was die App nicht macht
 
@@ -90,6 +92,7 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 | Stockfish in der App | ja, ab Version 1.1 | nein, nur vorberechnete Lösungen |
 | Wiederholung | FSRS | einfache feste Abstände |
 | Neue Partien | zuerst manuell, ab Version 2 automatisch | dauerhaft manuell |
+| Abgleich der Geräte | privates GitHub-Repo, Datei per Contents-API (umgesetzt) | nur manuelle Sicherung; oder eigener Server (Konto, Betrieb) |
 
 Billig zu ändern: Texte, Farben, Reihenfolge der Bereiche, Namen, Anzahl der Aufgaben pro Tag.
 
@@ -116,8 +119,11 @@ Schon jetzt festgelegt, damit später nichts umgebaut werden muss:
 - Bereiche, Festlegungen aus Abschnitt 8 und Reihenfolge: wie vorgeschlagen. ✔
 - Stockfish: Lösungen tiefer neu rechnen, in der App Lite plus optional „Starke Engine“.
 
+- iPad: wird genutzt. Querformat zeigt Brett links und Erklärung rechts, Karten in zwei Spalten. ✔
+- Abgleich der Geräte: Weg C (privates GitHub-Repo) von Anfang an. ✔
+
 ## 10. Reihenfolge
 
-1. **Version 1:** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung.
+1. **Version 1 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, iPad-Layout.
 2. **Version 1.1:** Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill im Uhr-Coach.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.
