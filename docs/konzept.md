@@ -157,10 +157,16 @@ Diagnose aus 1.606 Blitz-Partien (3 und 5 Minuten, seit Januar 2025, fast alle c
 | Endspieltechnik ist gut | Ohne Zeitnot weniger Patzer als die Gegner in jedem Endspieltyp; aber 31 % der Endspielzüge in Zeitnot (Gegner 15 %) | Endspiel-Training auf **Tempo**, nicht auf Theorie |
 | Eröffnung ist kein Hauptproblem | 18 % der verlorenen Gewinnchancen; einzelne wiederkehrende Lecks | Leck-Drill statt Repertoire-Aufbau, niedrige Priorität |
 | Taktik: hängende Figuren, Gabeln | 23 bzw. 10 pro 100 Partien (Gegner 20 bzw. 9) | Eigene Fehlerstellungen + lichess-Themen hangingPiece, fork, mateIn1/2 |
-| 42 % der Fehler trainierbar (Maia) | 1.057 Stellungen aus eigenen Partien | Das ist der Inhalt des Fehler-Trainers |
+| 49 % der Fehler trainierbar (Maia, auf lichess-Skala umgerechnet) | rund 1.230 Stellungen aus eigenen Partien | Das ist der Inhalt des Fehler-Trainers |
 | Tilt | Kein deutlicher Effekt | Kein eigenes Modul nötig |
 
 Damit ändert sich die Reihenfolge der Module für Phase 1: **Fehler-Trainer und Uhr-Coach zuerst**, Eröffnungs-Lecks als kleiner Zusatz.
+
+### Ratings sind nicht vergleichbar
+
+Dieselbe Zahl bedeutet auf chess.com mehr Stärke als auf lichess. Bei Laurens: chess.com-Blitz 1.283 gegenüber lichess-Blitz 1.603 im selben Quartal (Q4 2025). Zwei veröffentlichte Umrechnungstabellen ([chessgoals.com](https://chessgoals.com/rating-comparison/), [attackingchess.com](https://www.attackingchess.com/the-ultimate-chess-com-vs-lichess-rating-comparison/)) ergeben für chess.com 1.300 rund 1.630 auf lichess, Unsicherheit etwa ±70.
+
+Maia-3 und der lichess Opening Explorer arbeiten mit lichess-Ratings. `analysis/ratings.py` rechnet chess.com-Blitz-Werte deshalb um (chess.com 1.380 ≈ lichess 1.690). Die erste Maia-Rechnung hatte das übersehen: Mit den Rohwerten lag der Anteil trainierbarer Fehler bei 42 % statt 49 %.
 
 ## 11. Open-Source-Bausteine
 

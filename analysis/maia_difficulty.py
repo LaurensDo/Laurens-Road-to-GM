@@ -3,6 +3,10 @@
 Aufruf:
     python analysis/maia_difficulty.py --model 79m --step 300
 
+Maia-3 ist auf lichess-Partien trainiert und erwartet lichess-Ratings. chess.com-Ratings
+werden deshalb vorher umgerechnet (siehe ratings.py): dieselbe Zahl bedeutet auf chess.com
+deutlich mehr Stärke.
+
 Benötigt Maia-3 (https://github.com/CSSLab/maia3, AGPL-3.0) als separat installiertes
 Paket (`pip install -e <maia3-checkout>`) plus PyTorch. Maia-3 sagt für eine Stellung
 voraus, mit welcher Wahrscheinlichkeit ein Mensch einer bestimmten Elo-Stärke welchen
@@ -25,6 +29,8 @@ import chess
 import torch
 from maia3.uci import Maia3UCIEngine, parse_args
 from maia3.utils import mirror_move
+
+from ratings import to_lichess_scale
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 
@@ -94,11 +100,11 @@ def main():
             if board.fen() != p["fen"]:
                 continue
             maia.set_game(prefix)
-            me = g["my_rating"] or 1500
-            opp = g["opp_rating"] or me
+            me = to_lichess_scale(g["platform"], g["my_rating"]) or 1500
+            opp = to_lichess_scale(g["platform"], g["opp_rating"]) or me
             low, high = maia.move_probs([me, me + args.step], opp)
             f.write(json.dumps({
-                "url": p["url"], "fen": p["fen"], "elo": me,
+                "url": p["url"], "fen": p["fen"], "elo": me, "elo_raw": g["my_rating"], "platform": g["platform"],
                 "p_best_me": round(low.get(p["best_uci"], 0.0), 4),
                 "p_best_up": round(high.get(p["best_uci"], 0.0), 4),
                 "p_played_me": round(low.get(p["played_uci"], 0.0), 4),
