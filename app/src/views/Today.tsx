@@ -1,5 +1,6 @@
 import { counts } from '../lib/queue';
-import { dayKey, n0, n1, pct } from '../lib/format';
+import { dayKey, greeting, n0, n1, pct } from '../lib/format';
+import { PawnMark } from './Mark';
 import { listSets, loadActive, rateOf } from '../lib/sets';
 import { streak, today } from '../lib/stats';
 import { useAppState } from '../lib/store';
@@ -31,52 +32,49 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
 
   return (
     <section class="screen">
-      <header class="page-head">
-        <div class="eyebrow">Road to GM</div>
-        <h1>Heute</h1>
-        <SyncBadge onOpen={onOpenSettings} />
+      <header class="hero">
+        <div class="hero-bg" aria-hidden="true" />
+        <PawnMark class="hero-pawn" />
+        <div class="hero-body">
+          <div class="eyebrow">Road to GM</div>
+          <h1>{greeting(now.getHours())}</h1>
+          <p class="hero-sub">{days > 0 ? `Serie: ${n0(days)} ${days === 1 ? 'Tag' : 'Tage'}. Bleib dran.` : 'Heute geht es los.'}</p>
+          <div class="hero-prog">
+            <div class="bar big" role="progressbar" aria-valuenow={Math.round(done * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Fortschritt der Tagesration">
+              <i style={{ width: `${done * 100}%` }} />
+            </div>
+            <span class="mono">
+              {n1(t.minutes)} von {n0(goal)} Min
+            </span>
+          </div>
+          <dl class="facts hero-facts">
+            <div>
+              <dt>Fällig</dt>
+              <dd class="mono">{n0(c.due)}</dd>
+            </div>
+            <div>
+              <dt>Lernen</dt>
+              <dd class="mono">{n0(c.learning)}</dd>
+            </div>
+            <div>
+              <dt>Neu</dt>
+              <dd class="mono">{n0(c.newAvailable)}</dd>
+            </div>
+          </dl>
+          <button class="btn light" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
+            {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
+          </button>
+          {filtered && (
+            <p class="hero-note">
+              Es gilt ein Filter ({c.total} Aufgaben).{' '}
+              <button class="link inline" onClick={onOpenSettings}>
+                Ändern
+              </button>
+            </p>
+          )}
+          <SyncBadge onOpen={onOpenSettings} />
+        </div>
       </header>
-
-      <div class="card">
-        <div class="ration-head">
-          <h2>Tagesration</h2>
-          <span class="mono muted">
-            {n1(t.minutes)} von {n0(goal)} Min
-          </span>
-        </div>
-        <div class="bar big" role="progressbar" aria-valuenow={Math.round(done * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Fortschritt der Tagesration">
-          <i style={{ width: `${done * 100}%` }} />
-        </div>
-        <dl class="facts">
-          <div>
-            <dt>Fällig</dt>
-            <dd class="mono">{n0(c.due)}</dd>
-          </div>
-          <div>
-            <dt>Lernen</dt>
-            <dd class="mono">{n0(c.learning)}</dd>
-          </div>
-          <div>
-            <dt>Neu</dt>
-            <dd class="mono">{n0(c.newAvailable)}</dd>
-          </div>
-          <div>
-            <dt>Serie</dt>
-            <dd class="mono">{n0(days)} {days === 1 ? 'Tag' : 'Tage'}</dd>
-          </div>
-        </dl>
-        <button class="btn" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
-          {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
-        </button>
-        {filtered && (
-          <p class="muted small">
-            Es gilt ein Filter ({c.total} Aufgaben).{' '}
-            <button class="link inline" onClick={onOpenSettings}>
-              Ändern
-            </button>
-          </p>
-        )}
-      </div>
 
       <div class="card">
         <h2>Heute erledigt</h2>

@@ -225,7 +225,13 @@ describe('Schlagzug und Geräteeinstellungen', () => {
   it('bereinigt kaputte Einstellungen', () => {
     expect(clean(null)).toEqual(DEFAULT_PREFS);
     expect(clean({ sound: 'ja', volume: 9, timerSound: 'laut' })).toEqual(DEFAULT_PREFS);
-    expect(clean({ sound: false, volume: 3, timerSound: 'off', ignoreMute: true })).toEqual({ sound: false, volume: 3, timerSound: 'off', ignoreMute: true });
+    expect(clean({ sound: false, volume: 3, timerSound: 'off', ignoreMute: true, splash: false })).toEqual({
+      sound: false,
+      volume: 3,
+      timerSound: 'off',
+      ignoreMute: true,
+      splash: false,
+    });
   });
 });
 
@@ -238,5 +244,20 @@ describe('Satz-Markierung im Abgleich', () => {
     const back = fromRemote(JSON.parse(JSON.stringify(toRemote(merged))))!;
     expect(listSets(back.log)).toHaveLength(1);
     expect(listSets(back.log)[0].entries).toHaveLength(2);
+  });
+});
+
+describe('Begrüßung', () => {
+  it('nach Tageszeit', async () => {
+    const { greeting } = await import('../src/lib/format');
+    expect([4, 5, 10, 11, 17, 18, 23].map(greeting)).toEqual([
+      'Guten Abend',
+      'Guten Morgen',
+      'Guten Morgen',
+      'Guten Tag',
+      'Guten Tag',
+      'Guten Abend',
+      'Guten Abend',
+    ]);
   });
 });

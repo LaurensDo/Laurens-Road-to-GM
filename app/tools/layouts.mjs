@@ -20,7 +20,7 @@ for (const [name, vp] of Object.entries(FORMATS)) {
   const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, colorScheme: 'light', hasTouch: true, isMobile: vp.width < 700 });
   const page = await ctx.newPage();
   await page.goto(BASE, { waitUntil: 'networkidle' });
-  await page.waitForSelector('text=Tagesration');
+  await page.waitForSelector('.hero');
   await page.screenshot({ path: `${OUT}/${name}-1-heute.png` });
   await page.click('text=/Training starten|Weiter üben|Satz starten|Nächster Satz/');
   await page.waitForSelector('.board-wrap[data-live="1"]');

@@ -55,6 +55,13 @@ Jede Antwort im Verlauf trägt `set: { id, n }`. Dadurch laufen Sätze automatis
 Änderung am Dateiformat. Nur der laufende Satz liegt lokal (`localStorage`, wird nach 6 Stunden nicht mehr fortgesetzt).
 Die Wiederholungsplanung (FSRS) bleibt unverändert, ein Satz zieht nur Aufgaben aus derselben Warteschlange.
 
+## Start: Startbild und Begrüßung
+
+Beim Öffnen der App erscheint ein Startbild (Bauer, „Road to GM“, Gruß mit Tageszeit und Serie). Es bleibt, bis Daten und Stand geladen
+sind, mindestens 1,3 Sekunden, Tippen überspringt es. Abschaltbar unter Einstellungen → Darstellung → „Startbild“ (gilt nur für
+das Gerät). `Heute` beginnt mit einer Begrüßungsfläche (Tageszeit-Gruß, Serie, Tagesration, Kennzahlen, Hauptknopf) statt einer
+Reihe gleichartiger Karten. Die Startfarbe steht schon in `index.html`, damit beim Öffnen nichts weiß aufblitzt.
+
 ## Letzter Zug des Gegners
 
 Vor jeder Aufgabe zeigt das Brett erst die Stellung davor, spielt dann den letzten Gegnerzug (mit Zugton, Hervorhebung und

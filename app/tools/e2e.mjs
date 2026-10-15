@@ -44,9 +44,19 @@ const chooseSetSize = async (n) => {
   await page.getByRole('radiogroup', { name: 'Aufgaben pro Satz' }).getByRole('radio', { name: String(n), exact: true }).click();
 };
 
+// ---- Startbild
+await page.goto(BASE, { waitUntil: 'commit' });
+await page.waitForSelector('#splash');
+ok(true, 'Startbild erscheint beim Öffnen');
+await page.waitForFunction(() => (document.querySelector('#splash .splash-greet')?.textContent ?? '').trim().length > 0);
+await page.screenshot({ path: `${OUT}/0-startbild.png` });
+await page.mouse.click(200, 400);
+await page.waitForSelector('#splash', { state: 'detached', timeout: 2000 });
+ok(true, 'Tippen überspringt das Startbild');
+ok(/Guten (Morgen|Tag|Abend)/.test(await page.textContent('.hero h1')), 'Begrüßung auf Heute');
+
 // ---- Heute und Satzgröße
-await page.goto(BASE, { waitUntil: 'networkidle' });
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 await page.screenshot({ path: `${OUT}/1-heute.png` });
 ok(await page.locator('text=Satz starten (10 Aufgaben)').count() === 1, 'Heute zeigt "Satz starten (10 Aufgaben)"');
 await chooseSetSize(5);
@@ -191,7 +201,7 @@ await page.getByRole('button', { name: 'Training beenden' }).click();
 await page.waitForSelector('text=Satz beenden?');
 await page.screenshot({ path: `${OUT}/5c-dialog.png` });
 await btn('Später weitermachen').click();
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 ok(await page.locator('text=Satz fortsetzen (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
 await page.click('text=Satz fortsetzen (1 von 5)');
 await page.waitForSelector('.board-wrap[data-live="1"]');
@@ -201,13 +211,13 @@ await btn('Beenden und Ergebnis ansehen').click();
 await page.waitForSelector('text=Satz beendet nach 1 von 5');
 ok(true, 'Vorzeitig beendeter Satz zeigt Ergebnis');
 await btn('Für heute fertig').click();
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Nach dem Beenden gibt es keinen offenen Satz mehr');
 
 // ---- Speicherung
 await page.waitForTimeout(500);
 await page.reload({ waitUntil: 'networkidle' });
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 {
   const done = (await page.locator('text=Heute erledigt').locator('..').textContent()).replace(/\s+/g, ' ');
   ok(/Satz mit 5 Aufgaben/.test(done) && /Satz mit 1 Aufgabe:/.test(done), `Heutige Sätze bleiben nach dem Neuladen erhalten (${done.slice(0, 120)})`);
@@ -240,7 +250,7 @@ await page.click('text=/Satz starten|Satz fortsetzen/');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 ok(await page.locator('.tag.last').count() === 0 && await page.locator('.board square.last-move').count() === 0, 'Ohne Einstellung kein letzter Zug');
 await page.getByRole('button', { name: 'Training beenden' }).click();
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 await page.locator('nav').getByText('Einstellungen').click();
 await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Zeigen', exact: true }).click();
 
@@ -257,9 +267,18 @@ await page.waitForTimeout(5800);
 }
 await page.screenshot({ path: `${OUT}/5d-zeit-ueber.png` });
 await page.getByRole('button', { name: 'Training beenden' }).click();
-await page.waitForSelector('text=Tagesration');
+await page.waitForSelector('.hero');
 await page.locator('nav').getByText('Einstellungen').click();
 await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '10 s', exact: true }).click();
+
+// ---- Startbild ausschalten
+await page.locator('nav').getByText('Einstellungen').click();
+await page.getByRole('radiogroup', { name: 'Startbild' }).getByRole('radio', { name: 'Aus', exact: true }).click();
+await page.reload({ waitUntil: 'domcontentloaded' });
+await page.waitForSelector('.hero');
+ok(await page.locator('#splash').count() === 0, 'Ohne Startbild-Einstellung öffnet die App direkt');
+await page.locator('nav').getByText('Einstellungen').click();
+await page.getByRole('radiogroup', { name: 'Startbild' }).getByRole('radio', { name: 'Zeigen', exact: true }).click();
 
 // ---- Dunkelmodus
 await page.emulateMedia({ colorScheme: 'dark' });
@@ -272,7 +291,7 @@ await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
 await page.waitForTimeout(1500);
 await ctx.setOffline(true);
 await page.reload({ waitUntil: 'load' });
-await page.waitForSelector('text=Tagesration', { timeout: 8000 });
+await page.waitForSelector('.hero', { timeout: 8000 });
 ok(true, 'App startet offline');
 await page.click('text=/Satz starten|Satz fortsetzen/');
 await page.waitForSelector('.board cg-board', { timeout: 8000 });

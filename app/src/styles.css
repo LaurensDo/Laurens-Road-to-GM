@@ -21,6 +21,10 @@
   --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --gutter: 16px;
+  --hero-a: #0d2c24;
+  --hero-b: #1d6b58;
+  --hero-ink: #eaf4ef;
+  --hero-muted: rgba(234, 244, 239, 0.74);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -312,3 +316,41 @@ cg-board square.move-dest:hover { background: rgba(29, 107, 88, 0.35); }
 cg-board square.check { background: radial-gradient(ellipse at center, rgba(231, 0, 0, 1) 0%, rgba(231, 0, 0, 1) 25%, rgba(169, 0, 0, 0) 89%); }
 :root[data-theme='dark'] cg-board square.move-dest { background: radial-gradient(rgba(8, 30, 22, 0.6) 22%, transparent 24%); }
 .tag.last { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+
+/* Start: Begrüßungsfläche statt Karten-Raster */
+.hero { position: relative; overflow: hidden; border-radius: 22px; color: var(--hero-ink); background: linear-gradient(155deg, var(--hero-b) -35%, var(--hero-a) 64%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 30px -20px rgba(8, 30, 24, 0.6); }
+.hero-bg { position: absolute; inset: 0; pointer-events: none; background-image: conic-gradient(rgba(255, 255, 255, 0.06) 0 25%, transparent 0 50%, rgba(255, 255, 255, 0.06) 0 75%, transparent 0); background-size: 72px 72px; -webkit-mask-image: linear-gradient(205deg, #000 0%, transparent 60%); mask-image: linear-gradient(205deg, #000 0%, transparent 60%); }
+.hero-pawn { position: absolute; right: 6px; top: 10px; width: 150px; height: 150px; color: rgba(255, 255, 255, 0.09); pointer-events: none; }
+.hero-body { position: relative; padding: 22px 20px 16px; display: grid; gap: 12px; }
+.hero h1 { color: var(--hero-ink); font-size: 2.2rem; }
+.hero .eyebrow, .hero-sub, .hero-note, .hero .sync-hint, .hero .link { color: var(--hero-muted); }
+.hero-sub { margin-top: -6px; }
+.hero-prog { display: grid; gap: 6px; }
+.hero-prog .mono { font-size: 0.82rem; color: var(--hero-muted); }
+.hero .bar { background: rgba(255, 255, 255, 0.16); }
+.hero .bar > i { background: #9fe0c8; }
+.hero-facts { grid-template-columns: repeat(3, 1fr); }
+.hero-facts dt { color: var(--hero-muted); }
+.hero-facts dd { color: var(--hero-ink); font-size: 1.35rem; }
+.btn.light { background: var(--hero-ink); color: var(--hero-a); }
+.hero-note { font-size: 0.85rem; }
+.hero .sync-hint.bad { color: #ffb3a6; }
+.screen:not(.trainer) > .hero { grid-column: 1 / -1; }
+@media (min-width: 700px) { .hero-body { padding: 30px 30px 22px; gap: 14px; } .hero h1 { font-size: 2.8rem; } .hero-pawn { width: 220px; height: 220px; right: 24px; top: 16px; } }
+@media (min-width: 1000px) { .hero-body { max-width: 760px; } }
+
+/* Startbild */
+#splash {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; text-align: center;
+  background: radial-gradient(120% 90% at 50% 34%, var(--hero-b) 0%, var(--hero-a) 62%, #091f19 100%);
+  color: var(--hero-ink); opacity: 1; transition: opacity 0.38s ease; cursor: pointer;
+}
+#splash.leaving { opacity: 0; pointer-events: none; }
+.splash-pattern { position: absolute; inset: 0; background-image: conic-gradient(rgba(255, 255, 255, 0.05) 0 25%, transparent 0 50%, rgba(255, 255, 255, 0.05) 0 75%, transparent 0); background-size: 104px 104px; -webkit-mask-image: radial-gradient(75% 62% at 50% 44%, #000 0%, transparent 82%); mask-image: radial-gradient(75% 62% at 50% 44%, #000 0%, transparent 82%); }
+.splash-center { position: relative; display: grid; justify-items: center; gap: 10px; padding: 24px; }
+.splash-mark { width: 112px; height: 112px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, rgba(159, 224, 200, 0.18), rgba(159, 224, 200, 0) 70%); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14) inset; color: var(--hero-ink); animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-mark svg { width: 64px; height: 64px; }
+.splash-title { font: 700 2.5rem/1.1 var(--font-display); letter-spacing: 0.01em; margin-top: 8px; animation: rise 0.7s 0.12s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-tag { color: var(--hero-muted); font-size: 1.02rem; animation: rise 0.7s 0.24s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.splash-greet { margin-top: 18px; font: 500 0.88rem var(--font-mono); letter-spacing: 0.04em; color: rgba(234, 244, 239, 0.62); animation: rise 0.7s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }

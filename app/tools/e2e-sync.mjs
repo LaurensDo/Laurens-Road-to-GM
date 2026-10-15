@@ -20,7 +20,7 @@ async function device(name, viewport) {
   page.on('pageerror', (e) => errors.push(`${name}: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error' && !/fonts\.g|status of 40[14]/.test(m.text())) errors.push(`${name}: ${m.text()}`); });
   await page.goto(BASE, { waitUntil: 'networkidle' });
-  await page.waitForSelector('text=Tagesration');
+  await page.waitForSelector('.hero');
   return { ctx, page, name };
 }
 
@@ -54,7 +54,7 @@ async function solveFirstNew(d, ex) {
   await d.page.getByRole('button', { name: 'Training beenden' }).click();
   await d.page.getByRole('button', { name: 'Beenden und Ergebnis ansehen', exact: true }).click();
   await d.page.getByRole('button', { name: 'Für heute fertig', exact: true }).click();
-  await d.page.waitForSelector('text=Tagesration');
+  await d.page.waitForSelector('.hero');
 }
 const doneCount = async (d) => {
   await d.page.click('nav >> text=Heute');

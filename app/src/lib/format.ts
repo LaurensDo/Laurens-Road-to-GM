@@ -5,6 +5,13 @@ export const n0 = (x: number) => nf0.format(x);
 export const n1 = (x: number) => nf1.format(x);
 export const pct = (x: number) => `${nf0.format(x)} %`;
 
+/** Tageszeit-Gruß: 5 bis 11 Uhr Morgen, bis 18 Uhr Tag, sonst Abend. */
+export function greeting(hour: number): string {
+  if (hour >= 5 && hour < 11) return 'Guten Morgen';
+  if (hour >= 11 && hour < 18) return 'Guten Tag';
+  return 'Guten Abend';
+}
+
 export function seconds(ms: number): string {
   return `${nf1.format(ms / 1000)} s`;
 }

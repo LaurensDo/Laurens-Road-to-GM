@@ -14,9 +14,11 @@ export interface DevicePrefs {
   timerSound: TimerSound;
   /** Ton auch bei aktivem Stummschalter (iOS 16.4+) */
   ignoreMute: boolean;
+  /** Startbild beim Öffnen der App */
+  splash: boolean;
 }
 
-export const DEFAULT_PREFS: DevicePrefs = { sound: true, volume: 2, timerSound: 'standard', ignoreMute: false };
+export const DEFAULT_PREFS: DevicePrefs = { sound: true, volume: 2, timerSound: 'standard', ignoreMute: false, splash: true };
 
 const KEY = 'road-to-gm-device-v1';
 let prefs: DevicePrefs = load();
@@ -39,6 +41,7 @@ export function clean(raw: unknown): DevicePrefs {
     volume: r.volume === 1 || r.volume === 2 || r.volume === 3 ? r.volume : DEFAULT_PREFS.volume,
     timerSound: r.timerSound === 'off' || r.timerSound === 'end' || r.timerSound === 'standard' || r.timerSound === 'every' ? r.timerSound : DEFAULT_PREFS.timerSound,
     ignoreMute: typeof r.ignoreMute === 'boolean' ? r.ignoreMute : DEFAULT_PREFS.ignoreMute,
+    splash: typeof r.splash === 'boolean' ? r.splash : DEFAULT_PREFS.splash,
   };
 }
 

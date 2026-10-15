@@ -11,6 +11,14 @@
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%icons/favicon.svg" />
     <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
     <title>Road to GM</title>
+    <script>
+      // Startfarbe vor dem ersten Bild, damit beim Öffnen nichts weiß aufblitzt (außer das Startbild ist abgeschaltet)
+      try {
+        if (JSON.parse(localStorage.getItem('road-to-gm-device-v1') || '{}').splash !== false) document.documentElement.style.background = '#0d2c24';
+      } catch (e) {
+        document.documentElement.style.background = '#0d2c24';
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>

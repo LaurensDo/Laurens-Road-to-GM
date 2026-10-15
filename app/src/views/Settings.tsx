@@ -3,6 +3,7 @@ import { exportJson, importJson, replaceState, update, useAppState } from '../li
 import { hiddenCount } from '../lib/queue';
 import { Segmented } from './Segmented';
 import { SoundCard } from './SoundCard';
+import { setPrefs, usePrefs } from '../lib/device';
 import { SyncCard } from './SyncCard';
 import { saveActive } from '../lib/sets';
 import { n0 } from '../lib/format';
@@ -20,6 +21,7 @@ export function Settings({ exercises, generated }: Props) {
   const [text, setText] = useState('');
   const [showText, setShowText] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const prefs = usePrefs();
 
   const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
@@ -218,6 +220,19 @@ export function Settings({ exercises, generated }: Props) {
           ]}
           onChange={(v) => set({ theme: v })}
         />
+        <div class="field">
+          <label>Startbild beim Öffnen</label>
+          <Segmented
+            label="Startbild"
+            value={prefs.splash ? 'an' : 'aus'}
+            options={[
+              { value: 'an', label: 'Zeigen' },
+              { value: 'aus', label: 'Aus' },
+            ]}
+            onChange={(v) => setPrefs({ splash: v === 'an' })}
+          />
+          <p class="muted small">Gilt nur für dieses Gerät. Tippen überspringt das Startbild.</p>
+        </div>
       </div>
 
       <div class="card">
