@@ -15,6 +15,10 @@ describe('Zitate', () => {
     expect(AUTHOR).toBe('Big Dog');
   });
 
+  it('gestrichene Themen sind raus (Online-Kultur, Schach-Jargon, Cheems)', () => {
+    expect(QUOTES.join('\n')).not.toMatch(/Cheems|Webcam|Sizilianer|Rochade|Bauernstruktur|Abzugsschach|\bez\b/);
+  });
+
   it('der geänderte Favorit steht in der Liste', () => {
     expect(QUOTES).toContain('En passant? Ich nenne das beim Gassigehen kassieren.');
   });

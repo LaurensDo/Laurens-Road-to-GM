@@ -40,24 +40,22 @@ export const QUOTES: string[] = [
   'Sonnenbrille am Brett ist keine Mode, sondern Haltung. Ich sehe nichts, aber mit Haltung.',
   'Ich brauche keine Freunde. Ich habe vierzehn Rematches pro Abend mit demselben Fremden.',
   'Big Dogs reden nicht über Gefühle. Sie schreiben ‚gg‘ und gehen in den Keller.',
-  'Cheems hat Angst. Ich habe auch Angst. Ich habe nur eine Sonnenbrille.',
-  // Schach-Jargon und Haltung
-  'Ich spiele immer 1.e4. 1.d4 ist für Leute, die Pläne mögen.',
-  'Ich spiele keinen Sizilianer. Ich spiele ‚Sizilianer-Killer‘. Ich weiß nicht, was das ist, aber es klingt tödlich.',
-  'Meine Bauernstruktur ist wie mein Oberkörper: breit, steif und von hinten schwach.',
-  'Rochade ist Feigheit. Mein König bleibt in der Mitte und macht Smalltalk.',
-  'Abzugsschach heißt: Ich haue ab, und du hast den Ärger. Ich nenne das Männlichkeit.',
-  'Echte Männer opfern keine Dame. Sie stellen sie ein und nennen es Strategie.',
-  'Ich habe Dame, Turm und Läufer geopfert. Übrig bleiben Haltung und ein Bauer auf a2.',
-  // Online-Kultur
-  'Nach jedem Sieg schreibe ich ‚ez‘. Nach jeder Niederlage ‚lag‘. Das nennt man Konsequenz.',
-  'Ich rufe beim Online-Spielen laut ‚Schach!‘. Meine Nachbarn kennen mein Rating.',
-  'Wenn mein Gegner eine Figur einstellt, schaue ich ihn über die Webcam stumm an, bis er aufgibt. Ich habe keine Webcam.',
-  'Ich habe einen Hund, der Schach spielt. Ich führe 7:0. Er sagt, er lässt mich gewinnen, weil ich sonst weine.',
   // Derb
   'Ich lege meinen König nie um. Höchstens das Brett.',
   'Ich habe die dickeren Eier und die schlechtere Eröffnung. Beides macht sich bemerkbar.',
   'Er hat mehr Elo, ich habe die größere Klappe. Entschieden wird am Brett. Deshalb verliere ich.',
+  'Remis angeboten? Ich antworte mit dem Blick, den mein Vater für meine Zeugnisse hatte.',
+  'Wer mir im Blitz die Zeit klaut, kriegt auf die Fresse. Virtuell. Per Chat. Mit drei Ausrufezeichen.',
+  'Mein Gegner hat meine Gabel gesehen. Dieses Arschloch hat tatsächlich aufgepasst.',
+  'Ich verliere mit Würde. Ich schreie erst im Auto.',
+  'Mein Gegner hat Drohungen. Ich habe Eier. Das Brett interessiert sich nur für die Drohungen.',
+  'Ich spiele Bullet, bis meine Finger bluten oder meine Mutter ruft. Meistens ruft sie.',
+  'Gestern 60 Bullet-Partien: 59 verloren, eine Remis. Ich nenne das Aufwärtstrend.',
+  'Ich kaufe keine Schachbücher, ich kaufe Proteinpulver. Für die Bauern.',
+  'Ich habe mehr Testosteron als Eröffnungswissen. Beides sieht man, und beides hilft nicht.',
+  'Ich greife an, bis der Gegner weint. Meistens bin ich das.',
+  'Mein König bleibt in der Mitte, weil er sich vor nichts fürchtet. Er wird gleich sehr überrascht sein.',
+  'Scheiß auf Theorie, scheiß auf Remis, scheiß auf die Uhr. Leider hat die Uhr auf mich geschissen.',
 ];
 
 /** So lange mindestens anzeigen (Millisekunden): kurze Sprüche 2,8 s, lange bis 4 s, damit man sie in Ruhe lesen kann. */
