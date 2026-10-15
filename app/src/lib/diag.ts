@@ -46,6 +46,40 @@ function insets(): string {
   return out;
 }
 
+interface Early {
+  t: number;
+  tag: string;
+  w: number;
+  h: number;
+  ow: number;
+  oh: number;
+  sx: number;
+  sy: number;
+  vw: number;
+  vh: number;
+  vx: number;
+  vy: number;
+  rs: string;
+}
+
+function earlyLines(): string[] {
+  const early = ((window as unknown as { __early?: Early[] }).__early ?? []).slice(0, 40);
+  if (!early.length) return [];
+  const paints = performance
+    .getEntriesByType('paint')
+    .map((p) => `${p.name} ${Math.round(p.startTime)} ms`)
+    .join(', ');
+  return [
+    '',
+    `Frühe Messung ab Seitenstart (ms seit Navigationsbeginn). App-Skript läuft ab ${Math.round(t0)} ms. Erstes Zeichnen: ${paints || 'unbekannt'}`,
+    '  ms  Anlass         innen    außen    Position  sichtbar+Versatz  Seite',
+    ...early.map(
+      (e) =>
+        `${String(e.t).padStart(5)}  ${e.tag.padEnd(14)} ${e.w}×${e.h}  ${e.ow}×${e.oh}  ${e.sx},${e.sy}  ${e.vw}×${e.vh}+${e.vx},${e.vy}  ${e.rs}`,
+    ),
+  ];
+}
+
 export function diagText(): string {
   const now = snap();
   const nav = navigator as Navigator & { standalone?: boolean };
@@ -56,6 +90,7 @@ export function diagText(): string {
     `Als App installiert: ${window.matchMedia('(display-mode: standalone)').matches || nav.standalone ? 'ja' : 'nein'}`,
     'Verlauf seit dem Start (ms: Fenster, sichtbar):',
     ...timeline.map((s) => `  ${String(s.t).padStart(5)}: ${s.w}×${s.h}, ${s.vw}×${s.vh}, Zoom ${s.scale}`),
+    ...earlyLines(),
   ];
   return lines.join('\n');
 }

@@ -73,7 +73,7 @@ Nach Änderungen die App vom Home-Bildschirm entfernen und neu hinzufügen (der 
 Geräte: Eintrag in `DEVICES` im Skript und eine `<link>`-Zeile in `index.html`. Bisher nur iPad Pro 12,9".
 
 **Anzeige-Info** (Einstellungen, ganz unten): Fenstergröße, sichtbarer Bereich, Sicherheitsränder, Modus und ein Verlauf der
-Fenstergröße seit dem Start. Zur Fehlersuche bei Darstellungsproblemen auf dem iPad (z. B. Startbild im Querformat nicht mittig:
+Fenstergröße seit dem Start. Eine kleine Messung im `<head>` von `index.html` schreibt schon vor Stil und App mit (Fenster, außen, Position, Zeitpunkte, erstes Zeichnen) und erscheint ebenfalls dort. Zur Fehlersuche bei Darstellungsproblemen auf dem iPad (z. B. Startbild im Querformat nicht mittig:
 im Testbrowser ist es in jeder Größe exakt mittig, das Verhalten von iPadOS ist von hier nicht nachstellbar).
 
 ## Letzter Zug des Gegners
