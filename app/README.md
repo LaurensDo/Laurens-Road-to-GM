@@ -66,4 +66,8 @@ bash app/deploy.sh                  # Tests, Build, Veröffentlichung auf den Br
 GitHub Pages: Repository, Settings, Pages, Source "Deploy from a branch", Branch `gh-pages`, Ordner `/ (root)`.
 Adresse: https://laurensdo.github.io/Laurens-Road-to-GM/
 
+`app/public/data/` ist im Repo eingecheckt (nur Stellungen, Lösungen und Partie-Links, keine Gegnernamen),
+damit sich die App ohne die privaten Rohdaten bauen lässt. Der Ordner `data/` im Wurzelverzeichnis (Partien,
+Zwischenergebnisse) bleibt ausgeschlossen.
+
 Der Fortschritt hängt an den Übungs-IDs (Hash aus Partie und Stellung). Neue Daten ändern bestehende IDs nicht.
