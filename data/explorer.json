@@ -1,0 +1,3068 @@
+{
+ "bucket": 1600,
+ "upper": 1800,
+ "lichess_level": 1686,
+ "speeds": "blitz",
+ "positions": {
+  "rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 639488,
+    "moves": [
+     {
+      "uci": "f4e5",
+      "san": "fxe5",
+      "n": 432133,
+      "share": 67.6,
+      "score": 51.4
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 93686,
+      "share": 14.7,
+      "score": 46.2
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 38153,
+      "share": 6.0,
+      "score": 50.7
+     },
+     {
+      "uci": "e2e3",
+      "san": "e3",
+      "n": 24882,
+      "share": 3.9,
+      "score": 46.3
+     },
+     {
+      "uci": "e2e4",
+      "san": "e4",
+      "n": 20701,
+      "share": 3.2,
+      "score": 50.2
+     },
+     {
+      "uci": "f4f5",
+      "san": "f5",
+      "n": 11166,
+      "share": 1.7,
+      "score": 36.7
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 10356,
+      "share": 1.6,
+      "score": 45.5
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 2334,
+      "share": 0.4,
+      "score": 29.7
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 1448,
+      "share": 0.2,
+      "score": 48.5
+     },
+     {
+      "uci": "g2g4",
+      "san": "g4",
+      "n": 1441,
+      "share": 0.2,
+      "score": 4.8
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 903,
+      "share": 0.1,
+      "score": 40.4
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 684,
+      "share": 0.1,
+      "score": 44.2
+     }
+    ]
+   },
+   "up": {
+    "total": 972860,
+    "moves": [
+     {
+      "uci": "f4e5",
+      "san": "fxe5",
+      "n": 682476,
+      "share": 70.2,
+      "score": 49.9
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 112045,
+      "share": 11.5,
+      "score": 43.8
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 67937,
+      "share": 7.0,
+      "score": 48.4
+     },
+     {
+      "uci": "e2e4",
+      "san": "e4",
+      "n": 44590,
+      "share": 4.6,
+      "score": 49.6
+     },
+     {
+      "uci": "e2e3",
+      "san": "e3",
+      "n": 37557,
+      "share": 3.9,
+      "score": 46.6
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 11912,
+      "share": 1.2,
+      "score": 42.8
+     },
+     {
+      "uci": "f4f5",
+      "san": "f5",
+      "n": 8222,
+      "share": 0.8,
+      "score": 32.0
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 2260,
+      "share": 0.2,
+      "score": 33.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 1844,
+      "share": 0.2,
+      "score": 45.7
+     },
+     {
+      "uci": "g2g4",
+      "san": "g4",
+      "n": 1077,
+      "share": 0.1,
+      "score": 3.6
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 1036,
+      "share": 0.1,
+      "score": 36.7
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 683,
+      "share": 0.1,
+      "score": 43.8
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 187835353,
+    "moves": [
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 115511111,
+      "share": 61.5,
+      "score": 53.0
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 20810141,
+      "share": 11.1,
+      "score": 52.7
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 17497725,
+      "share": 9.3,
+      "score": 54.3
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 11331055,
+      "share": 6.0,
+      "score": 53.5
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 11164322,
+      "share": 5.9,
+      "score": 55.2
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 4757633,
+      "share": 2.5,
+      "score": 50.3
+     },
+     {
+      "uci": "d1h5",
+      "san": "Qh5",
+      "n": 1538344,
+      "share": 0.8,
+      "score": 53.6
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 1440184,
+      "share": 0.8,
+      "score": 51.7
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 1030432,
+      "share": 0.5,
+      "score": 50.9
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 627652,
+      "share": 0.3,
+      "score": 52.0
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 465229,
+      "share": 0.2,
+      "score": 51.1
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 340578,
+      "share": 0.2,
+      "score": 47.8
+     }
+    ]
+   },
+   "up": {
+    "total": 124354649,
+    "moves": [
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 78304229,
+      "share": 63.0,
+      "score": 52.9
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 13809052,
+      "share": 11.1,
+      "score": 52.3
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 10912998,
+      "share": 8.8,
+      "score": 52.1
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 8150109,
+      "share": 6.6,
+      "score": 55.6
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 7850066,
+      "share": 6.3,
+      "score": 54.0
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 2060685,
+      "share": 1.7,
+      "score": 49.3
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 831061,
+      "share": 0.7,
+      "score": 50.9
+     },
+     {
+      "uci": "d1h5",
+      "san": "Qh5",
+      "n": 546105,
+      "share": 0.4,
+      "score": 54.6
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 432002,
+      "share": 0.3,
+      "score": 52.1
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 300814,
+      "share": 0.2,
+      "score": 52.3
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 296375,
+      "share": 0.2,
+      "score": 50.5
+     },
+     {
+      "uci": "g1e2",
+      "san": "Ne2",
+      "n": 191459,
+      "share": 0.2,
+      "score": 51.8
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/p1pppppp/1p6/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 11114488,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 4468324,
+      "share": 40.2,
+      "score": 53.1
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 3278818,
+      "share": 29.5,
+      "score": 51.6
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 1032504,
+      "share": 9.3,
+      "score": 50.4
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 746569,
+      "share": 6.7,
+      "score": 52.0
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 589162,
+      "share": 5.3,
+      "score": 52.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 305353,
+      "share": 2.7,
+      "score": 50.7
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 114236,
+      "share": 1.0,
+      "score": 52.7
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 107353,
+      "share": 1.0,
+      "score": 57.7
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 88708,
+      "share": 0.8,
+      "score": 48.1
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 70806,
+      "share": 0.6,
+      "score": 52.4
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 59920,
+      "share": 0.5,
+      "score": 49.2
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 48073,
+      "share": 0.4,
+      "score": 49.5
+     }
+    ]
+   },
+   "up": {
+    "total": 7768962,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 3824447,
+      "share": 49.2,
+      "score": 54.0
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 1918559,
+      "share": 24.7,
+      "score": 51.8
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 542046,
+      "share": 7.0,
+      "score": 52.7
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 511531,
+      "share": 6.6,
+      "score": 50.4
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 399960,
+      "share": 5.1,
+      "score": 52.4
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 171634,
+      "share": 2.2,
+      "score": 50.8
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 77073,
+      "share": 1.0,
+      "score": 53.4
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 62163,
+      "share": 0.8,
+      "score": 56.7
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 60583,
+      "share": 0.8,
+      "score": 52.9
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 35154,
+      "share": 0.5,
+      "score": 50.3
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 34068,
+      "share": 0.4,
+      "score": 49.5
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 24880,
+      "share": 0.3,
+      "score": 48.4
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 46465380,
+    "moves": [
+     {
+      "uci": "e4d5",
+      "san": "exd5",
+      "n": 35032232,
+      "share": 75.4,
+      "score": 50.8
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 5269387,
+      "share": 11.3,
+      "score": 49.8
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 2851815,
+      "share": 6.1,
+      "score": 49.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 1209570,
+      "share": 2.6,
+      "score": 51.0
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 767653,
+      "share": 1.7,
+      "score": 50.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 400385,
+      "share": 0.9,
+      "score": 47.5
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 263251,
+      "share": 0.6,
+      "score": 47.3
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 144194,
+      "share": 0.3,
+      "score": 42.9
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 140657,
+      "share": 0.3,
+      "score": 45.7
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 135735,
+      "share": 0.3,
+      "score": 25.8
+     },
+     {
+      "uci": "f1d3",
+      "san": "Bd3",
+      "n": 50106,
+      "share": 0.1,
+      "score": 44.2
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 48159,
+      "share": 0.1,
+      "score": 45.7
+     }
+    ]
+   },
+   "up": {
+    "total": 39436257,
+    "moves": [
+     {
+      "uci": "e4d5",
+      "san": "exd5",
+      "n": 30806057,
+      "share": 78.1,
+      "score": 50.4
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 3353605,
+      "share": 8.5,
+      "score": 50.2
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 2306171,
+      "share": 5.8,
+      "score": 49.9
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 1399016,
+      "share": 3.5,
+      "score": 53.8
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 768531,
+      "share": 1.9,
+      "score": 51.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 284908,
+      "share": 0.7,
+      "score": 51.3
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 174677,
+      "share": 0.4,
+      "score": 46.8
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 90922,
+      "share": 0.2,
+      "score": 50.2
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 59745,
+      "share": 0.2,
+      "score": 24.5
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 47766,
+      "share": 0.1,
+      "score": 42.7
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 29956,
+      "share": 0.1,
+      "score": 46.9
+     },
+     {
+      "uci": "f1d3",
+      "san": "Bd3",
+      "n": 19789,
+      "share": 0.1,
+      "score": 46.0
+     }
+    ]
+   }
+  },
+  "r1bqkbnr/pppp1ppp/2n5/4p3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq - 0 3": {
+   "level": {
+    "total": 4139195,
+    "moves": [
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 3637358,
+      "share": 87.9,
+      "score": 54.8
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 166968,
+      "share": 4.0,
+      "score": 53.0
+     },
+     {
+      "uci": "f4e5",
+      "san": "fxe5",
+      "n": 157924,
+      "share": 3.8,
+      "score": 52.5
+     },
+     {
+      "uci": "f4f5",
+      "san": "f5",
+      "n": 56277,
+      "share": 1.4,
+      "score": 40.7
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 42673,
+      "share": 1.0,
+      "score": 51.3
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 34811,
+      "share": 0.8,
+      "score": 54.0
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5",
+      "n": 15636,
+      "share": 0.4,
+      "score": 51.9
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 13143,
+      "share": 0.3,
+      "score": 51.0
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 8167,
+      "share": 0.2,
+      "score": 48.6
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 2069,
+      "share": 0.0,
+      "score": 50.1
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 562,
+      "share": 0.0,
+      "score": 39.7
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 490,
+      "share": 0.0,
+      "score": 49.9
+     }
+    ]
+   },
+   "up": {
+    "total": 3000846,
+    "moves": [
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 2666558,
+      "share": 88.9,
+      "score": 53.1
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 118836,
+      "share": 4.0,
+      "score": 52.6
+     },
+     {
+      "uci": "f4e5",
+      "san": "fxe5",
+      "n": 98412,
+      "share": 3.3,
+      "score": 50.6
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 34025,
+      "share": 1.1,
+      "score": 50.6
+     },
+     {
+      "uci": "f4f5",
+      "san": "f5",
+      "n": 33518,
+      "share": 1.1,
+      "score": 36.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 27977,
+      "share": 0.9,
+      "score": 55.0
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5",
+      "n": 8478,
+      "share": 0.3,
+      "score": 50.2
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 5965,
+      "share": 0.2,
+      "score": 49.0
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 4036,
+      "share": 0.1,
+      "score": 47.1
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 862,
+      "share": 0.0,
+      "score": 45.7
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 340,
+      "share": 0.0,
+      "score": 49.0
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 320,
+      "share": 0.0,
+      "score": 52.7
+     }
+    ]
+   }
+  },
+  "rnb1kbnr/ppp1pppp/8/q7/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4": {
+   "level": {
+    "total": 5727769,
+    "moves": [
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 2022988,
+      "share": 35.3,
+      "score": 47.3
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 1928524,
+      "share": 33.7,
+      "score": 49.4
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 569512,
+      "share": 9.9,
+      "score": 50.0
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 512609,
+      "share": 8.9,
+      "score": 47.3
+     },
+     {
+      "uci": "b2b4",
+      "san": "b4",
+      "n": 218336,
+      "share": 3.8,
+      "score": 57.2
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 65227,
+      "share": 1.1,
+      "score": 47.4
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5+",
+      "n": 57529,
+      "share": 1.0,
+      "score": 46.0
+     },
+     {
+      "uci": "a2a3",
+      "san": "a3",
+      "n": 57358,
+      "share": 1.0,
+      "score": 45.8
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 56288,
+      "share": 1.0,
+      "score": 51.3
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 55556,
+      "share": 1.0,
+      "score": 50.6
+     },
+     {
+      "uci": "h2h3",
+      "san": "h3",
+      "n": 48428,
+      "share": 0.8,
+      "score": 50.2
+     },
+     {
+      "uci": "g1e2",
+      "san": "Nge2",
+      "n": 33272,
+      "share": 0.6,
+      "score": 47.4
+     }
+    ]
+   },
+   "up": {
+    "total": 5157717,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 1978055,
+      "share": 38.4,
+      "score": 49.1
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 1684992,
+      "share": 32.7,
+      "score": 47.1
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 644542,
+      "share": 12.5,
+      "score": 50.4
+     },
+     {
+      "uci": "b2b4",
+      "san": "b4",
+      "n": 284742,
+      "share": 5.5,
+      "score": 56.7
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 230065,
+      "share": 4.5,
+      "score": 45.4
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 63146,
+      "share": 1.2,
+      "score": 52.0
+     },
+     {
+      "uci": "h2h3",
+      "san": "h3",
+      "n": 49509,
+      "share": 1.0,
+      "score": 49.8
+     },
+     {
+      "uci": "f1e2",
+      "san": "Be2",
+      "n": 43850,
+      "share": 0.9,
+      "score": 46.8
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5+",
+      "n": 33487,
+      "share": 0.6,
+      "score": 46.6
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 29999,
+      "share": 0.6,
+      "score": 50.0
+     },
+     {
+      "uci": "a2a3",
+      "san": "a3",
+      "n": 23911,
+      "share": 0.5,
+      "score": 46.5
+     },
+     {
+      "uci": "g1e2",
+      "san": "Nge2",
+      "n": 22937,
+      "share": 0.4,
+      "score": 48.5
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/pp1ppppp/8/2p5/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2": {
+   "level": {
+    "total": 7071796,
+    "moves": [
+     {
+      "uci": "c5d4",
+      "san": "cxd4",
+      "n": 5850361,
+      "share": 82.7,
+      "score": 49.7
+     },
+     {
+      "uci": "b8c6",
+      "san": "Nc6",
+      "n": 447430,
+      "share": 6.3,
+      "score": 45.1
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 411869,
+      "share": 5.8,
+      "score": 48.9
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 217583,
+      "share": 3.1,
+      "score": 46.0
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 40058,
+      "share": 0.6,
+      "score": 49.9
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 25258,
+      "share": 0.4,
+      "score": 42.4
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 24089,
+      "share": 0.3,
+      "score": 46.6
+     },
+     {
+      "uci": "c5c4",
+      "san": "c4",
+      "n": 17783,
+      "share": 0.3,
+      "score": 37.4
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 11868,
+      "share": 0.2,
+      "score": 46.2
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 11844,
+      "share": 0.2,
+      "score": 47.9
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 4023,
+      "share": 0.1,
+      "score": 42.8
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 2434,
+      "share": 0.0,
+      "score": 45.6
+     }
+    ]
+   },
+   "up": {
+    "total": 7902402,
+    "moves": [
+     {
+      "uci": "c5d4",
+      "san": "cxd4",
+      "n": 6659588,
+      "share": 84.3,
+      "score": 48.8
+     },
+     {
+      "uci": "b8c6",
+      "san": "Nc6",
+      "n": 465506,
+      "share": 5.9,
+      "score": 44.3
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 400070,
+      "share": 5.1,
+      "score": 48.6
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 245494,
+      "share": 3.1,
+      "score": 46.6
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 48829,
+      "share": 0.6,
+      "score": 49.3
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 19052,
+      "share": 0.2,
+      "score": 46.6
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 15751,
+      "share": 0.2,
+      "score": 43.0
+     },
+     {
+      "uci": "c5c4",
+      "san": "c4",
+      "n": 15052,
+      "share": 0.2,
+      "score": 36.9
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 12561,
+      "share": 0.2,
+      "score": 48.0
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 12411,
+      "share": 0.2,
+      "score": 49.0
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 2756,
+      "share": 0.0,
+      "score": 37.9
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 1992,
+      "share": 0.0,
+      "score": 47.9
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 996559,
+    "moves": [
+     {
+      "uci": "e4f5",
+      "san": "exf5",
+      "n": 611248,
+      "share": 61.3,
+      "score": 53.0
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 157060,
+      "share": 15.8,
+      "score": 52.8
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 71739,
+      "share": 7.2,
+      "score": 52.5
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 41823,
+      "share": 4.2,
+      "score": 48.7
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 31739,
+      "share": 3.2,
+      "score": 52.7
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 23675,
+      "share": 2.4,
+      "score": 48.2
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 16199,
+      "share": 1.6,
+      "score": 50.9
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 13035,
+      "share": 1.3,
+      "score": 50.7
+     },
+     {
+      "uci": "d1h5",
+      "san": "Qh5+",
+      "n": 10779,
+      "share": 1.1,
+      "score": 45.0
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 8755,
+      "share": 0.9,
+      "score": 48.4
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 3251,
+      "share": 0.3,
+      "score": 41.8
+     },
+     {
+      "uci": "f1d3",
+      "san": "Bd3",
+      "n": 2634,
+      "share": 0.3,
+      "score": 46.0
+     }
+    ]
+   },
+   "up": {
+    "total": 799773,
+    "moves": [
+     {
+      "uci": "e4f5",
+      "san": "exf5",
+      "n": 519801,
+      "share": 65.0,
+      "score": 53.9
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 116718,
+      "share": 14.6,
+      "score": 52.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 61651,
+      "share": 7.7,
+      "score": 52.4
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 28037,
+      "share": 3.5,
+      "score": 48.7
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 22460,
+      "share": 2.8,
+      "score": 51.6
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 13694,
+      "share": 1.7,
+      "score": 51.8
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 13130,
+      "share": 1.6,
+      "score": 47.0
+     },
+     {
+      "uci": "f2f3",
+      "san": "f3",
+      "n": 7967,
+      "share": 1.0,
+      "score": 50.6
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 5691,
+      "share": 0.7,
+      "score": 47.6
+     },
+     {
+      "uci": "d1h5",
+      "san": "Qh5+",
+      "n": 4768,
+      "share": 0.6,
+      "score": 45.4
+     },
+     {
+      "uci": "f1d3",
+      "san": "Bd3",
+      "n": 1817,
+      "share": 0.2,
+      "score": 45.8
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 1048,
+      "share": 0.1,
+      "score": 47.0
+     }
+    ]
+   }
+  },
+  "r1bqkbnr/pp1ppppp/2n5/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3": {
+   "level": {
+    "total": 11141604,
+    "moves": [
+     {
+      "uci": "c5d4",
+      "san": "cxd4",
+      "n": 10358762,
+      "share": 93.0,
+      "score": 49.4
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 348135,
+      "share": 3.1,
+      "score": 41.2
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 156585,
+      "share": 1.4,
+      "score": 40.9
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 60835,
+      "share": 0.5,
+      "score": 44.4
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nxd4",
+      "n": 48052,
+      "share": 0.4,
+      "score": 42.3
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 39541,
+      "share": 0.4,
+      "score": 40.3
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 33577,
+      "share": 0.3,
+      "score": 38.2
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 26357,
+      "share": 0.2,
+      "score": 39.4
+     },
+     {
+      "uci": "c5c4",
+      "san": "c4",
+      "n": 21522,
+      "share": 0.2,
+      "score": 33.7
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 19019,
+      "share": 0.2,
+      "score": 39.2
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 11012,
+      "share": 0.1,
+      "score": 42.5
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 5353,
+      "share": 0.0,
+      "score": 43.1
+     }
+    ]
+   },
+   "up": {
+    "total": 12850738,
+    "moves": [
+     {
+      "uci": "c5d4",
+      "san": "cxd4",
+      "n": 12356979,
+      "share": 96.2,
+      "score": 49.2
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 195184,
+      "share": 1.5,
+      "score": 40.6
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 109383,
+      "share": 0.9,
+      "score": 40.8
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 45932,
+      "share": 0.4,
+      "score": 44.2
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nxd4",
+      "n": 44936,
+      "share": 0.3,
+      "score": 43.3
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 21709,
+      "share": 0.2,
+      "score": 39.8
+     },
+     {
+      "uci": "c5c4",
+      "san": "c4",
+      "n": 20025,
+      "share": 0.2,
+      "score": 34.1
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 18101,
+      "share": 0.1,
+      "score": 38.5
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 13798,
+      "share": 0.1,
+      "score": 38.1
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 9143,
+      "share": 0.1,
+      "score": 38.5
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 6080,
+      "share": 0.0,
+      "score": 41.9
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 3527,
+      "share": 0.0,
+      "score": 43.0
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 35284836,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 14704614,
+      "share": 41.7,
+      "score": 50.7
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 10966517,
+      "share": 31.1,
+      "score": 48.1
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 2560266,
+      "share": 7.3,
+      "score": 45.3
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 2186184,
+      "share": 6.2,
+      "score": 49.1
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 1965267,
+      "share": 5.6,
+      "score": 50.2
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 856760,
+      "share": 2.4,
+      "score": 49.1
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 738615,
+      "share": 2.1,
+      "score": 53.2
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 266638,
+      "share": 0.8,
+      "score": 48.6
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 265755,
+      "share": 0.8,
+      "score": 47.7
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 210285,
+      "share": 0.6,
+      "score": 46.3
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 120889,
+      "share": 0.3,
+      "score": 47.5
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 117645,
+      "share": 0.3,
+      "score": 47.8
+     }
+    ]
+   },
+   "up": {
+    "total": 35839280,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 17949140,
+      "share": 50.1,
+      "score": 51.1
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 9104544,
+      "share": 25.4,
+      "score": 48.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 2470061,
+      "share": 6.9,
+      "score": 49.8
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 1933770,
+      "share": 5.4,
+      "score": 49.1
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 1547798,
+      "share": 4.3,
+      "score": 44.6
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 971601,
+      "share": 2.7,
+      "score": 52.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 823075,
+      "share": 2.3,
+      "score": 50.4
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 210078,
+      "share": 0.6,
+      "score": 47.3
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 205240,
+      "share": 0.6,
+      "score": 48.6
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 124720,
+      "share": 0.3,
+      "score": 47.9
+     },
+     {
+      "uci": "g1e2",
+      "san": "Ne2",
+      "n": 123722,
+      "share": 0.3,
+      "score": 52.6
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 112495,
+      "share": 0.3,
+      "score": 48.1
+     }
+    ]
+   }
+  },
+  "r1bqkbnr/pp3ppp/2np4/2p1p3/2B1P3/2N2N2/PPPP1PPP/R1BQ1RK1 b kq - 1 5": {
+   "level": {
+    "total": 26883,
+    "moves": [
+     {
+      "uci": "f8e7",
+      "san": "Be7",
+      "n": 5405,
+      "share": 20.1,
+      "score": 56.0
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 5305,
+      "share": 19.7,
+      "score": 50.2
+     },
+     {
+      "uci": "c8g4",
+      "san": "Bg4",
+      "n": 5270,
+      "share": 19.6,
+      "score": 50.2
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 4073,
+      "share": 15.2,
+      "score": 52.6
+     },
+     {
+      "uci": "c8e6",
+      "san": "Be6",
+      "n": 3271,
+      "share": 12.2,
+      "score": 51.4
+     },
+     {
+      "uci": "f7f5",
+      "san": "f5",
+      "n": 1097,
+      "share": 4.1,
+      "score": 50.0
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 775,
+      "share": 2.9,
+      "score": 46.3
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 457,
+      "share": 1.7,
+      "score": 50.4
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 253,
+      "share": 0.9,
+      "score": 47.4
+     },
+     {
+      "uci": "c8d7",
+      "san": "Bd7",
+      "n": 216,
+      "share": 0.8,
+      "score": 47.2
+     },
+     {
+      "uci": "g8e7",
+      "san": "Nge7",
+      "n": 183,
+      "share": 0.7,
+      "score": 48.1
+     },
+     {
+      "uci": "c6a5",
+      "san": "Na5",
+      "n": 118,
+      "share": 0.4,
+      "score": 44.5
+     }
+    ]
+   },
+   "up": {
+    "total": 22521,
+    "moves": [
+     {
+      "uci": "f8e7",
+      "san": "Be7",
+      "n": 6029,
+      "share": 26.8,
+      "score": 54.2
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 3806,
+      "share": 16.9,
+      "score": 50.2
+     },
+     {
+      "uci": "c8g4",
+      "san": "Bg4",
+      "n": 3631,
+      "share": 16.1,
+      "score": 49.5
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 3523,
+      "share": 15.6,
+      "score": 47.2
+     },
+     {
+      "uci": "c8e6",
+      "san": "Be6",
+      "n": 3167,
+      "share": 14.1,
+      "score": 48.6
+     },
+     {
+      "uci": "f7f5",
+      "san": "f5",
+      "n": 768,
+      "share": 3.4,
+      "score": 48.4
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 558,
+      "share": 2.5,
+      "score": 47.4
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 360,
+      "share": 1.6,
+      "score": 50.1
+     },
+     {
+      "uci": "g8e7",
+      "san": "Nge7",
+      "n": 142,
+      "share": 0.6,
+      "score": 46.5
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 137,
+      "share": 0.6,
+      "score": 49.6
+     },
+     {
+      "uci": "c8d7",
+      "san": "Bd7",
+      "n": 120,
+      "share": 0.5,
+      "score": 41.7
+     },
+     {
+      "uci": "c6a5",
+      "san": "Na5",
+      "n": 82,
+      "share": 0.4,
+      "score": 54.3
+     }
+    ]
+   }
+  },
+  "r1bqkbnr/pp1ppppp/2n5/2p5/2B1P3/3P4/PPP2PPP/RNBQK1NR b KQkq - 0 3": {
+   "level": {
+    "total": 635688,
+    "moves": [
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 291137,
+      "share": 45.8,
+      "score": 53.0
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 102869,
+      "share": 16.2,
+      "score": 49.7
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 94065,
+      "share": 14.8,
+      "score": 52.2
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 48465,
+      "share": 7.6,
+      "score": 51.1
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 32653,
+      "share": 5.1,
+      "score": 46.4
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 32191,
+      "share": 5.1,
+      "score": 49.9
+     },
+     {
+      "uci": "c6a5",
+      "san": "Na5",
+      "n": 10365,
+      "share": 1.6,
+      "score": 49.8
+     },
+     {
+      "uci": "c6e5",
+      "san": "Ne5",
+      "n": 9742,
+      "share": 1.5,
+      "score": 47.3
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 6042,
+      "share": 1.0,
+      "score": 49.1
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 2529,
+      "share": 0.4,
+      "score": 47.8
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 1790,
+      "share": 0.3,
+      "score": 51.9
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 829,
+      "share": 0.1,
+      "score": 46.6
+     }
+    ]
+   },
+   "up": {
+    "total": 406984,
+    "moves": [
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 206786,
+      "share": 50.8,
+      "score": 52.8
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 62566,
+      "share": 15.4,
+      "score": 52.9
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 62003,
+      "share": 15.2,
+      "score": 49.4
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 28341,
+      "share": 7.0,
+      "score": 52.2
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 17147,
+      "share": 4.2,
+      "score": 46.7
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 14197,
+      "share": 3.5,
+      "score": 49.8
+     },
+     {
+      "uci": "c6a5",
+      "san": "Na5",
+      "n": 5850,
+      "share": 1.4,
+      "score": 49.3
+     },
+     {
+      "uci": "c6e5",
+      "san": "Ne5",
+      "n": 4712,
+      "share": 1.2,
+      "score": 45.6
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 1877,
+      "share": 0.5,
+      "score": 47.0
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 864,
+      "share": 0.2,
+      "score": 47.7
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 855,
+      "share": 0.2,
+      "score": 48.7
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 388,
+      "share": 0.1,
+      "score": 42.3
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2": {
+   "level": {
+    "total": 50948184,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 22711487,
+      "share": 44.6,
+      "score": 50.7
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 15161920,
+      "share": 29.8,
+      "score": 49.3
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 3090692,
+      "share": 6.1,
+      "score": 50.4
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 2659615,
+      "share": 5.2,
+      "score": 49.8
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 2451217,
+      "share": 4.8,
+      "score": 46.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 1376156,
+      "share": 2.7,
+      "score": 50.0
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 973782,
+      "share": 1.9,
+      "score": 46.3
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 866640,
+      "share": 1.7,
+      "score": 53.3
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 306388,
+      "share": 0.6,
+      "score": 50.7
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 302861,
+      "share": 0.6,
+      "score": 45.4
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 253388,
+      "share": 0.5,
+      "score": 48.1
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 178391,
+      "share": 0.4,
+      "score": 50.0
+     }
+    ]
+   },
+   "up": {
+    "total": 49063984,
+    "moves": [
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 25990096,
+      "share": 53.0,
+      "score": 51.1
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 11731492,
+      "share": 23.9,
+      "score": 49.1
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 2919884,
+      "share": 6.0,
+      "score": 49.1
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 2467124,
+      "share": 5.0,
+      "score": 49.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 1435160,
+      "share": 2.9,
+      "score": 51.8
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 1396454,
+      "share": 2.8,
+      "score": 45.8
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 1134255,
+      "share": 2.3,
+      "score": 53.1
+     },
+     {
+      "uci": "e4e5",
+      "san": "e5",
+      "n": 522758,
+      "share": 1.1,
+      "score": 46.6
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 360922,
+      "share": 0.7,
+      "score": 51.5
+     },
+     {
+      "uci": "d1e2",
+      "san": "Qe2",
+      "n": 283223,
+      "share": 0.6,
+      "score": 55.3
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 194476,
+      "share": 0.4,
+      "score": 47.2
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 181358,
+      "share": 0.4,
+      "score": 50.1
+     }
+    ]
+   }
+  },
+  "r1bqkbnr/pp1ppppp/2n5/2p5/4PP2/5N2/PPPP2PP/RNBQKB1R b KQkq - 2 3": {
+   "level": {
+    "total": 2406734,
+    "moves": [
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 770302,
+      "share": 32.0,
+      "score": 51.3
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 764952,
+      "share": 31.8,
+      "score": 47.7
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 418275,
+      "share": 17.4,
+      "score": 52.1
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 168668,
+      "share": 7.0,
+      "score": 50.3
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 75670,
+      "share": 3.1,
+      "score": 48.7
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 56037,
+      "share": 2.3,
+      "score": 49.1
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 35442,
+      "share": 1.5,
+      "score": 45.0
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 35077,
+      "share": 1.5,
+      "score": 48.3
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 31541,
+      "share": 1.3,
+      "score": 47.9
+     },
+     {
+      "uci": "f7f6",
+      "san": "f6",
+      "n": 17749,
+      "share": 0.7,
+      "score": 40.6
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 10821,
+      "share": 0.4,
+      "score": 44.8
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 7552,
+      "share": 0.3,
+      "score": 46.9
+     }
+    ]
+   },
+   "up": {
+    "total": 2442813,
+    "moves": [
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 764590,
+      "share": 31.3,
+      "score": 51.4
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 750759,
+      "share": 30.7,
+      "score": 48.4
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 495128,
+      "share": 20.3,
+      "score": 53.1
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 197392,
+      "share": 8.1,
+      "score": 51.1
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 67019,
+      "share": 2.7,
+      "score": 50.4
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 45165,
+      "share": 1.8,
+      "score": 49.7
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 31127,
+      "share": 1.3,
+      "score": 46.4
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 29012,
+      "share": 1.2,
+      "score": 48.8
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 25885,
+      "share": 1.1,
+      "score": 48.7
+     },
+     {
+      "uci": "f7f6",
+      "san": "f6",
+      "n": 10544,
+      "share": 0.4,
+      "score": 42.4
+     },
+     {
+      "uci": "c6d4",
+      "san": "Nd4",
+      "n": 9162,
+      "share": 0.4,
+      "score": 45.3
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 4722,
+      "share": 0.2,
+      "score": 48.0
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/ppp2ppp/3p4/4P3/8/8/PPPPP1PP/RNBQKBNR w KQkq - 0 3": {
+   "level": {
+    "total": 203539,
+    "moves": [
+     {
+      "uci": "e5d6",
+      "san": "exd6",
+      "n": 126703,
+      "share": 62.2,
+      "score": 46.0
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 65406,
+      "share": 32.1,
+      "score": 47.3
+     },
+     {
+      "uci": "e5e6",
+      "san": "e6",
+      "n": 3286,
+      "share": 1.6,
+      "score": 48.6
+     },
+     {
+      "uci": "e2e4",
+      "san": "e4",
+      "n": 2799,
+      "share": 1.4,
+      "score": 42.5
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 2314,
+      "share": 1.1,
+      "score": 34.9
+     },
+     {
+      "uci": "e2e3",
+      "san": "e3",
+      "n": 769,
+      "share": 0.4,
+      "score": 41.0
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 740,
+      "share": 0.4,
+      "score": 41.6
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 553,
+      "share": 0.3,
+      "score": 45.8
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 528,
+      "share": 0.3,
+      "score": 43.6
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 308,
+      "share": 0.2,
+      "score": 40.7
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 33,
+      "share": 0.0,
+      "score": 21.2
+     },
+     {
+      "uci": "h2h4",
+      "san": "h4",
+      "n": 28,
+      "share": 0.0,
+      "score": 30.4
+     }
+    ]
+   },
+   "up": {
+    "total": 487701,
+    "moves": [
+     {
+      "uci": "e5d6",
+      "san": "exd6",
+      "n": 290425,
+      "share": 59.5,
+      "score": 47.9
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 168152,
+      "share": 34.5,
+      "score": 48.3
+     },
+     {
+      "uci": "e5e6",
+      "san": "e6",
+      "n": 11316,
+      "share": 2.3,
+      "score": 45.2
+     },
+     {
+      "uci": "e2e4",
+      "san": "e4",
+      "n": 7968,
+      "share": 1.6,
+      "score": 41.8
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 2688,
+      "share": 0.6,
+      "score": 38.9
+     },
+     {
+      "uci": "g2g3",
+      "san": "g3",
+      "n": 1968,
+      "share": 0.4,
+      "score": 39.5
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 1694,
+      "share": 0.3,
+      "score": 43.3
+     },
+     {
+      "uci": "e2e3",
+      "san": "e3",
+      "n": 1425,
+      "share": 0.3,
+      "score": 40.2
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 1321,
+      "share": 0.3,
+      "score": 44.8
+     },
+     {
+      "uci": "b2b3",
+      "san": "b3",
+      "n": 565,
+      "share": 0.1,
+      "score": 39.6
+     },
+     {
+      "uci": "c2c3",
+      "san": "c3",
+      "n": 45,
+      "share": 0.0,
+      "score": 37.8
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 40,
+      "share": 0.0,
+      "score": 37.5
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2": {
+   "level": {
+    "total": 52984127,
+    "moves": [
+     {
+      "uci": "b8c6",
+      "san": "Nc6",
+      "n": 24352629,
+      "share": 46.0,
+      "score": 49.5
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 16187795,
+      "share": 30.6,
+      "score": 50.1
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 8278116,
+      "share": 15.6,
+      "score": 51.3
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 2189581,
+      "share": 4.1,
+      "score": 51.3
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 1008387,
+      "share": 1.9,
+      "score": 50.5
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 312268,
+      "share": 0.6,
+      "score": 49.9
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 225724,
+      "share": 0.4,
+      "score": 46.5
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 197199,
+      "share": 0.4,
+      "score": 47.2
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 57033,
+      "share": 0.1,
+      "score": 42.7
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 53536,
+      "share": 0.1,
+      "score": 49.7
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 37242,
+      "share": 0.1,
+      "score": 45.3
+     },
+     {
+      "uci": "f7f6",
+      "san": "f6",
+      "n": 18235,
+      "share": 0.0,
+      "score": 36.8
+     }
+    ]
+   },
+   "up": {
+    "total": 57903907,
+    "moves": [
+     {
+      "uci": "b8c6",
+      "san": "Nc6",
+      "n": 25101561,
+      "share": 43.4,
+      "score": 49.0
+     },
+     {
+      "uci": "d7d6",
+      "san": "d6",
+      "n": 18337995,
+      "share": 31.7,
+      "score": 49.8
+     },
+     {
+      "uci": "e7e6",
+      "san": "e6",
+      "n": 9808309,
+      "share": 16.9,
+      "score": 51.4
+     },
+     {
+      "uci": "g7g6",
+      "san": "g6",
+      "n": 2686828,
+      "share": 4.6,
+      "score": 51.2
+     },
+     {
+      "uci": "a7a6",
+      "san": "a6",
+      "n": 1072924,
+      "share": 1.9,
+      "score": 51.6
+     },
+     {
+      "uci": "g8f6",
+      "san": "Nf6",
+      "n": 356489,
+      "share": 0.6,
+      "score": 52.7
+     },
+     {
+      "uci": "d7d5",
+      "san": "d5",
+      "n": 192046,
+      "share": 0.3,
+      "score": 48.2
+     },
+     {
+      "uci": "b7b6",
+      "san": "b6",
+      "n": 190375,
+      "share": 0.3,
+      "score": 46.6
+     },
+     {
+      "uci": "d8c7",
+      "san": "Qc7",
+      "n": 41092,
+      "share": 0.1,
+      "score": 49.5
+     },
+     {
+      "uci": "e7e5",
+      "san": "e5",
+      "n": 38852,
+      "share": 0.1,
+      "score": 42.0
+     },
+     {
+      "uci": "h7h6",
+      "san": "h6",
+      "n": 16595,
+      "share": 0.0,
+      "score": 43.5
+     },
+     {
+      "uci": "f7f5",
+      "san": "f5",
+      "n": 11657,
+      "share": 0.0,
+      "score": 52.3
+     }
+    ]
+   }
+  },
+  "rnbqkbnr/ppp2ppp/4p3/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3": {
+   "level": {
+    "total": 773744,
+    "moves": [
+     {
+      "uci": "d5e6",
+      "san": "dxe6",
+      "n": 556677,
+      "share": 71.9,
+      "score": 51.2
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 121379,
+      "share": 15.7,
+      "score": 51.0
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 36949,
+      "share": 4.8,
+      "score": 53.8
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 34606,
+      "share": 4.5,
+      "score": 52.4
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 8810,
+      "share": 1.1,
+      "score": 52.8
+     },
+     {
+      "uci": "d5d6",
+      "san": "d6",
+      "n": 3947,
+      "share": 0.5,
+      "score": 49.7
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5+",
+      "n": 3822,
+      "share": 0.5,
+      "score": 57.5
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 1561,
+      "share": 0.2,
+      "score": 47.0
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 1464,
+      "share": 0.2,
+      "score": 46.5
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 1000,
+      "share": 0.1,
+      "score": 51.0
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 785,
+      "share": 0.1,
+      "score": 44.5
+     },
+     {
+      "uci": "d1e2",
+      "san": "Qe2",
+      "n": 687,
+      "share": 0.1,
+      "score": 44.9
+     }
+    ]
+   },
+   "up": {
+    "total": 734333,
+    "moves": [
+     {
+      "uci": "d5e6",
+      "san": "dxe6",
+      "n": 516922,
+      "share": 70.4,
+      "score": 50.9
+     },
+     {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "n": 103691,
+      "share": 14.1,
+      "score": 50.9
+     },
+     {
+      "uci": "d2d4",
+      "san": "d4",
+      "n": 49324,
+      "share": 6.7,
+      "score": 54.0
+     },
+     {
+      "uci": "g1f3",
+      "san": "Nf3",
+      "n": 39003,
+      "share": 5.3,
+      "score": 52.3
+     },
+     {
+      "uci": "c2c4",
+      "san": "c4",
+      "n": 11244,
+      "share": 1.5,
+      "score": 55.0
+     },
+     {
+      "uci": "d5d6",
+      "san": "d6",
+      "n": 4538,
+      "share": 0.6,
+      "score": 51.0
+     },
+     {
+      "uci": "f1b5",
+      "san": "Bb5+",
+      "n": 4190,
+      "share": 0.6,
+      "score": 58.9
+     },
+     {
+      "uci": "d2d3",
+      "san": "d3",
+      "n": 968,
+      "share": 0.1,
+      "score": 43.2
+     },
+     {
+      "uci": "d1f3",
+      "san": "Qf3",
+      "n": 835,
+      "share": 0.1,
+      "score": 44.0
+     },
+     {
+      "uci": "f2f4",
+      "san": "f4",
+      "n": 816,
+      "share": 0.1,
+      "score": 52.9
+     },
+     {
+      "uci": "h2h3",
+      "san": "h3",
+      "n": 539,
+      "share": 0.1,
+      "score": 48.1
+     },
+     {
+      "uci": "f1c4",
+      "san": "Bc4",
+      "n": 527,
+      "share": 0.1,
+      "score": 47.1
+     }
+    ]
+   }
+  }
+ }
+}

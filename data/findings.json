@@ -1,0 +1,67 @@
+{
+ "lede": "Ausgewertet wurden 1.606 Blitz-Partien mit 3 und 5 Minuten seit Januar 2025, fast alle auf chess.com in 3+0. Jeder Zug wurde mit Stockfish bewertet und mit den Zügen deiner Gegner in denselben Partien verglichen. Die haben praktisch dein Rating. Das Ergebnis: Am Brett spielst du auf ihrem Niveau, im Endspiel sogar besser. Die meisten Punkte verlierst du an der Uhr.",
+ "findings": [
+  {
+   "title": "Die Uhr kostet dich mehr als jede Eröffnung",
+   "text": "Bis Zug 15 liegst du mit deinen Gegnern gleichauf. Im Mittelspiel denkst du pro Zug länger nach (5,8 statt 5,0 Sekunden). In 3+0 hast du bei Zug 35 im Schnitt noch 46 Sekunden, deine Gegner 64. 317 deiner 755 Niederlagen endeten durch Zeitablauf, 109 davon in Stellungen, die nicht verloren waren. Grob überschlagen sind das allein etwa 30 Elo."
+  },
+  {
+   "title": "Gewonnene Partien gehen auf Zeit verloren",
+   "text": "In 791 Partien hattest du mindestens 90 % Gewinnchance. 136 davon hast du noch verloren, <b>101 davon auf Zeit</b>. Am Brett verspielst du solche Stellungen selten. Du hast nur keine Zeit mehr, sie zu Ende zu spielen."
+  },
+  {
+   "title": "Dein Endspiel ist besser als du denkst",
+   "text": "Ohne Zeitnot patzt du in jedem Endspieltyp seltener als deine Gegner (2,0 gegenüber 2,3 Patzern pro 100 Züge). Aber du spielst 31 % deiner Endspielzüge in Zeitnot, deine Gegner 15 %. Im Damen- und im Bauernendspiel ist es etwa jeder zweite Zug. Die Endspieldatenbank bestätigt das: Von 132 theoretisch gewonnenen Endspielen mit höchstens 7 Steinen hast du 88 gewonnen, und 58 % dieser Züge fielen in Zeitnot."
+  },
+  {
+   "title": "Die Eröffnung ist solide, mit ein paar konkreten Lecks",
+   "text": "Nur 18 % der verlorenen Gewinnchancen entstehen in der Eröffnung, und dort patzt du nicht öfter als deine Gegner. Mit Schwarz holst du im Sizilianer (437 Partien) 3 % mehr als erwartet. Der lichess Opening Explorer bestätigt 11 von 17 Engine-Lecks auch in der Praxis: Spieler mit 1.600 bis 1.799 auf lichess holen mit deinem Zug deutlich weniger. Am klarsten: Sicilian Defense: Open: dein e5 holt 39 %, cxd4 holt 49 %; Sicilian Defense: Closed, Anti-Sveshnikov Variation: dein e5 holt 43 %, d6 holt 50 %. Dagegen schneidet dein Zug bei King's Gambit mit 54 % sogar besser ab als der Engine-Zug, das ist kein Leck. Die bestätigten lassen sich mit wenigen Minuten Wiederholung stopfen."
+  },
+  {
+   "title": "Taktisch: hängende Figuren und Gabeln",
+   "text": "Pro 100 Partien wirst du 23-mal für eine hängende Figur bestraft (Gegner: 20) und 10-mal mit einer Gabel (Gegner: 9). Im Mittelspiel patzt du 9 % öfter als deine Gegner, obwohl du dort länger nachdenkst. Gegnerische Fehler bestrafst du dagegen besser als sie: 28 verpasste Chancen pro 100 Partien, bei ihnen 36."
+  },
+  {
+   "title": "49 % deiner Fehler sind trainierbar",
+   "text": "Maia-3 schätzt für jeden Fehler, wie oft Menschen deiner Stärke den richtigen Zug finden. 25 % sind Leichtsinn, den richtigen Zug findet man auf deinem Niveau meistens. Weitere 24 % finden Spieler 300 Punkte über dir oft. Das sind 1.231 Stellungen aus deinen eigenen Partien, genau das richtige Übungsmaterial. Leichtsinn passiert vor allem bei schnellen Zügen: 28 % unter 2 Sekunden, 21 % ab 5 Sekunden."
+  }
+ ],
+ "clock_lede": "Die Restzeit-Kurve zeigt, wo die Zeit bleibt. Bis Zug 15 liegt ihr gleichauf, danach verlierst du mit jedem Zug ein Stück. In Zeitnot patzt du nur etwas öfter als deine Gegner (4,4 gegenüber 4,0 Patzern pro 100 Züge), du kommst aber viel häufiger hinein. Jeder sechste Zeitverlust (52 Partien) passierte in einer Gewinnstellung, weitere 57 in offener Stellung.",
+ "open_lede": "Mit Weiß spielst du ein eigenes System-Repertoire, vor allem 1.f4 (Bird) oder 1.e4 mit frühem Bc4 oder f4. Mit Schwarz spielst du fast immer Sizilianisch. Beides liegt im Rahmen der Erwartung. Darunter stehen die Stellungen, in denen du wiederholt denselben ungenauen Zug spielst. Rot ist dein Zug, grün der bessere. Der Explorer zeigt dazu, wie Spieler deiner Stärke (lichess 1.600 bis 1.799, entspricht deinem chess.com-Niveau) mit beiden Zügen abschneiden. Bestätigte Lecks stehen zuerst.",
+ "eg_lede": "Gefühlt ist das Endspiel eine Schwäche. Die Daten zeigen: Deine Technik ist gut, aber du kommst mit zu wenig Zeit an. Die Endspieltabelle vergleicht jeden Endspielzug mit den Zügen deiner Gegner im gleichen Endspieltyp.",
+ "tb_lede": "Für Stellungen mit höchstens 7 Steinen kennt die Syzygy-Datenbank das exakte Ergebnis. Gezählt wird, ob dein Zug das theoretische Ergebnis gehalten hat. Ohne Zeitnot verschenkst du es bei 2,0 % der Züge, in Zeitnot bei 3,4 %.",
+ "motif_lede": "Die Motive werden mit dem Tagger von lichess bestimmt, also nach derselben Logik wie die lichess-Puzzles. Gezählt werden Fehler ab 20 Prozentpunkten. Die Links führen direkt zu passenden Puzzle-Serien.",
+ "maia_lede": "Maia-3 ist ein neuronales Netz der Universität Toronto, trainiert auf Millionen menschlicher Partien. Es schätzt, mit welcher Wahrscheinlichkeit ein Mensch einer bestimmten Stärke einen Zug spielt. Für jeden deiner 2.517 Fehler wurde verglichen, ob ihn ein Spieler deiner Stärke vermieden hätte, einer mit 300 Punkten mehr oder fast niemand. Maia kennt nur lichess-Ratings. Deine chess.com-Werte wurden deshalb umgerechnet: 1.380 auf chess.com entspricht etwa 1.690 auf lichess, und „300 Punkte mehr“ meint einen Spieler mit etwa 1.990 auf lichess, das entspricht rund 1.800 bis 1.850 auf chess.com.",
+ "tilt_lede": "Nach einer Niederlage spielst du nicht schlechter. Nach zwei oder mehr Niederlagen in Folge liegst du 2 bis 4 % unter der Erwartung, ein schwacher Effekt im Bereich des Zufalls. 3+0, 3+2 und 5+0 laufen gleich gut.",
+ "plan_lede": "Abgeleitet aus den Befunden, für 15 Minuten am Tag. Der größte Hebel ist aber kein Training, sondern eine Regel für deine Partien. Sie steht ganz oben.",
+ "plan": [
+  {
+   "min": "Partie",
+   "title": "Zeitbudget für 3+0",
+   "text": "Bei Zug 20 mindestens 2:00, bei Zug 30 mindestens 1:20 auf der Uhr. Das ist genau der Schnitt deiner Gegner (heute: 120 und 65 Sekunden). In klar gewonnener Stellung tauschen, vereinfachen und schnell ziehen. Für Trainingspartien lohnt sich 3+2: Mit Inkrement verlierst du gewonnene Partien nicht mehr auf Zeit und sammelst echte Endspielpraxis. Deine Ergebnisse in 3+2 sind gleich gut."
+  },
+  {
+   "min": "5 min",
+   "title": "Deine eigenen Fehler",
+   "text": "Fünf Stellungen aus deinen Partien, Klassen Leichtsinn und Nächste Stufe zuerst. Zug finden in unter 10 Sekunden, falsche kommen am nächsten Tag wieder. Bis die App steht, gibt es die 60 wichtigsten Stellungen als PGN für eine lichess-Studie."
+  },
+  {
+   "min": "5 min",
+   "title": "Taktik-Themen auf Tempo",
+   "text": "Abwechselnd <a href=\"https://lichess.org/training/hangingPiece\" target=\"_blank\" rel=\"noopener\">Hängende Figur</a>, <a href=\"https://lichess.org/training/fork\" target=\"_blank\" rel=\"noopener\">Gabel</a> und <a href=\"https://lichess.org/training/mateIn1\" target=\"_blank\" rel=\"noopener\">Matt in 1</a> bzw. <a href=\"https://lichess.org/training/mateIn2\" target=\"_blank\" rel=\"noopener\">Matt in 2</a>. Ziel ist Tempo, nicht Puzzle-Rating: unter 10 Sekunden pro Aufgabe."
+  },
+  {
+   "min": "5 min",
+   "title": "Wechselnd: Endspiel auf Zeit, Eröffnungs-Lecks, Nachbetrachtung",
+   "text": "Montag, Mittwoch, Freitag: eine Gewinnstellung aus deinen Partien mit 1 Minute gegen den Computer zu Ende spielen. Die Technik hast du, es fehlt die Routine unter Zeitdruck. Zum Auffrischen gibt es <a href=\"https://lichess.org/practice\" target=\"_blank\" rel=\"noopener\">lichess Practice</a>. Dienstag und Donnerstag: die Leck-Stellungen aus diesem Report durchgehen. Am Wochenende: eine Partie nachbetrachten, die du auf Zeit verloren hast. Wo ist die Zeit geblieben?"
+  }
+ ],
+ "method": [
+  "Partien: chess.com und lichess über die öffentlichen Schnittstellen. Blitz mit 3 oder 5 Minuten Grundzeit seit 1. Januar 2025.",
+  "Bewertung: Stockfish 16 mit 50.000 Knoten pro Stellung, umgerechnet in Gewinnwahrscheinlichkeit nach der Formel von lichess. Ungenauigkeit ab 10, Fehler ab 20, Patzer ab 30 Prozentpunkten Verlust.",
+  "Zeitnot: unter 20 Sekunden (3 Minuten) bzw. 30 Sekunden (5 Minuten) Restzeit. Endspiel: höchstens sechs Figuren ohne Bauern und Könige.",
+  "Ratings: Dieselbe Zahl bedeutet auf chess.com mehr Stärke als auf lichess. Bei dir passt das zu den Konten: chess.com-Blitz 1.283 gegenüber lichess-Blitz 1.603 im selben Quartal. Für Maia und den Opening Explorer habe ich chess.com-Blitz-Ratings mit dem Mittel zweier veröffentlichter Umrechnungstabellen (chessgoals.com, attackingchess.com) auf die lichess-Skala gebracht. Die Unsicherheit liegt bei etwa 70 Punkten.",
+  "Bausteine: Motiv-Tagger aus lichess-puzzler, Syzygy-Endspieldatenbank und Opening Explorer über die lichess-API, Eröffnungskatalog lichess-org/chess-openings, Maia-3 (79M) von CSSLab, Universität Toronto.",
+  "Die Engine rechnet bewusst knapp, einzelne Bewertungen können um ein paar Prozentpunkte abweichen. Die Muster über 1.606 Partien betrifft das kaum. Die Elo-Schätzung bei den Zeitverlusten ist eine grobe Überschlagsrechnung."
+ ]
+}

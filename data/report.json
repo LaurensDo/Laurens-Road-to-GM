@@ -1,0 +1,8520 @@
+{
+ "generated": "2026-10-15T15:46+02:00",
+ "n_games": 1606,
+ "period": [
+  "2025-01-03",
+  "2026-10-15"
+ ],
+ "platforms": {
+  "chesscom": 1541,
+  "lichess": 65
+ },
+ "time_controls": {
+  "3+0": 1428,
+  "5+3": 1,
+  "3+2": 103,
+  "5+0": 74
+ },
+ "score": 0.507,
+ "loss_by_category": [
+  {
+   "cat": "Zeit abgelaufen",
+   "share": 5.8,
+   "per_game": 0.055,
+   "by_phase": {
+    "Endspiel": 88.4,
+    "Mittelspiel": 10.8,
+    "Eröffnung": 0.8
+   }
+  },
+  {
+   "cat": "Figur eingestellt",
+   "share": 13.2,
+   "per_game": 0.125,
+   "by_phase": {
+    "Endspiel": 36.6,
+    "Mittelspiel": 50.1,
+    "Eröffnung": 13.3
+   }
+  },
+  {
+   "cat": "Matt übersehen",
+   "share": 4.6,
+   "per_game": 0.043,
+   "by_phase": {
+    "Mittelspiel": 46.7,
+    "Endspiel": 43.6,
+    "Eröffnung": 9.6
+   }
+  },
+  {
+   "cat": "Gegnerische Taktik übersehen",
+   "share": 14.3,
+   "per_game": 0.136,
+   "by_phase": {
+    "Endspiel": 27.9,
+    "Mittelspiel": 57.4,
+    "Eröffnung": 14.8
+   }
+  },
+  {
+   "cat": "Gegnerfehler nicht bestraft",
+   "share": 10.2,
+   "per_game": 0.097,
+   "by_phase": {
+    "Endspiel": 39.2,
+    "Mittelspiel": 50.5,
+    "Eröffnung": 10.3
+   }
+  },
+  {
+   "cat": "Positioneller Fehler",
+   "share": 19.0,
+   "per_game": 0.18,
+   "by_phase": {
+    "Mittelspiel": 50.4,
+    "Endspiel": 33.8,
+    "Eröffnung": 15.8
+   }
+  },
+  {
+   "cat": "Kleine Ungenauigkeit",
+   "share": 33.0,
+   "per_game": 0.313,
+   "by_phase": {
+    "Endspiel": 24.2,
+    "Eröffnung": 28.0,
+    "Mittelspiel": 47.8
+   }
+  }
+ ],
+ "loss_by_phase": {
+  "Mittelspiel": 48.1,
+  "Endspiel": 34.3,
+  "Eröffnung": 17.6
+ },
+ "benchmark": {
+  "me": {
+   "moves": 60056,
+   "blunders_per_100": 2.38,
+   "mistakes_per_100": 4.44,
+   "hung_piece_per_game": 0.316,
+   "avg_loss": 3.97,
+   "blunders_per_100_Eröffnung": 0.86,
+   "avg_loss_Eröffnung": 3.38,
+   "blunders_per_100_Mittelspiel": 3.59,
+   "avg_loss_Mittelspiel": 5.29,
+   "blunders_per_100_Endspiel": 2.62,
+   "avg_loss_Endspiel": 3.25,
+   "blunders_per_100_no_tt": 2.11,
+   "blunders_per_100_tt": 4.39
+  },
+  "opp": {
+   "moves": 60076,
+   "blunders_per_100": 2.29,
+   "mistakes_per_100": 4.27,
+   "hung_piece_per_game": 0.286,
+   "avg_loss": 3.99,
+   "blunders_per_100_Eröffnung": 0.91,
+   "avg_loss_Eröffnung": 3.35,
+   "blunders_per_100_Mittelspiel": 3.29,
+   "avg_loss_Mittelspiel": 5.3,
+   "blunders_per_100_Endspiel": 2.58,
+   "avg_loss_Endspiel": 3.31,
+   "blunders_per_100_no_tt": 2.18,
+   "blunders_per_100_tt": 3.98
+  }
+ },
+ "timeouts": {
+  "lost_on_time": 317,
+  "won_on_time": 163,
+  "losses": 755,
+  "lost_on_time_winning": 52,
+  "lost_on_time_equal": 57,
+  "lost_on_time_losing": 208
+ },
+ "clock_curve_3_0": {
+  "5": {
+   "me": 175.19,
+   "opp": 174.8,
+   "n": 1428
+  },
+  "10": {
+   "me": 165.91,
+   "opp": 164.51,
+   "n": 1410
+  },
+  "15": {
+   "me": 146.06,
+   "opp": 146.98,
+   "n": 1362
+  },
+  "20": {
+   "me": 119.6,
+   "opp": 125.19,
+   "n": 1283
+  },
+  "25": {
+   "me": 91.39,
+   "opp": 101.02,
+   "n": 1148
+  },
+  "30": {
+   "me": 65.35,
+   "opp": 79.85,
+   "n": 982
+  },
+  "35": {
+   "me": 46.47,
+   "opp": 64.48,
+   "n": 778
+  },
+  "40": {
+   "me": 35.14,
+   "opp": 53.22,
+   "n": 593
+  }
+ },
+ "time_use": {
+  "by_phase": {
+   "Eröffnung": {
+    "avg": 2.11,
+    "n": 19142
+   },
+   "Mittelspiel": {
+    "avg": 5.75,
+    "n": 19440
+   },
+   "Endspiel": {
+    "avg": 3.85,
+    "n": 14326
+   }
+  },
+  "opp_by_phase": {
+   "Eröffnung": {
+    "avg": 2.2,
+    "n": 19145
+   },
+   "Mittelspiel": {
+    "avg": 4.96,
+    "n": 19761
+   },
+   "Endspiel": {
+    "avg": 3.03,
+    "n": 17756
+   }
+  },
+  "critical": {
+   "avg": 2.53,
+   "n": 2464
+  },
+  "easy": {
+   "avg": 3.92,
+   "n": 42444
+  }
+ },
+ "critical_by_spent": [
+  {
+   "bucket": "< 2 s",
+   "n": 1689,
+   "share_of_critical": 68.5,
+   "mistake_rate": 9.7
+  },
+  {
+   "bucket": "2–5 s",
+   "n": 410,
+   "share_of_critical": 16.6,
+   "mistake_rate": 25.6
+  },
+  {
+   "bucket": "5–10 s",
+   "n": 225,
+   "share_of_critical": 9.1,
+   "mistake_rate": 34.7
+  },
+  {
+   "bucket": "> 10 s",
+   "n": 140,
+   "share_of_critical": 5.7,
+   "mistake_rate": 53.6
+  }
+ ],
+ "blunder_by_clock": [
+  {
+   "bucket": "< 10 s",
+   "n": 3965,
+   "me": 4.7,
+   "opp": 4.5
+  },
+  {
+   "bucket": "10–20 s",
+   "n": 3162,
+   "me": 4.0,
+   "opp": 3.7
+  },
+  {
+   "bucket": "20–40 s",
+   "n": 3608,
+   "me": 2.9,
+   "opp": 2.9
+  },
+  {
+   "bucket": "40–80 s",
+   "n": 7700,
+   "me": 2.9,
+   "opp": 2.9
+  },
+  {
+   "bucket": "> 80 s",
+   "n": 41621,
+   "me": 1.9,
+   "opp": 2.0
+  }
+ ],
+ "fast_mistakes": {
+  "me": 30.3,
+  "opp": 27.0,
+  "n_me": 2233
+ },
+ "motif_source": "lichess-puzzler",
+ "motifs_against_me": [
+  {
+   "key": "hangingPiece",
+   "motif": "Hängende Figur",
+   "me": 23.0,
+   "opp": 19.5,
+   "n": 369
+  },
+  {
+   "key": "fork",
+   "motif": "Gabel",
+   "me": 10.3,
+   "opp": 9.1,
+   "n": 166
+  },
+  {
+   "key": "pin",
+   "motif": "Fesselung",
+   "me": 4.9,
+   "opp": 4.9,
+   "n": 78
+  },
+  {
+   "key": "quietMove",
+   "motif": "Stiller Zug",
+   "me": 4.8,
+   "opp": 4.4,
+   "n": 77
+  },
+  {
+   "key": "discoveredAttack",
+   "motif": "Abzugsangriff",
+   "me": 3.4,
+   "opp": 2.9,
+   "n": 54
+  },
+  {
+   "key": "mateIn1",
+   "motif": "Matt in 1",
+   "me": 3.2,
+   "opp": 2.6,
+   "n": 51
+  },
+  {
+   "key": "advancedPawn",
+   "motif": "Vorgerückter Bauer",
+   "me": 3.2,
+   "opp": 3.2,
+   "n": 51
+  },
+  {
+   "key": "kingsideAttack",
+   "motif": "Königsangriff",
+   "me": 2.8,
+   "opp": 2.3,
+   "n": 45
+  },
+  {
+   "key": "exposedKing",
+   "motif": "Ungeschützter König",
+   "me": 2.4,
+   "opp": 1.6,
+   "n": 39
+  },
+  {
+   "key": "mateIn2",
+   "motif": "Matt in 2",
+   "me": 2.1,
+   "opp": 1.9,
+   "n": 33
+  },
+  {
+   "key": "promotion",
+   "motif": "Umwandlung",
+   "me": 1.7,
+   "opp": 2.4,
+   "n": 28
+  },
+  {
+   "key": "trappedPiece",
+   "motif": "Gefangene Figur",
+   "me": 1.4,
+   "opp": 2.4,
+   "n": 22
+  },
+  {
+   "key": "deflection",
+   "motif": "Ablenkung",
+   "me": 1.4,
+   "opp": 1.4,
+   "n": 22
+  },
+  {
+   "key": "sacrifice",
+   "motif": "Opfer",
+   "me": 1.2,
+   "opp": 0.6,
+   "n": 20
+  },
+  {
+   "key": "attackingF2F7",
+   "motif": "Angriff auf f2/f7",
+   "me": 1.1,
+   "opp": 0.4,
+   "n": 17
+  },
+  {
+   "key": "mateIn3",
+   "motif": "Matt in 3",
+   "me": 1.1,
+   "opp": 1.1,
+   "n": 17
+  },
+  {
+   "key": "defensiveMove",
+   "motif": "Verteidigungszug",
+   "me": 1.0,
+   "opp": 1.1,
+   "n": 16
+  },
+  {
+   "key": "skewer",
+   "motif": "Spieß",
+   "me": 0.9,
+   "opp": 1.2,
+   "n": 14
+  },
+  {
+   "key": "attraction",
+   "motif": "Hinlenkung",
+   "me": 0.7,
+   "opp": 0.6,
+   "n": 12
+  },
+  {
+   "key": "intermezzo",
+   "motif": "Zwischenzug",
+   "me": 0.6,
+   "opp": 1.0,
+   "n": 10
+  },
+  {
+   "key": "capturingDefender",
+   "motif": "Verteidiger schlagen",
+   "me": 0.6,
+   "opp": 0.4,
+   "n": 10
+  },
+  {
+   "key": "clearance",
+   "motif": "Linienräumung",
+   "me": 0.5,
+   "opp": 0.3,
+   "n": 8
+  },
+  {
+   "key": "doubleCheck",
+   "motif": "Doppelschach",
+   "me": 0.5,
+   "opp": 0.2,
+   "n": 8
+  },
+  {
+   "key": "backRankMate",
+   "motif": "Grundreihenmatt",
+   "me": 0.3,
+   "opp": 0.4,
+   "n": 5
+  },
+  {
+   "key": "smotheredMate",
+   "motif": "Ersticktes Matt",
+   "me": 0.2,
+   "opp": 0.0,
+   "n": 3
+  },
+  {
+   "key": "interference",
+   "motif": "Unterbrechung",
+   "me": 0.1,
+   "opp": 0.2,
+   "n": 2
+  }
+ ],
+ "motifs_missed": [
+  {
+   "key": "hangingPiece",
+   "motif": "Hängende Figur",
+   "me": 6.0,
+   "opp": 8.0,
+   "n": 97
+  },
+  {
+   "key": "defensiveMove",
+   "motif": "Verteidigungszug",
+   "me": 4.6,
+   "opp": 4.6,
+   "n": 74
+  },
+  {
+   "key": "quietMove",
+   "motif": "Stiller Zug",
+   "me": 3.4,
+   "opp": 2.5,
+   "n": 54
+  },
+  {
+   "key": "fork",
+   "motif": "Gabel",
+   "me": 3.1,
+   "opp": 4.0,
+   "n": 50
+  },
+  {
+   "key": "pin",
+   "motif": "Fesselung",
+   "me": 2.3,
+   "opp": 2.4,
+   "n": 37
+  },
+  {
+   "key": "kingsideAttack",
+   "motif": "Königsangriff",
+   "me": 1.2,
+   "opp": 1.7,
+   "n": 19
+  },
+  {
+   "key": "advancedPawn",
+   "motif": "Vorgerückter Bauer",
+   "me": 1.2,
+   "opp": 1.4,
+   "n": 20
+  },
+  {
+   "key": "discoveredAttack",
+   "motif": "Abzugsangriff",
+   "me": 1.0,
+   "opp": 1.8,
+   "n": 16
+  },
+  {
+   "key": "trappedPiece",
+   "motif": "Gefangene Figur",
+   "me": 0.9,
+   "opp": 0.4,
+   "n": 14
+  },
+  {
+   "key": "promotion",
+   "motif": "Umwandlung",
+   "me": 0.9,
+   "opp": 0.7,
+   "n": 15
+  },
+  {
+   "key": "exposedKing",
+   "motif": "Ungeschützter König",
+   "me": 0.7,
+   "opp": 0.7,
+   "n": 12
+  },
+  {
+   "key": "mateIn2",
+   "motif": "Matt in 2",
+   "me": 0.6,
+   "opp": 0.4,
+   "n": 10
+  },
+  {
+   "key": "deflection",
+   "motif": "Ablenkung",
+   "me": 0.6,
+   "opp": 0.6,
+   "n": 10
+  },
+  {
+   "key": "mateIn1",
+   "motif": "Matt in 1",
+   "me": 0.5,
+   "opp": 1.5,
+   "n": 8
+  },
+  {
+   "key": "intermezzo",
+   "motif": "Zwischenzug",
+   "me": 0.4,
+   "opp": 0.4,
+   "n": 7
+  },
+  {
+   "key": "skewer",
+   "motif": "Spieß",
+   "me": 0.4,
+   "opp": 0.3,
+   "n": 6
+  },
+  {
+   "key": "sacrifice",
+   "motif": "Opfer",
+   "me": 0.4,
+   "opp": 0.6,
+   "n": 7
+  },
+  {
+   "key": "mateIn3",
+   "motif": "Matt in 3",
+   "me": 0.3,
+   "opp": 0.5,
+   "n": 5
+  },
+  {
+   "key": "attraction",
+   "motif": "Hinlenkung",
+   "me": 0.3,
+   "opp": 0.4,
+   "n": 5
+  },
+  {
+   "key": "attackingF2F7",
+   "motif": "Angriff auf f2/f7",
+   "me": 0.2,
+   "opp": 0.1,
+   "n": 3
+  },
+  {
+   "key": "clearance",
+   "motif": "Linienräumung",
+   "me": 0.2,
+   "opp": 0.1,
+   "n": 4
+  },
+  {
+   "key": "backRankMate",
+   "motif": "Grundreihenmatt",
+   "me": 0.1,
+   "opp": 0.0,
+   "n": 1
+  },
+  {
+   "key": "capturingDefender",
+   "motif": "Verteidiger schlagen",
+   "me": 0.1,
+   "opp": 0.2,
+   "n": 2
+  },
+  {
+   "key": "interference",
+   "motif": "Unterbrechung",
+   "me": 0.1,
+   "opp": 0.1,
+   "n": 2
+  },
+  {
+   "key": "smotheredMate",
+   "motif": "Ersticktes Matt",
+   "me": 0.0,
+   "opp": 0.1,
+   "n": 0
+  },
+  {
+   "key": "doubleCheck",
+   "motif": "Doppelschach",
+   "me": 0.0,
+   "opp": 0.1,
+   "n": 0
+  }
+ ],
+ "mistake_types_per_100_games": [
+  {
+   "cat": "Figur eingestellt",
+   "me": 31.6,
+   "opp": 28.6
+  },
+  {
+   "cat": "Matt übersehen",
+   "me": 8.8,
+   "opp": 7.8
+  },
+  {
+   "cat": "Gegnerische Taktik übersehen",
+   "me": 37.2,
+   "opp": 35.1
+  },
+  {
+   "cat": "Gegnerfehler nicht bestraft",
+   "me": 27.6,
+   "opp": 36.1
+  },
+  {
+   "cat": "Positioneller Fehler",
+   "me": 61.0,
+   "opp": 52.3
+  },
+  {
+   "cat": "Kleine Ungenauigkeit",
+   "me": 0.0,
+   "opp": 0.0
+  }
+ ],
+ "opening_families": [
+  {
+   "color": "black",
+   "family": "Sicilian Defense",
+   "n": 437,
+   "score": 0.54,
+   "resid": 0.03,
+   "wp_move12": 53.71,
+   "opening_loss_per_game": 0.348
+  },
+  {
+   "color": "white",
+   "family": "Bird Opening",
+   "n": 225,
+   "score": 0.502,
+   "resid": -0.001,
+   "wp_move12": 52.89,
+   "opening_loss_per_game": 0.45
+  },
+  {
+   "color": "white",
+   "family": "Bishop's Opening",
+   "n": 131,
+   "score": 0.485,
+   "resid": -0.009,
+   "wp_move12": 55.93,
+   "opening_loss_per_game": 0.378
+  },
+  {
+   "color": "white",
+   "family": "Sicilian Defense",
+   "n": 94,
+   "score": 0.516,
+   "resid": 0.025,
+   "wp_move12": 48.4,
+   "opening_loss_per_game": 0.417
+  },
+  {
+   "color": "white",
+   "family": "Scandinavian Defense",
+   "n": 68,
+   "score": 0.441,
+   "resid": -0.016,
+   "wp_move12": 52.56,
+   "opening_loss_per_game": 0.46
+  },
+  {
+   "color": "black",
+   "family": "Horwitz Defense",
+   "n": 50,
+   "score": 0.47,
+   "resid": -0.033,
+   "wp_move12": 47.85,
+   "opening_loss_per_game": 0.339
+  },
+  {
+   "color": "white",
+   "family": "French Defense",
+   "n": 50,
+   "score": 0.56,
+   "resid": 0.034,
+   "wp_move12": 58.23,
+   "opening_loss_per_game": 0.421
+  },
+  {
+   "color": "black",
+   "family": "Benoni Defense",
+   "n": 36,
+   "score": 0.639,
+   "resid": 0.099,
+   "wp_move12": 55.75,
+   "opening_loss_per_game": 0.406
+  },
+  {
+   "color": "black",
+   "family": "Queen's Pawn Game",
+   "n": 35,
+   "score": 0.471,
+   "resid": -0.025,
+   "wp_move12": 50.39,
+   "opening_loss_per_game": 0.321
+  },
+  {
+   "color": "white",
+   "family": "King's Pawn Game",
+   "n": 33,
+   "score": 0.636,
+   "resid": 0.124,
+   "wp_move12": 53.16,
+   "opening_loss_per_game": 0.511
+  },
+  {
+   "color": "white",
+   "family": "Caro-Kann Defense",
+   "n": 32,
+   "score": 0.531,
+   "resid": 0.044,
+   "wp_move12": 53.26,
+   "opening_loss_per_game": 0.399
+  },
+  {
+   "color": "black",
+   "family": "French Defense",
+   "n": 31,
+   "score": 0.484,
+   "resid": 0.018,
+   "wp_move12": 39.26,
+   "opening_loss_per_game": 0.432
+  },
+  {
+   "color": "white",
+   "family": "Queen's Pawn Game",
+   "n": 25,
+   "score": 0.54,
+   "resid": 0.026,
+   "wp_move12": 49.3,
+   "opening_loss_per_game": 0.448
+  },
+  {
+   "color": "black",
+   "family": "Queen's Gambit Declined",
+   "n": 21,
+   "score": 0.452,
+   "resid": -0.032,
+   "wp_move12": 48.93,
+   "opening_loss_per_game": 0.458
+  },
+  {
+   "color": "white",
+   "family": "Mieses Opening",
+   "n": 21,
+   "score": 0.429,
+   "resid": -0.064,
+   "wp_move12": 52.2,
+   "opening_loss_per_game": 0.418
+  },
+  {
+   "color": "white",
+   "family": "Pirc Defense",
+   "n": 20,
+   "score": 0.475,
+   "resid": -0.061,
+   "wp_move12": 52.13,
+   "opening_loss_per_game": 0.42
+  },
+  {
+   "color": "black",
+   "family": "Hungarian Opening",
+   "n": 18,
+   "score": 0.444,
+   "resid": -0.012,
+   "wp_move12": 53.07,
+   "opening_loss_per_game": 0.365
+  },
+  {
+   "color": "black",
+   "family": "Indian Defense",
+   "n": 16,
+   "score": 0.562,
+   "resid": 0.012,
+   "wp_move12": 49.62,
+   "opening_loss_per_game": 0.324
+  },
+  {
+   "color": "white",
+   "family": "King's Gambit Declined",
+   "n": 16,
+   "score": 0.375,
+   "resid": -0.193,
+   "wp_move12": 46.04,
+   "opening_loss_per_game": 0.663
+  },
+  {
+   "color": "black",
+   "family": "English Opening",
+   "n": 15,
+   "score": 0.433,
+   "resid": -0.043,
+   "wp_move12": 48.18,
+   "opening_loss_per_game": 0.328
+  }
+ ],
+ "explorer": {
+  "bucket": 1600,
+  "upper": 1800,
+  "lichess_level": 1686
+ },
+ "opening_leaks": [
+  {
+   "fen": "r1bqkbnr/pp1ppppp/2n5/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3",
+   "seen": 63,
+   "bad": 3,
+   "total_loss": 0.52,
+   "avg_loss": 17.3,
+   "played": [
+    [
+     "e5",
+     3
+    ]
+   ],
+   "best": "cxd4",
+   "played_uci": "e7e5",
+   "best_uci": "c5d4",
+   "color": "black",
+   "opening": "Sicilian Defense: Open",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/171551552746",
+   "explorer": {
+    "total": 11141604,
+    "played": {
+     "uci": "e7e5",
+     "san": "e5",
+     "n": 26357,
+     "share": 0.2,
+     "score": 39.4
+    },
+    "best": {
+     "uci": "c5d4",
+     "san": "cxd4",
+     "n": 10358762,
+     "share": 93.0,
+     "score": 49.4
+    },
+    "top": {
+     "uci": "c5d4",
+     "san": "cxd4",
+     "n": 10358762,
+     "share": 93.0,
+     "score": 49.4
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+   "seen": 208,
+   "bad": 3,
+   "total_loss": 0.32,
+   "avg_loss": 10.8,
+   "played": [
+    [
+     "e5",
+     3
+    ]
+   ],
+   "best": "d6",
+   "played_uci": "e7e5",
+   "best_uci": "d7d6",
+   "color": "black",
+   "opening": "Sicilian Defense: Closed, Anti-Sveshnikov Variation",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/173737989054",
+   "explorer": {
+    "total": 52984127,
+    "played": {
+     "uci": "e7e5",
+     "san": "e5",
+     "n": 57033,
+     "share": 0.1,
+     "score": 42.7
+    },
+    "best": {
+     "uci": "d7d6",
+     "san": "d6",
+     "n": 16187795,
+     "share": 30.6,
+     "score": 50.1
+    },
+    "top": {
+     "uci": "b8c6",
+     "san": "Nc6",
+     "n": 24352629,
+     "share": 46.0,
+     "score": 49.5
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "r1bqkbnr/pp1ppppp/2n5/2p5/2B1P3/3P4/PPP2PPP/RNBQK1NR b KQkq - 0 3",
+   "seen": 11,
+   "bad": 5,
+   "total_loss": 0.45,
+   "avg_loss": 9.0,
+   "played": [
+    [
+     "e5",
+     5
+    ]
+   ],
+   "best": "e6",
+   "played_uci": "e7e5",
+   "best_uci": "e7e6",
+   "color": "black",
+   "opening": "Sicilian Defense: Bowdler Attack",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/174510480106",
+   "explorer": {
+    "total": 635688,
+    "played": {
+     "uci": "e7e5",
+     "san": "e5",
+     "n": 32653,
+     "share": 5.1,
+     "score": 46.4
+    },
+    "best": {
+     "uci": "e7e6",
+     "san": "e6",
+     "n": 291137,
+     "share": 45.8,
+     "score": 53.0
+    },
+    "top": {
+     "uci": "e7e6",
+     "san": "e6",
+     "n": 291137,
+     "share": 45.8,
+     "score": 53.0
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "r1bqkbnr/pp1ppppp/2n5/2p5/4PP2/5N2/PPPP2PP/RNBQKB1R b KQkq - 2 3",
+   "seen": 22,
+   "bad": 4,
+   "total_loss": 0.34,
+   "avg_loss": 8.6,
+   "played": [
+    [
+     "e5",
+     4
+    ]
+   ],
+   "best": "e6",
+   "played_uci": "e7e5",
+   "best_uci": "e7e6",
+   "color": "black",
+   "opening": "Sicilian Defense: McDonnell Attack",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/173671705180",
+   "explorer": {
+    "total": 2406734,
+    "played": {
+     "uci": "e7e5",
+     "san": "e5",
+     "n": 35442,
+     "share": 1.5,
+     "score": 45.0
+    },
+    "best": {
+     "uci": "e7e6",
+     "san": "e6",
+     "n": 770302,
+     "share": 32.0,
+     "score": 51.3
+    },
+    "top": {
+     "uci": "e7e6",
+     "san": "e6",
+     "n": 770302,
+     "share": 32.0,
+     "score": 51.3
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "r1bqkbnr/pp3ppp/2np4/2p1p3/2B1P3/2N2N2/PPPP1PPP/R1BQ1RK1 b kq - 1 5",
+   "seen": 6,
+   "bad": 3,
+   "total_loss": 0.46,
+   "avg_loss": 15.2,
+   "played": [
+    [
+     "Nf6",
+     3
+    ]
+   ],
+   "best": "Be7",
+   "played_uci": "g8f6",
+   "best_uci": "f8e7",
+   "color": "black",
+   "opening": "Bishop's Opening",
+   "fullmove": 5,
+   "example": "https://www.chess.com/game/live/184899338216",
+   "explorer": {
+    "total": 26883,
+    "played": {
+     "uci": "g8f6",
+     "san": "Nf6",
+     "n": 5305,
+     "share": 19.7,
+     "score": 50.2
+    },
+    "best": {
+     "uci": "f8e7",
+     "san": "Be7",
+     "n": 5405,
+     "share": 20.1,
+     "score": 56.0
+    },
+    "top": {
+     "uci": "f8e7",
+     "san": "Be7",
+     "n": 5405,
+     "share": 20.1,
+     "score": 56.0
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 32,
+   "bad": 6,
+   "total_loss": 0.51,
+   "avg_loss": 8.6,
+   "played": [
+    [
+     "Bc4",
+     6
+    ]
+   ],
+   "best": "d4",
+   "played_uci": "f1c4",
+   "best_uci": "d2d4",
+   "color": "white",
+   "opening": "Caro-Kann Defense: Hillbilly Attack",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/171468904208",
+   "explorer": {
+    "total": 35284836,
+    "played": {
+     "uci": "f1c4",
+     "san": "Bc4",
+     "n": 2560266,
+     "share": 7.3,
+     "score": 45.3
+    },
+    "best": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 14704614,
+     "share": 41.7,
+     "score": 50.7
+    },
+    "top": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 14704614,
+     "share": 41.7,
+     "score": 50.7
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 4,
+   "bad": 3,
+   "total_loss": 0.53,
+   "avg_loss": 17.7,
+   "played": [
+    [
+     "Bc4",
+     2
+    ],
+    [
+     "f4",
+     1
+    ]
+   ],
+   "best": "exf5",
+   "played_uci": "f1c4",
+   "best_uci": "e4f5",
+   "color": "white",
+   "opening": "Duras Gambit",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/172001953392",
+   "explorer": {
+    "total": 996559,
+    "played": {
+     "uci": "f1c4",
+     "san": "Bc4",
+     "n": 23675,
+     "share": 2.4,
+     "score": 48.2
+    },
+    "best": {
+     "uci": "e4f5",
+     "san": "exf5",
+     "n": 611248,
+     "share": 61.3,
+     "score": 53.0
+    },
+    "top": {
+     "uci": "e4f5",
+     "san": "exf5",
+     "n": 611248,
+     "share": 61.3,
+     "score": 53.0
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pp1ppppp/8/2p5/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2",
+   "seen": 34,
+   "bad": 5,
+   "total_loss": 0.59,
+   "avg_loss": 11.8,
+   "played": [
+    [
+     "Nc6",
+     5
+    ]
+   ],
+   "best": "cxd4",
+   "played_uci": "b8c6",
+   "best_uci": "c5d4",
+   "color": "black",
+   "opening": "Sicilian Defense: Smith-Morra Gambit",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/172193064432",
+   "explorer": {
+    "total": 7071796,
+    "played": {
+     "uci": "b8c6",
+     "san": "Nc6",
+     "n": 447430,
+     "share": 6.3,
+     "score": 45.1
+    },
+    "best": {
+     "uci": "c5d4",
+     "san": "cxd4",
+     "n": 5850361,
+     "share": 82.7,
+     "score": 49.7
+    },
+    "top": {
+     "uci": "c5d4",
+     "san": "cxd4",
+     "n": 5850361,
+     "share": 82.7,
+     "score": 49.7
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 48,
+   "bad": 4,
+   "total_loss": 0.34,
+   "avg_loss": 8.5,
+   "played": [
+    [
+     "Bc4",
+     2
+    ],
+    [
+     "e5",
+     2
+    ]
+   ],
+   "best": "d4",
+   "played_uci": "f1c4",
+   "best_uci": "d2d4",
+   "color": "white",
+   "opening": "French Defense",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/172043086544",
+   "explorer": {
+    "total": 50948184,
+    "played": {
+     "uci": "f1c4",
+     "san": "Bc4",
+     "n": 2451217,
+     "share": 4.8,
+     "score": 46.9
+    },
+    "best": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 22711487,
+     "share": 44.6,
+     "score": 50.7
+    },
+    "top": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 22711487,
+     "share": 44.6,
+     "score": 50.7
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 73,
+   "bad": 6,
+   "total_loss": 0.98,
+   "avg_loss": 16.3,
+   "played": [
+    [
+     "f4",
+     4
+    ],
+    [
+     "e5",
+     1
+    ],
+    [
+     "d3",
+     1
+    ]
+   ],
+   "best": "exd5",
+   "played_uci": "f2f4",
+   "best_uci": "e4d5",
+   "color": "white",
+   "opening": "Scandinavian Defense",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/173828476742",
+   "explorer": {
+    "total": 46465380,
+    "played": {
+     "uci": "f2f4",
+     "san": "f4",
+     "n": 263251,
+     "share": 0.6,
+     "score": 47.3
+    },
+    "best": {
+     "uci": "e4d5",
+     "san": "exd5",
+     "n": 35032232,
+     "share": 75.4,
+     "score": 50.8
+    },
+    "top": {
+     "uci": "e4d5",
+     "san": "exd5",
+     "n": 35032232,
+     "share": 75.4,
+     "score": 50.8
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq - 0 3",
+   "seen": 11,
+   "bad": 4,
+   "total_loss": 0.68,
+   "avg_loss": 17.1,
+   "played": [
+    [
+     "d3",
+     3
+    ],
+    [
+     "f5",
+     1
+    ]
+   ],
+   "best": "Nf3",
+   "played_uci": "d2d3",
+   "best_uci": "g1f3",
+   "color": "white",
+   "opening": "King's Gambit Declined: Queen's Knight Defense",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/171142229564",
+   "explorer": {
+    "total": 4139195,
+    "played": {
+     "uci": "d2d3",
+     "san": "d3",
+     "n": 42673,
+     "share": 1.0,
+     "score": 51.3
+    },
+    "best": {
+     "uci": "g1f3",
+     "san": "Nf3",
+     "n": 3637358,
+     "share": 87.9,
+     "score": 54.8
+    },
+    "top": {
+     "uci": "g1f3",
+     "san": "Nf3",
+     "n": 3637358,
+     "share": 87.9,
+     "score": 54.8
+    },
+    "verdict": "bestätigt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/p1pppppp/1p6/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 10,
+   "bad": 3,
+   "total_loss": 1.34,
+   "avg_loss": 44.8,
+   "played": [
+    [
+     "Ba6",
+     3
+    ]
+   ],
+   "best": "d4",
+   "played_uci": "f1a6",
+   "best_uci": "d2d4",
+   "color": "white",
+   "opening": "Owen Defense",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/168949341814",
+   "explorer": {
+    "total": 11114488,
+    "played": null,
+    "best": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 4468324,
+     "share": 40.2,
+     "score": 53.1
+    },
+    "top": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 4468324,
+     "share": 40.2,
+     "score": 53.1
+    },
+    "verdict": "selten gespielt"
+   }
+  },
+  {
+   "fen": "rnb1kbnr/ppp1pppp/8/q7/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4",
+   "seen": 16,
+   "bad": 7,
+   "total_loss": 0.6,
+   "avg_loss": 8.6,
+   "played": [
+    [
+     "b3",
+     7
+    ]
+   ],
+   "best": "d4",
+   "played_uci": "b2b3",
+   "best_uci": "d2d4",
+   "color": "white",
+   "opening": "Scandinavian Defense: Main Line",
+   "fullmove": 4,
+   "example": "https://www.chess.com/game/live/172460472448",
+   "explorer": {
+    "total": 5727769,
+    "played": null,
+    "best": {
+     "uci": "d2d4",
+     "san": "d4",
+     "n": 1928524,
+     "share": 33.7,
+     "score": 49.4
+    },
+    "top": {
+     "uci": "g1f3",
+     "san": "Nf3",
+     "n": 2022988,
+     "share": 35.3,
+     "score": 47.3
+    },
+    "verdict": "selten gespielt"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/ppp2ppp/3p4/4P3/8/8/PPPPP1PP/RNBQKBNR w KQkq - 0 3",
+   "seen": 4,
+   "bad": 3,
+   "total_loss": 0.34,
+   "avg_loss": 11.4,
+   "played": [
+    [
+     "d3",
+     3
+    ]
+   ],
+   "best": "exd6",
+   "played_uci": "d2d3",
+   "best_uci": "e5d6",
+   "color": "white",
+   "opening": "Bird Opening: From's Gambit",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/169660170600",
+   "explorer": {
+    "total": 203539,
+    "played": {
+     "uci": "d2d3",
+     "san": "d3",
+     "n": 528,
+     "share": 0.3,
+     "score": 43.6
+    },
+    "best": {
+     "uci": "e5d6",
+     "san": "exd6",
+     "n": 126703,
+     "share": 62.2,
+     "score": 46.0
+    },
+    "top": {
+     "uci": "e5d6",
+     "san": "exd6",
+     "n": 126703,
+     "share": 62.2,
+     "score": 46.0
+    },
+    "verdict": "kaum Unterschied"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 0 2",
+   "seen": 27,
+   "bad": 13,
+   "total_loss": 1.67,
+   "avg_loss": 12.9,
+   "played": [
+    [
+     "d3",
+     8
+    ],
+    [
+     "Nf3",
+     2
+    ],
+    [
+     "f5",
+     2
+    ]
+   ],
+   "best": "fxe5",
+   "played_uci": "d2d3",
+   "best_uci": "f4e5",
+   "color": "white",
+   "opening": "Bird Opening: From's Gambit",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/172598302356",
+   "explorer": {
+    "total": 639488,
+    "played": {
+     "uci": "d2d3",
+     "san": "d3",
+     "n": 38153,
+     "share": 6.0,
+     "score": 50.7
+    },
+    "best": {
+     "uci": "f4e5",
+     "san": "fxe5",
+     "n": 432133,
+     "share": 67.6,
+     "score": 51.4
+    },
+    "top": {
+     "uci": "f4e5",
+     "san": "fxe5",
+     "n": 432133,
+     "share": 67.6,
+     "score": 51.4
+    },
+    "verdict": "kaum Unterschied"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/ppp2ppp/4p3/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3",
+   "seen": 3,
+   "bad": 3,
+   "total_loss": 0.32,
+   "avg_loss": 10.8,
+   "played": [
+    [
+     "Nc3",
+     3
+    ]
+   ],
+   "best": "dxe6",
+   "played_uci": "b1c3",
+   "best_uci": "d5e6",
+   "color": "white",
+   "opening": "Scandinavian Defense",
+   "fullmove": 3,
+   "example": "https://www.chess.com/game/live/173970785110",
+   "explorer": {
+    "total": 773744,
+    "played": {
+     "uci": "b1c3",
+     "san": "Nc3",
+     "n": 121379,
+     "share": 15.7,
+     "score": 51.0
+    },
+    "best": {
+     "uci": "d5e6",
+     "san": "dxe6",
+     "n": 556677,
+     "share": 71.9,
+     "score": 51.2
+    },
+    "top": {
+     "uci": "d5e6",
+     "san": "dxe6",
+     "n": 556677,
+     "share": 71.9,
+     "score": 51.2
+    },
+    "verdict": "kaum Unterschied"
+   }
+  },
+  {
+   "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+   "seen": 197,
+   "bad": 17,
+   "total_loss": 1.63,
+   "avg_loss": 9.6,
+   "played": [
+    [
+     "f4",
+     17
+    ]
+   ],
+   "best": "Nf3",
+   "played_uci": "f2f4",
+   "best_uci": "g1f3",
+   "color": "white",
+   "opening": "King's Gambit",
+   "fullmove": 2,
+   "example": "https://www.chess.com/game/live/173737702746",
+   "explorer": {
+    "total": 187835353,
+    "played": {
+     "uci": "f2f4",
+     "san": "f4",
+     "n": 17497725,
+     "share": 9.3,
+     "score": 54.3
+    },
+    "best": {
+     "uci": "g1f3",
+     "san": "Nf3",
+     "n": 115511111,
+     "share": 61.5,
+     "score": 53.0
+    },
+    "top": {
+     "uci": "g1f3",
+     "san": "Nf3",
+     "n": 115511111,
+     "share": 61.5,
+     "score": 53.0
+    },
+    "verdict": "widerspricht"
+   }
+  }
+ ],
+ "endgames": [
+  {
+   "type": "Damen + weitere Figuren",
+   "me": {
+    "moves": 7477,
+    "blunders_no_tt": 3.26,
+    "avg_loss_no_tt": 3.75,
+    "tt_share": 29.4
+   },
+   "opp": {
+    "moves": 7484,
+    "blunders_no_tt": 3.42,
+    "avg_loss_no_tt": 3.95,
+    "tt_share": 12.8
+   },
+   "games": 838
+  },
+  {
+   "type": "Turm + Leichtfigur(en)",
+   "me": {
+    "moves": 6806,
+    "blunders_no_tt": 1.32,
+    "avg_loss_no_tt": 2.76,
+    "tt_share": 24.1
+   },
+   "opp": {
+    "moves": 6796,
+    "blunders_no_tt": 1.69,
+    "avg_loss_no_tt": 3.12,
+    "tt_share": 13.9
+   },
+   "games": 556
+  },
+  {
+   "type": "Turmendspiel",
+   "me": {
+    "moves": 2960,
+    "blunders_no_tt": 1.33,
+    "avg_loss_no_tt": 2.68,
+    "tt_share": 38.9
+   },
+   "opp": {
+    "moves": 2975,
+    "blunders_no_tt": 1.56,
+    "avg_loss_no_tt": 2.82,
+    "tt_share": 16.2
+   },
+   "games": 226
+  },
+  {
+   "type": "Leichtfigurenendspiel",
+   "me": {
+    "moves": 1635,
+    "blunders_no_tt": 1.09,
+    "avg_loss_no_tt": 2.38,
+    "tt_share": 32.7
+   },
+   "opp": {
+    "moves": 1662,
+    "blunders_no_tt": 2.22,
+    "avg_loss_no_tt": 2.73,
+    "tt_share": 24.2
+   },
+   "games": 124
+  },
+  {
+   "type": "Damenendspiel",
+   "me": {
+    "moves": 1187,
+    "blunders_no_tt": 1.08,
+    "avg_loss_no_tt": 1.61,
+    "tt_share": 53.4
+   },
+   "opp": {
+    "moves": 1205,
+    "blunders_no_tt": 1.58,
+    "avg_loss_no_tt": 1.78,
+    "tt_share": 21.2
+   },
+   "games": 122
+  },
+  {
+   "type": "Bauernendspiel",
+   "me": {
+    "moves": 830,
+    "blunders_no_tt": 1.44,
+    "avg_loss_no_tt": 1.81,
+    "tt_share": 49.6
+   },
+   "opp": {
+    "moves": 817,
+    "blunders_no_tt": 1.78,
+    "avg_loss_no_tt": 1.79,
+    "tt_share": 17.3
+   },
+   "games": 111
+  }
+ ],
+ "endgame_overall": {
+  "games_reaching": 1171,
+  "me_blunders_per_100_no_tt": 2.0,
+  "me_blunders_per_100_tt": 4.0,
+  "opp_blunders_per_100_no_tt": 2.3,
+  "opp_blunders_per_100_tt": 3.9,
+  "me_tt_share": 31.4,
+  "opp_tt_share": 15.2
+ },
+ "tablebase": {
+  "games": 271,
+  "moves": 2837,
+  "errors": 80,
+  "kinds": {
+   "Gewinn → Remis": 36,
+   "Remis → Verlust": 36,
+   "Gewinn → Verlust": 8
+  },
+  "error_rate_no_tt": 2.0,
+  "error_rate_tt": 3.4,
+  "tt_share": 57.6,
+  "won_games": 132,
+  "won_games_converted": 88,
+  "drawn_games": 33,
+  "drawn_games_lost": 17,
+  "by_type": [
+   {
+    "type": "Damenendspiel",
+    "moves": 706,
+    "errors": 16,
+    "rate": 2.3
+   },
+   {
+    "type": "Damen + weitere Figuren",
+    "moves": 556,
+    "errors": 8,
+    "rate": 1.4
+   },
+   {
+    "type": "Turmendspiel",
+    "moves": 519,
+    "errors": 23,
+    "rate": 4.4
+   },
+   {
+    "type": "Bauernendspiel",
+    "moves": 453,
+    "errors": 13,
+    "rate": 2.9
+   },
+   {
+    "type": "Leichtfigurenendspiel",
+    "moves": 382,
+    "errors": 17,
+    "rate": 4.5
+   },
+   {
+    "type": "Turm + Leichtfigur(en)",
+    "moves": 221,
+    "errors": 3,
+    "rate": 1.4
+   }
+  ],
+  "examples": [
+   {
+    "fen": "8/7p/8/2K5/P1P5/7k/1P6/4b3 b - - 0 44",
+    "played": "Kg2",
+    "played_uci": "h3g2",
+    "best": [
+     "h5",
+     "Kg3",
+     "Kg4"
+    ],
+    "kind": "Remis → Verlust",
+    "eg_type": "Leichtfigurenendspiel",
+    "clock": 99.0,
+    "url": "https://lichess.org/MTIpsPnQ",
+    "color": "black",
+    "date": "2026-09-07"
+   },
+   {
+    "fen": "4n3/6k1/8/p1P2KP1/7P/8/8/8 w - - 0 57",
+    "played": "Ke6",
+    "played_uci": "f5e6",
+    "best": [
+     "Ke4",
+     "Ke5"
+    ],
+    "kind": "Remis → Verlust",
+    "eg_type": "Leichtfigurenendspiel",
+    "clock": 21.5,
+    "url": "https://www.chess.com/game/live/173657394650",
+    "color": "white",
+    "date": "2026-08-28"
+   },
+   {
+    "fen": "8/p4k2/5p2/8/P3NK2/8/1b6/8 b - - 0 45",
+    "played": "a6",
+    "played_uci": "a7a6",
+    "best": [
+     "Ke6"
+    ],
+    "kind": "Gewinn → Remis",
+    "eg_type": "Leichtfigurenendspiel",
+    "clock": 20.9,
+    "url": "https://www.chess.com/game/live/173397599868",
+    "color": "black",
+    "date": "2026-08-23"
+   },
+   {
+    "fen": "8/1r6/8/2K1k3/1P2p3/6R1/5P2/8 w - - 1 45",
+    "played": "Re3",
+    "played_uci": "g3e3",
+    "best": [
+     "Rg5+"
+    ],
+    "kind": "Gewinn → Remis",
+    "eg_type": "Turmendspiel",
+    "clock": 84.5,
+    "url": "https://www.chess.com/game/live/173431289750",
+    "color": "white",
+    "date": "2026-08-23"
+   }
+  ]
+ },
+ "conversion": {
+  "winning_90": {
+   "n": 791,
+   "win": 76.6,
+   "draw": 6.2,
+   "loss": 17.2,
+   "loss_on_time": 101
+  },
+  "losing_10": {
+   "n": 764,
+   "win": 16.9,
+   "draw": 3.7,
+   "loss": 79.5,
+   "loss_on_time": 201
+  },
+  "opp_winning_90": {
+   "n": 764,
+   "win": 79.5
+  }
+ },
+ "rating_chesscom_blitz": [
+  {
+   "date": "2025-01-03",
+   "rating": 1099
+  },
+  {
+   "date": "2025-01-03",
+   "rating": 1117
+  },
+  {
+   "date": "2025-01-03",
+   "rating": 1114
+  },
+  {
+   "date": "2025-01-03",
+   "rating": 1100
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1113
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1128
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1142
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1130
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1118
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1108
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1119
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1131
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1142
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1155
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1145
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1154
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1165
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1174
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1173
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1182
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1191
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1182
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1194
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1205
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1196
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1204
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1198
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1189
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1198
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1206
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1214
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1206
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1198
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1205
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1197
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1205
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1212
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1213
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1220
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1229
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1222
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1229
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1228
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1235
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1228
+  },
+  {
+   "date": "2025-01-05",
+   "rating": 1236
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1228
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1220
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1213
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1222
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1231
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1239
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1231
+  },
+  {
+   "date": "2025-01-06",
+   "rating": 1223
+  },
+  {
+   "date": "2025-01-07",
+   "rating": 1214
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1222
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1225
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1219
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1210
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1210
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1207
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1217
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1224
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1229
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1235
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1223
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1229
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1232
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1236
+  },
+  {
+   "date": "2025-01-18",
+   "rating": 1244
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1236
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1228
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1220
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1213
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1206
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1199
+  },
+  {
+   "date": "2025-01-19",
+   "rating": 1201
+  },
+  {
+   "date": "2025-02-04",
+   "rating": 1186
+  },
+  {
+   "date": "2025-02-04",
+   "rating": 1187
+  },
+  {
+   "date": "2025-02-04",
+   "rating": 1188
+  },
+  {
+   "date": "2025-02-04",
+   "rating": 1181
+  },
+  {
+   "date": "2025-02-04",
+   "rating": 1182
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1168
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1188
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1205
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1221
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1236
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1249
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1235
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1247
+  },
+  {
+   "date": "2025-06-06",
+   "rating": 1260
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1271
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1283
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1295
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1306
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1296
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1288
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1292
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1296
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1306
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1314
+  },
+  {
+   "date": "2025-06-07",
+   "rating": 1304
+  },
+  {
+   "date": "2025-06-15",
+   "rating": 1293
+  },
+  {
+   "date": "2025-06-23",
+   "rating": 1304
+  },
+  {
+   "date": "2025-07-11",
+   "rating": 1293
+  },
+  {
+   "date": "2025-09-05",
+   "rating": 1261
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1238
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1240
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1250
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1242
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1256
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1264
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1274
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1297
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1272
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1262
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1272
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1260
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1247
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1259
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1271
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1259
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1253
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1262
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1254
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1250
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1235
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1230
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1221
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1236
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1223
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1222
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1211
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1199
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1203
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1212
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1199
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1207
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1216
+  },
+  {
+   "date": "2025-10-06",
+   "rating": 1220
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1225
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1227
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1235
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1238
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1238
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1228
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1229
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1235
+  },
+  {
+   "date": "2025-10-07",
+   "rating": 1228
+  },
+  {
+   "date": "2025-10-08",
+   "rating": 1238
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1229
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1225
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1219
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1229
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1237
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1242
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1249
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1258
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1263
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1272
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1279
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1288
+  },
+  {
+   "date": "2025-10-10",
+   "rating": 1286
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1283
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1276
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1274
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1265
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1275
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1286
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1298
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1300
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1299
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1290
+  },
+  {
+   "date": "2025-10-23",
+   "rating": 1283
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1275
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1285
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1277
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1284
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1292
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1283
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1291
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1298
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1310
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1315
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1320
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1302
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1293
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1297
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1292
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1300
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1295
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1286
+  },
+  {
+   "date": "2025-10-28",
+   "rating": 1278
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1274
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1263
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1270
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1264
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1262
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1261
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1258
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1263
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1257
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1268
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1281
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1273
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1288
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1289
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1282
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1290
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1287
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1278
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1284
+  },
+  {
+   "date": "2025-10-29",
+   "rating": 1295
+  },
+  {
+   "date": "2025-10-30",
+   "rating": 1287
+  },
+  {
+   "date": "2025-10-30",
+   "rating": 1295
+  },
+  {
+   "date": "2025-11-08",
+   "rating": 1287
+  },
+  {
+   "date": "2025-11-08",
+   "rating": 1296
+  },
+  {
+   "date": "2025-11-08",
+   "rating": 1304
+  },
+  {
+   "date": "2025-11-08",
+   "rating": 1296
+  },
+  {
+   "date": "2025-11-09",
+   "rating": 1288
+  },
+  {
+   "date": "2025-11-09",
+   "rating": 1295
+  },
+  {
+   "date": "2025-11-09",
+   "rating": 1303
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1311
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1319
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1327
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1319
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1327
+  },
+  {
+   "date": "2025-11-20",
+   "rating": 1319
+  },
+  {
+   "date": "2025-11-24",
+   "rating": 1307
+  },
+  {
+   "date": "2025-11-24",
+   "rating": 1305
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1298
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1284
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1281
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1292
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1300
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1308
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1298
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1310
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1314
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1321
+  },
+  {
+   "date": "2025-12-05",
+   "rating": 1332
+  },
+  {
+   "date": "2025-12-10",
+   "rating": 1337
+  },
+  {
+   "date": "2025-12-10",
+   "rating": 1331
+  },
+  {
+   "date": "2025-12-10",
+   "rating": 1321
+  },
+  {
+   "date": "2025-12-19",
+   "rating": 1314
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1328
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1325
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1322
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1325
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1316
+  },
+  {
+   "date": "2025-12-20",
+   "rating": 1305
+  },
+  {
+   "date": "2025-12-21",
+   "rating": 1304
+  },
+  {
+   "date": "2025-12-21",
+   "rating": 1302
+  },
+  {
+   "date": "2025-12-25",
+   "rating": 1295
+  },
+  {
+   "date": "2025-12-25",
+   "rating": 1287
+  },
+  {
+   "date": "2025-12-28",
+   "rating": 1295
+  },
+  {
+   "date": "2025-12-30",
+   "rating": 1303
+  },
+  {
+   "date": "2025-12-30",
+   "rating": 1295
+  },
+  {
+   "date": "2025-12-30",
+   "rating": 1303
+  },
+  {
+   "date": "2025-12-30",
+   "rating": 1297
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1305
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1313
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1305
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1312
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1304
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1297
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1285
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1284
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1275
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1281
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1286
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1292
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1287
+  },
+  {
+   "date": "2026-01-01",
+   "rating": 1294
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1297
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1290
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1295
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1289
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1283
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1276
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1265
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1270
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1267
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1267
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1275
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1267
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1275
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1283
+  },
+  {
+   "date": "2026-01-02",
+   "rating": 1292
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1299
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1307
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1315
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1307
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1299
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1307
+  },
+  {
+   "date": "2026-01-03",
+   "rating": 1300
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1308
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1316
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1325
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1317
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1317
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1325
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1333
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1325
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1334
+  },
+  {
+   "date": "2026-01-04",
+   "rating": 1326
+  },
+  {
+   "date": "2026-01-06",
+   "rating": 1334
+  },
+  {
+   "date": "2026-01-06",
+   "rating": 1326
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1319
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1326
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1318
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1315
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1309
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1319
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1308
+  },
+  {
+   "date": "2026-01-07",
+   "rating": 1300
+  },
+  {
+   "date": "2026-01-09",
+   "rating": 1308
+  },
+  {
+   "date": "2026-01-09",
+   "rating": 1316
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1308
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1316
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1308
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1316
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1325
+  },
+  {
+   "date": "2026-01-18",
+   "rating": 1317
+  },
+  {
+   "date": "2026-01-24",
+   "rating": 1309
+  },
+  {
+   "date": "2026-02-01",
+   "rating": 1316
+  },
+  {
+   "date": "2026-02-01",
+   "rating": 1324
+  },
+  {
+   "date": "2026-02-01",
+   "rating": 1316
+  },
+  {
+   "date": "2026-02-01",
+   "rating": 1324
+  },
+  {
+   "date": "2026-02-01",
+   "rating": 1323
+  },
+  {
+   "date": "2026-02-02",
+   "rating": 1331
+  },
+  {
+   "date": "2026-02-02",
+   "rating": 1323
+  },
+  {
+   "date": "2026-02-02",
+   "rating": 1323
+  },
+  {
+   "date": "2026-02-04",
+   "rating": 1331
+  },
+  {
+   "date": "2026-02-04",
+   "rating": 1339
+  },
+  {
+   "date": "2026-02-04",
+   "rating": 1331
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1339
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1331
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1339
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1346
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1354
+  },
+  {
+   "date": "2026-02-14",
+   "rating": 1346
+  },
+  {
+   "date": "2026-02-15",
+   "rating": 1354
+  },
+  {
+   "date": "2026-02-15",
+   "rating": 1362
+  },
+  {
+   "date": "2026-02-15",
+   "rating": 1370
+  },
+  {
+   "date": "2026-02-15",
+   "rating": 1362
+  },
+  {
+   "date": "2026-02-16",
+   "rating": 1354
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1346
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1346
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1362
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1354
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1346
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1353
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1360
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1372
+  },
+  {
+   "date": "2026-02-21",
+   "rating": 1365
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1357
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1349
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1357
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1349
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1342
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1349
+  },
+  {
+   "date": "2026-02-22",
+   "rating": 1357
+  },
+  {
+   "date": "2026-02-23",
+   "rating": 1349
+  },
+  {
+   "date": "2026-02-23",
+   "rating": 1341
+  },
+  {
+   "date": "2026-02-23",
+   "rating": 1333
+  },
+  {
+   "date": "2026-02-26",
+   "rating": 1325
+  },
+  {
+   "date": "2026-02-28",
+   "rating": 1334
+  },
+  {
+   "date": "2026-02-28",
+   "rating": 1325
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1333
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1342
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1349
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1359
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1372
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1364
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1371
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1379
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1371
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1371
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1379
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1371
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1381
+  },
+  {
+   "date": "2026-03-01",
+   "rating": 1374
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1382
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1375
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1367
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1367
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1375
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1376
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1376
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-08",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-10",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-11",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-11",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-11",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-11",
+   "rating": 1376
+  },
+  {
+   "date": "2026-03-28",
+   "rating": 1384
+  },
+  {
+   "date": "2026-03-28",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-28",
+   "rating": 1399
+  },
+  {
+   "date": "2026-03-28",
+   "rating": 1392
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1400
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1408
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1416
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1406
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1414
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1422
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1430
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1438
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1430
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1422
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1413
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1405
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1413
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1421
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1438
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1462
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1438
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1430
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1438
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1462
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1462
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1454
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1446
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1437
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1437
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1442
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1436
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1443
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1432
+  },
+  {
+   "date": "2026-03-29",
+   "rating": 1422
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1430
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1422
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1430
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1437
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1445
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1437
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1445
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1445
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1436
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1428
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1420
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1412
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1420
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1412
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1420
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1428
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1420
+  },
+  {
+   "date": "2026-03-30",
+   "rating": 1412
+  },
+  {
+   "date": "2026-03-31",
+   "rating": 1420
+  },
+  {
+   "date": "2026-04-03",
+   "rating": 1412
+  },
+  {
+   "date": "2026-04-03",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-03",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-03",
+   "rating": 1389
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1389
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1388
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1396
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1389
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1381
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1389
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1397
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-04",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-06",
+   "rating": 1405
+  },
+  {
+   "date": "2026-04-08",
+   "rating": 1413
+  },
+  {
+   "date": "2026-04-09",
+   "rating": 1421
+  },
+  {
+   "date": "2026-04-09",
+   "rating": 1428
+  },
+  {
+   "date": "2026-04-09",
+   "rating": 1420
+  },
+  {
+   "date": "2026-04-09",
+   "rating": 1412
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1420
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1427
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1436
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1445
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1470
+  },
+  {
+   "date": "2026-04-14",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1454
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1454
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1462
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1455
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1447
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1447
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1440
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1433
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1441
+  },
+  {
+   "date": "2026-04-15",
+   "rating": 1433
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1441
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1449
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1457
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1449
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1456
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1464
+  },
+  {
+   "date": "2026-04-16",
+   "rating": 1464
+  },
+  {
+   "date": "2026-04-24",
+   "rating": 1455
+  },
+  {
+   "date": "2026-04-24",
+   "rating": 1465
+  },
+  {
+   "date": "2026-04-27",
+   "rating": 1473
+  },
+  {
+   "date": "2026-04-27",
+   "rating": 1473
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1464
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1470
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1478
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1486
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1494
+  },
+  {
+   "date": "2026-05-02",
+   "rating": 1486
+  },
+  {
+   "date": "2026-05-07",
+   "rating": 1478
+  },
+  {
+   "date": "2026-05-07",
+   "rating": 1470
+  },
+  {
+   "date": "2026-05-07",
+   "rating": 1454
+  },
+  {
+   "date": "2026-05-11",
+   "rating": 1446
+  },
+  {
+   "date": "2026-05-11",
+   "rating": 1438
+  },
+  {
+   "date": "2026-05-11",
+   "rating": 1446
+  },
+  {
+   "date": "2026-05-11",
+   "rating": 1454
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1462
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1454
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1462
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1454
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1463
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1454
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1462
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1469
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1460
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1468
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1472
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1469
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1471
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1458
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1448
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1456
+  },
+  {
+   "date": "2026-05-12",
+   "rating": 1448
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1439
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1431
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1423
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1415
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1422
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1431
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1423
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1416
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1409
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1418
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1411
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1419
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1412
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1420
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1428
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1436
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1428
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1420
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1428
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1436
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1428
+  },
+  {
+   "date": "2026-05-13",
+   "rating": 1420
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1414
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1410
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1406
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1414
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1419
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1410
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1395
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1395
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1383
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1382
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1386
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1377
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1386
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1393
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1403
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1394
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1403
+  },
+  {
+   "date": "2026-05-14",
+   "rating": 1396
+  },
+  {
+   "date": "2026-05-15",
+   "rating": 1388
+  },
+  {
+   "date": "2026-05-15",
+   "rating": 1396
+  },
+  {
+   "date": "2026-05-15",
+   "rating": 1388
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1392
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1382
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1365
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1372
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1380
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1372
+  },
+  {
+   "date": "2026-05-16",
+   "rating": 1373
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1381
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1389
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1381
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1372
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1364
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1356
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1356
+  },
+  {
+   "date": "2026-05-17",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-18",
+   "rating": 1359
+  },
+  {
+   "date": "2026-05-18",
+   "rating": 1353
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1345
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1337
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1344
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1350
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1345
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1344
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1347
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1354
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1354
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1363
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1371
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1379
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1387
+  },
+  {
+   "date": "2026-05-19",
+   "rating": 1379
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1371
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1359
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1336
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1347
+  },
+  {
+   "date": "2026-05-20",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-22",
+   "rating": 1333
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1342
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1350
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1358
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1357
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1356
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1364
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1356
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1333
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1325
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1308
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1309
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1317
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1317
+  },
+  {
+   "date": "2026-05-23",
+   "rating": 1317
+  },
+  {
+   "date": "2026-05-24",
+   "rating": 1325
+  },
+  {
+   "date": "2026-05-24",
+   "rating": 1315
+  },
+  {
+   "date": "2026-05-25",
+   "rating": 1323
+  },
+  {
+   "date": "2026-05-26",
+   "rating": 1331
+  },
+  {
+   "date": "2026-05-26",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-26",
+   "rating": 1331
+  },
+  {
+   "date": "2026-05-26",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-26",
+   "rating": 1331
+  },
+  {
+   "date": "2026-05-27",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1331
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1347
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1331
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1339
+  },
+  {
+   "date": "2026-05-29",
+   "rating": 1332
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1332
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1348
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1340
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1332
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1324
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1324
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1333
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1333
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1325
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1333
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1341
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1349
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1357
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1365
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1373
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1372
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1380
+  },
+  {
+   "date": "2026-05-30",
+   "rating": 1372
+  },
+  {
+   "date": "2026-05-31",
+   "rating": 1364
+  },
+  {
+   "date": "2026-05-31",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1365
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1349
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1341
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1334
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1327
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1320
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1314
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1324
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1334
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1342
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1335
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1343
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1335
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1343
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1351
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1343
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1335
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1343
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1351
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1359
+  },
+  {
+   "date": "2026-06-01",
+   "rating": 1351
+  },
+  {
+   "date": "2026-06-02",
+   "rating": 1359
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1344
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1345
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1337
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1338
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1346
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1338
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1338
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1346
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1354
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1346
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1338
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1322
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1314
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1322
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1322
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1322
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1314
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1307
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1316
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1325
+  },
+  {
+   "date": "2026-06-03",
+   "rating": 1317
+  },
+  {
+   "date": "2026-06-08",
+   "rating": 1325
+  },
+  {
+   "date": "2026-06-08",
+   "rating": 1333
+  },
+  {
+   "date": "2026-06-08",
+   "rating": 1325
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1341
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1349
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1349
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1349
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1365
+  },
+  {
+   "date": "2026-06-10",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-19",
+   "rating": 1365
+  },
+  {
+   "date": "2026-06-19",
+   "rating": 1357
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1351
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1338
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1330
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1324
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1334
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1328
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1318
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1323
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1331
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1324
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1335
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1328
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1339
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1346
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1343
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1356
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1345
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1341
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1351
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1345
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1349
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1359
+  },
+  {
+   "date": "2026-06-30",
+   "rating": 1357
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1361
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1348
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1342
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1338
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1335
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1344
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1353
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1367
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1358
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1348
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1341
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1333
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1341
+  },
+  {
+   "date": "2026-07-01",
+   "rating": 1333
+  },
+  {
+   "date": "2026-07-02",
+   "rating": 1326
+  },
+  {
+   "date": "2026-07-02",
+   "rating": 1318
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1326
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1334
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1326
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1318
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1326
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1318
+  },
+  {
+   "date": "2026-07-03",
+   "rating": 1310
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1302
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1294
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1302
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1309
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1317
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1310
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1319
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1328
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1320
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1328
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1337
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1345
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1353
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1345
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1352
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1359
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1367
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1360
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1352
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1360
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1352
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1344
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1336
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1344
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1352
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1344
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1352
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1360
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1368
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1376
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1368
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1368
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1376
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1401
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1409
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1400
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1408
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1416
+  },
+  {
+   "date": "2026-07-04",
+   "rating": 1408
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1415
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1422
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1414
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1406
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1399
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1400
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1400
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1393
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1400
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1385
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1393
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1401
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1410
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1418
+  },
+  {
+   "date": "2026-07-05",
+   "rating": 1410
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1402
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1402
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1386
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1386
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1378
+  },
+  {
+   "date": "2026-07-06",
+   "rating": 1370
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1369
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1361
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1369
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1377
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1370
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1378
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1369
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1377
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1384
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1392
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1400
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1391
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1399
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1391
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1399
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1407
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1415
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1423
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1413
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1389
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1393
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1386
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1389
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-08",
+   "rating": 1404
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1396
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1404
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1412
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1404
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1396
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1389
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1396
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1404
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1412
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1412
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1421
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1421
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1437
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1437
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-09",
+   "rating": 1421
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1436
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1428
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1420
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1428
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1436
+  },
+  {
+   "date": "2026-07-10",
+   "rating": 1441
+  },
+  {
+   "date": "2026-07-11",
+   "rating": 1449
+  },
+  {
+   "date": "2026-07-11",
+   "rating": 1441
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1450
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1450
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1443
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1435
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1443
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1451
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1468
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1468
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1460
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1470
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1485
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1478
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1485
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1485
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1485
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1494
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1502
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1493
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1485
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1484
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1492
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1500
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1492
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1484
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1492
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1500
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1508
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1516
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1508
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1515
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1507
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1499
+  },
+  {
+   "date": "2026-07-12",
+   "rating": 1491
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1483
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1475
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1467
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1459
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1450
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1458
+  },
+  {
+   "date": "2026-07-13",
+   "rating": 1450
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1443
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1451
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1444
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1460
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1444
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1436
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1436
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1428
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1436
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1445
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1454
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1454
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-14",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1429
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1437
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1444
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1444
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1460
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1468
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1477
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1469
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1461
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1453
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1445
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1430
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1422
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1414
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1422
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1413
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1419
+  },
+  {
+   "date": "2026-07-15",
+   "rating": 1412
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1420
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1428
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1437
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1454
+  },
+  {
+   "date": "2026-07-16",
+   "rating": 1462
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1455
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1447
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1452
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1442
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1434
+  },
+  {
+   "date": "2026-07-17",
+   "rating": 1426
+  },
+  {
+   "date": "2026-07-18",
+   "rating": 1432
+  },
+  {
+   "date": "2026-07-18",
+   "rating": 1424
+  },
+  {
+   "date": "2026-07-18",
+   "rating": 1431
+  },
+  {
+   "date": "2026-07-18",
+   "rating": 1423
+  },
+  {
+   "date": "2026-07-18",
+   "rating": 1431
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1423
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1431
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1455
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1454
+  },
+  {
+   "date": "2026-07-20",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1454
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1438
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1446
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1439
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1440
+  },
+  {
+   "date": "2026-07-21",
+   "rating": 1432
+  },
+  {
+   "date": "2026-07-22",
+   "rating": 1424
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1417
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1409
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1401
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1393
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1401
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1393
+  },
+  {
+   "date": "2026-07-24",
+   "rating": 1385
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1391
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1381
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1389
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1389
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1390
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1380
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1388
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1396
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1396
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1413
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-25",
+   "rating": 1413
+  },
+  {
+   "date": "2026-07-26",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-26",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1397
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1404
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1413
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1405
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1398
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1407
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1415
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1408
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1401
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1402
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1386
+  },
+  {
+   "date": "2026-07-27",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1394
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1378
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1362
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1363
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1364
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1372
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1380
+  },
+  {
+   "date": "2026-07-28",
+   "rating": 1372
+  },
+  {
+   "date": "2026-07-29",
+   "rating": 1364
+  },
+  {
+   "date": "2026-07-29",
+   "rating": 1356
+  },
+  {
+   "date": "2026-08-02",
+   "rating": 1348
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1356
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1348
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1356
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1348
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1340
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1332
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1324
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1332
+  },
+  {
+   "date": "2026-08-03",
+   "rating": 1323
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1316
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1324
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1333
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1341
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1349
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1357
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1366
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1358
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1366
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1373
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1372
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1380
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1380
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1388
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1396
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1403
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1411
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1419
+  },
+  {
+   "date": "2026-08-05",
+   "rating": 1412
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1400
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1401
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1401
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1401
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1401
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1409
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1401
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1409
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1409
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1426
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1418
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1410
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1418
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1426
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1418
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1425
+  },
+  {
+   "date": "2026-08-06",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-07",
+   "rating": 1425
+  },
+  {
+   "date": "2026-08-07",
+   "rating": 1433
+  },
+  {
+   "date": "2026-08-07",
+   "rating": 1441
+  },
+  {
+   "date": "2026-08-07",
+   "rating": 1430
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1423
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1431
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1423
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1423
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1415
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1407
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1415
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1422
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1430
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1437
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1446
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1454
+  },
+  {
+   "date": "2026-08-09",
+   "rating": 1462
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1470
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1462
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1454
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1454
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1462
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1453
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1445
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1453
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1461
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1453
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1445
+  },
+  {
+   "date": "2026-08-10",
+   "rating": 1438
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1445
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1451
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1459
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1467
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1475
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1483
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1475
+  },
+  {
+   "date": "2026-08-14",
+   "rating": 1467
+  },
+  {
+   "date": "2026-08-15",
+   "rating": 1475
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1467
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1476
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1467
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1475
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1483
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1491
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1484
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1484
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1476
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1468
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1460
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1468
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1459
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1467
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1460
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1452
+  },
+  {
+   "date": "2026-08-17",
+   "rating": 1460
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1452
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1444
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1435
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1427
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1419
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1412
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1405
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1420
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1428
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1420
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1429
+  },
+  {
+   "date": "2026-08-19",
+   "rating": 1421
+  },
+  {
+   "date": "2026-08-20",
+   "rating": 1412
+  },
+  {
+   "date": "2026-08-20",
+   "rating": 1419
+  },
+  {
+   "date": "2026-08-20",
+   "rating": 1409
+  },
+  {
+   "date": "2026-08-20",
+   "rating": 1402
+  },
+  {
+   "date": "2026-08-20",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1380
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-21",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-22",
+   "rating": 1373
+  },
+  {
+   "date": "2026-08-22",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1357
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1357
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1373
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1381
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1381
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1381
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1381
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1390
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1390
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1398
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1391
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1374
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1390
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1382
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1375
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1366
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1361
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1351
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1348
+  },
+  {
+   "date": "2026-08-23",
+   "rating": 1340
+  },
+  {
+   "date": "2026-08-24",
+   "rating": 1340
+  },
+  {
+   "date": "2026-08-24",
+   "rating": 1333
+  },
+  {
+   "date": "2026-08-24",
+   "rating": 1325
+  },
+  {
+   "date": "2026-08-24",
+   "rating": 1333
+  },
+  {
+   "date": "2026-08-24",
+   "rating": 1333
+  },
+  {
+   "date": "2026-08-25",
+   "rating": 1325
+  },
+  {
+   "date": "2026-08-25",
+   "rating": 1334
+  },
+  {
+   "date": "2026-08-25",
+   "rating": 1335
+  },
+  {
+   "date": "2026-08-25",
+   "rating": 1343
+  },
+  {
+   "date": "2026-08-25",
+   "rating": 1335
+  },
+  {
+   "date": "2026-08-26",
+   "rating": 1343
+  },
+  {
+   "date": "2026-08-26",
+   "rating": 1351
+  },
+  {
+   "date": "2026-08-26",
+   "rating": 1359
+  },
+  {
+   "date": "2026-08-26",
+   "rating": 1351
+  },
+  {
+   "date": "2026-08-27",
+   "rating": 1359
+  },
+  {
+   "date": "2026-08-27",
+   "rating": 1351
+  },
+  {
+   "date": "2026-08-27",
+   "rating": 1358
+  },
+  {
+   "date": "2026-08-27",
+   "rating": 1350
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1357
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1365
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1373
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1381
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1389
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1405
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1405
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1397
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1404
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1413
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1421
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1413
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1430
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1420
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1402
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1408
+  },
+  {
+   "date": "2026-08-28",
+   "rating": 1417
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1429
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1420
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1410
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1402
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1407
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1400
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1395
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1387
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1391
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1387
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1399
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1391
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1386
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1394
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1387
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1395
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1387
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1395
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1388
+  },
+  {
+   "date": "2026-08-30",
+   "rating": 1379
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1386
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1394
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1402
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1394
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1402
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1393
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1401
+  },
+  {
+   "date": "2026-09-01",
+   "rating": 1409
+  },
+  {
+   "date": "2026-09-02",
+   "rating": 1401
+  },
+  {
+   "date": "2026-09-02",
+   "rating": 1393
+  },
+  {
+   "date": "2026-09-02",
+   "rating": 1401
+  },
+  {
+   "date": "2026-09-02",
+   "rating": 1393
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1386
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1395
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1403
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1396
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1388
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1396
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1404
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1412
+  },
+  {
+   "date": "2026-09-03",
+   "rating": 1404
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1411
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1406
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1408
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1404
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1407
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1423
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1415
+  },
+  {
+   "date": "2026-09-04",
+   "rating": 1407
+  },
+  {
+   "date": "2026-09-05",
+   "rating": 1415
+  },
+  {
+   "date": "2026-09-05",
+   "rating": 1407
+  },
+  {
+   "date": "2026-09-08",
+   "rating": 1416
+  },
+  {
+   "date": "2026-09-08",
+   "rating": 1408
+  },
+  {
+   "date": "2026-09-08",
+   "rating": 1401
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1402
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1394
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1402
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1409
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1417
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1409
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1402
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1395
+  },
+  {
+   "date": "2026-09-10",
+   "rating": 1403
+  },
+  {
+   "date": "2026-09-13",
+   "rating": 1411
+  },
+  {
+   "date": "2026-09-14",
+   "rating": 1404
+  },
+  {
+   "date": "2026-09-14",
+   "rating": 1396
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1388
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1372
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1388
+  },
+  {
+   "date": "2026-09-15",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-17",
+   "rating": 1388
+  },
+  {
+   "date": "2026-09-17",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-17",
+   "rating": 1372
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1388
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1380
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1385
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1393
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1400
+  },
+  {
+   "date": "2026-09-26",
+   "rating": 1398
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1406
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1414
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1405
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1398
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1390
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1380
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1386
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1376
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1369
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1376
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1371
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1381
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1372
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1381
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1372
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1363
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1364
+  },
+  {
+   "date": "2026-10-01",
+   "rating": 1349
+  },
+  {
+   "date": "2026-10-02",
+   "rating": 1341
+  },
+  {
+   "date": "2026-10-02",
+   "rating": 1349
+  },
+  {
+   "date": "2026-10-02",
+   "rating": 1350
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1358
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1366
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1374
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1382
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1390
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1398
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1405
+  },
+  {
+   "date": "2026-10-06",
+   "rating": 1397
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1389
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1397
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1413
+  },
+  {
+   "date": "2026-10-07",
+   "rating": 1405
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1397
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1406
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1396
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1391
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1386
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1376
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1381
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1372
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1365
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1357
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1346
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1340
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1331
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1329
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1337
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1331
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1331
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1334
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1343
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1336
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1334
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1340
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1344
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1336
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1339
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1337
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1343
+  },
+  {
+   "date": "2026-10-12",
+   "rating": 1341
+  },
+  {
+   "date": "2026-10-14",
+   "rating": 1334
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1327
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1319
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1327
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1319
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1311
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1319
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1311
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1319
+  },
+  {
+   "date": "2026-10-15",
+   "rating": 1311
+  }
+ ],
+ "tilt": {
+  "sessions": 332,
+  "median_len": 3.0,
+  "after_losses": [
+   {
+    "k": "0",
+    "n": 1070,
+    "resid": 0.006
+   },
+   {
+    "k": "1",
+    "n": 308,
+    "resid": 0.015
+   },
+   {
+    "k": "2",
+    "n": 94,
+    "resid": -0.035
+   },
+   {
+    "k": "3+",
+    "n": 69,
+    "resid": -0.022
+   }
+  ],
+  "by_index": [
+   {
+    "k": "11+",
+    "n": 195,
+    "resid": -0.011
+   },
+   {
+    "k": "1–5",
+    "n": 1043,
+    "resid": 0.017
+   },
+   {
+    "k": "6–10",
+    "n": 303,
+    "resid": -0.031
+   }
+  ]
+ },
+ "by_time_control": [
+  {
+   "tc": "3+0",
+   "n": 1428,
+   "score": 0.506,
+   "resid": 0.006
+  },
+  {
+   "tc": "3+2",
+   "n": 103,
+   "score": 0.524,
+   "resid": -0.009
+  },
+  {
+   "tc": "5+0",
+   "n": 74,
+   "score": 0.5,
+   "resid": 0.002
+  }
+ ],
+ "training_positions": 2517,
+ "maia": {
+  "n": 2517,
+  "classes": {
+   "Leichtsinn": 24.6,
+   "Nächste Stufe": 24.3,
+   "Schwer": 51.1
+  },
+  "loss_share": {
+   "Leichtsinn": 26.6,
+   "Nächste Stufe": 24.8,
+   "Schwer": 48.6
+  },
+  "by_phase": {
+   "Eröffnung": {
+    "Leichtsinn": 24.4,
+    "Nächste Stufe": 25.6,
+    "Schwer": 50.0
+   },
+   "Mittelspiel": {
+    "Leichtsinn": 23.9,
+    "Nächste Stufe": 24.6,
+    "Schwer": 51.5
+   },
+   "Endspiel": {
+    "Leichtsinn": 26.2,
+    "Nächste Stufe": 22.8,
+    "Schwer": 51.1
+   }
+  },
+  "fast_leichtsinn": 28.2,
+  "slow_leichtsinn": 21.4,
+  "n_fast": 848,
+  "n_slow": 991,
+  "traps": 24.0,
+  "avg_p_best_me": 0.304,
+  "avg_p_best_up": 0.359
+ },
+ "maia_examples": [
+  {
+   "fen": "2r1k2r/5ppp/p1p1b3/2R5/3P4/1P3P2/P3K1PP/2R5 b k - 6 22",
+   "played": "Bd5",
+   "best": "Kd7",
+   "pv": "22...Kd7 23. h4 Bd5 24. Ra5 Ra8 25. h5",
+   "played_uci": "e6d5",
+   "best_uci": "e8d7",
+   "loss": 63.9,
+   "cat": "Gegnerische Taktik übersehen",
+   "motifs": [],
+   "missed_motifs": [],
+   "themes": [],
+   "missed_themes": [],
+   "phase": "Endspiel",
+   "clock": 108.5,
+   "spent": 0.9000000000000057,
+   "url": "https://www.chess.com/game/live/171096624844",
+   "date": "2026-07-04",
+   "p_best_me": 0.2334,
+   "p_best_up": 0.5988,
+   "p_played_me": 0.5004,
+   "p_played_up": 0.2323,
+   "maia_class": "Nächste Stufe",
+   "trap": true,
+   "color": "black"
+  },
+  {
+   "fen": "r3kb1r/pp1nqp1p/3p2p1/2pPN3/8/2P5/PP3PPP/RNBQR1K1 b kq - 0 12",
+   "played": "Nxe5",
+   "best": "dxe5",
+   "pv": "12...dxe5 13. Na3 Bg7 14. d6 Qf6 15. Qd5",
+   "played_uci": "d7e5",
+   "best_uci": "d6e5",
+   "loss": 20.1,
+   "cat": "Gegnerische Taktik übersehen",
+   "motifs": [],
+   "missed_motifs": [],
+   "themes": [],
+   "missed_themes": [],
+   "phase": "Eröffnung",
+   "clock": 166.0,
+   "spent": 0.0,
+   "url": "https://lichess.org/HiYDwGHg",
+   "date": "2025-10-03",
+   "p_best_me": 0.3621,
+   "p_best_up": 0.7047,
+   "p_played_me": 0.6318,
+   "p_played_up": 0.291,
+   "maia_class": "Nächste Stufe",
+   "trap": true,
+   "color": "black"
+  },
+  {
+   "fen": "1r2rbk1/3R1pp1/p3p3/2p1P2p/4NP1P/1P6/1PP3R1/2K5 w - - 0 27",
+   "played": "Rg5",
+   "best": "Nf6+",
+   "pv": "27. Nf6+ Kh8 28. Nxe8 Rxe8 29. Rxf7 Kg8",
+   "played_uci": "g2g5",
+   "best_uci": "e4f6",
+   "loss": 32.7,
+   "cat": "Gegnerfehler nicht bestraft",
+   "motifs": [],
+   "missed_motifs": [
+    "Fesselung",
+    "Königsangriff"
+   ],
+   "themes": [],
+   "missed_themes": [
+    "pin",
+    "kingsideAttack"
+   ],
+   "phase": "Endspiel",
+   "clock": 111.8,
+   "spent": 2.200000000000003,
+   "url": "https://www.chess.com/game/live/169416793508",
+   "date": "2026-05-29",
+   "p_best_me": 0.2419,
+   "p_best_up": 0.5592,
+   "p_played_me": 0.1995,
+   "p_played_up": 0.1495,
+   "maia_class": "Nächste Stufe",
+   "trap": false,
+   "color": "white"
+  },
+  {
+   "fen": "r2qkb1r/ppp3pp/5n2/8/3nPBb1/2NP1N2/PPP1Q2P/R3KB1R w KQkq - 1 11",
+   "played": "Qe3",
+   "best": "Nxd4",
+   "pv": "11. Nxd4 Bxe2 12. Ne6 Qd7 13. Nxc7+ Kd8",
+   "played_uci": "e2e3",
+   "best_uci": "f3d4",
+   "loss": 25.4,
+   "cat": "Gegnerische Taktik übersehen",
+   "motifs": [
+    "Gabel"
+   ],
+   "missed_motifs": [],
+   "themes": [
+    "fork"
+   ],
+   "missed_themes": [],
+   "phase": "Eröffnung",
+   "clock": 162.0,
+   "spent": 8.800000000000011,
+   "url": "https://www.chess.com/game/live/147719213446",
+   "date": "2026-01-07",
+   "p_best_me": 0.0862,
+   "p_best_up": 0.3948,
+   "p_played_me": 0.1532,
+   "p_played_up": 0.1262,
+   "maia_class": "Nächste Stufe",
+   "trap": false,
+   "color": "white"
+  }
+ ],
+ "examples": [
+  {
+   "fen": "6k1/p4pp1/2p4p/4N3/P2R4/2r2P1P/2b3P1/6K1 b - - 0 36",
+   "played": "Bxa4",
+   "best": "f6",
+   "pv": "36...f6 37. Nd7 Kf7 38. Nb8 Ke6 39. Rd7",
+   "played_uci": "c2a4",
+   "best_uci": "f7f6",
+   "loss": 42.1,
+   "cat": "Figur eingestellt",
+   "motifs": [
+    "Hängende Figur"
+   ],
+   "missed_motifs": [],
+   "themes": [
+    "hangingPiece"
+   ],
+   "missed_themes": [],
+   "phase": "Endspiel",
+   "clock": 60.2,
+   "spent": 0.6000000000000014,
+   "url": "https://www.chess.com/game/live/185341519628",
+   "date": "2026-10-15",
+   "p_best_me": 0.0618,
+   "p_best_up": 0.1383,
+   "p_played_me": 0.1074,
+   "p_played_up": 0.0506,
+   "maia_class": "Schwer",
+   "trap": false,
+   "color": "black"
+  },
+  {
+   "fen": "2b1r1k1/1r2bppp/pq1p1n2/2pNp3/2P1P3/3PB2P/RP1N1PP1/1Q3RK1 b - - 12 21",
+   "played": "Qc7",
+   "best": "Nxd5",
+   "pv": "21...Nxd5 22. cxd5 f5 23. Nc4 Qd8 24. Bd2",
+   "played_uci": "b6c7",
+   "best_uci": "f6d5",
+   "loss": 35.6,
+   "cat": "Figur eingestellt",
+   "motifs": [],
+   "missed_motifs": [],
+   "themes": [],
+   "missed_themes": [],
+   "phase": "Mittelspiel",
+   "clock": 72.3,
+   "spent": 3.5,
+   "url": "https://www.chess.com/game/live/185355360298",
+   "date": "2026-10-15",
+   "p_best_me": 0.9588,
+   "p_best_up": 0.9767,
+   "p_played_me": 0.0004,
+   "p_played_up": 0.0003,
+   "maia_class": "Leichtsinn",
+   "trap": false,
+   "color": "black"
+  },
+  {
+   "fen": "2k1r1r1/ppqn3R/1np3P1/3p4/8/P1BB1P2/1PP3Q1/2KR4 w - - 1 21",
+   "played": "Bf5",
+   "best": "Qg4",
+   "pv": "21. Qg4 Qd6 22. Kb1 Kb8 23. Re1 Rxe1+",
+   "played_uci": "d3f5",
+   "best_uci": "g2g4",
+   "loss": 55.5,
+   "cat": "Gegnerische Taktik übersehen",
+   "motifs": [
+    "Gabel"
+   ],
+   "missed_motifs": [],
+   "themes": [
+    "fork"
+   ],
+   "missed_themes": [],
+   "phase": "Mittelspiel",
+   "clock": 150.0,
+   "spent": 6.199999999999989,
+   "url": "https://www.chess.com/game/live/185341695756",
+   "date": "2026-10-15",
+   "p_best_me": 0.0461,
+   "p_best_up": 0.0724,
+   "p_played_me": 0.1361,
+   "p_played_up": 0.2271,
+   "maia_class": "Schwer",
+   "trap": false,
+   "color": "white"
+  },
+  {
+   "fen": "r1b1k2r/ppp2ppp/5n2/2qpp3/4P3/P2P4/BPP1NKPP/R1BQ1R2 w kq - 2 12",
+   "played": "Be3",
+   "best": "d4",
+   "pv": "12. d4 Nxe4+ 13. Kg1 Qb6 14. Bxd5 Nf6",
+   "played_uci": "c1e3",
+   "best_uci": "d3d4",
+   "loss": 56.3,
+   "cat": "Gegnerische Taktik übersehen",
+   "motifs": [
+    "Ablenkung",
+    "Gabel"
+   ],
+   "missed_motifs": [],
+   "themes": [
+    "deflection",
+    "fork"
+   ],
+   "missed_themes": [],
+   "phase": "Eröffnung",
+   "clock": 169.4,
+   "spent": 2.5,
+   "url": "https://www.chess.com/game/live/185341793860",
+   "date": "2026-10-15",
+   "p_best_me": 0.1904,
+   "p_best_up": 0.3452,
+   "p_played_me": 0.7114,
+   "p_played_up": 0.5399,
+   "maia_class": "Nächste Stufe",
+   "trap": true,
+   "color": "white"
+  },
+  {
+   "fen": "3r1rk1/1b1q2pp/p2P4/1pn2p2/2pQ3R/P1N5/1PB2KPP/R1N5 b - - 0 23",
+   "played": "Ne4+",
+   "best": "Qc6",
+   "pv": "23...Qc6 24. Ke1 Rfe8+ 25. N1e2 Rxd6 26. Qg1",
+   "played_uci": "c5e4",
+   "best_uci": "d7c6",
+   "loss": 30.6,
+   "cat": "Gegnerfehler nicht bestraft",
+   "motifs": [],
+   "missed_motifs": [],
+   "themes": [],
+   "missed_themes": [],
+   "phase": "Mittelspiel",
+   "clock": 54.9,
+   "spent": 0.5,
+   "url": "https://www.chess.com/game/live/185341231846",
+   "date": "2026-10-15",
+   "p_best_me": 0.1812,
+   "p_best_up": 0.2226,
+   "p_played_me": 0.5399,
+   "p_played_up": 0.5263,
+   "maia_class": "Schwer",
+   "trap": true,
+   "color": "black"
+  },
+  {
+   "fen": "4r2k/pQr3pp/8/q4Pp1/3P2P1/P6P/1PP1n3/1K1RR3 w - - 1 30",
+   "played": "Qf3",
+   "best": "Rxe2",
+   "pv": "30. Rxe2 Rec8 31. Qb3 h6 32. Rde1 Kh7",
+   "played_uci": "b7f3",
+   "best_uci": "e1e2",
+   "loss": 50.8,
+   "cat": "Gegnerfehler nicht bestraft",
+   "motifs": [],
+   "missed_motifs": [],
+   "themes": [],
+   "missed_themes": [],
+   "phase": "Mittelspiel",
+   "clock": 43.6,
+   "spent": 9.200000000000003,
+   "url": "https://www.chess.com/game/live/185228624852",
+   "date": "2026-10-12",
+   "p_best_me": 0.2641,
+   "p_best_up": 0.3867,
+   "p_played_me": 0.3629,
+   "p_played_up": 0.2999,
+   "maia_class": "Nächste Stufe",
+   "trap": true,
+   "color": "white"
+  },
+  {
+   "fen": "1rb1rbk1/5ppp/p1pP4/q1p5/5Q2/1P1P3P/P1P1N1PN/R4RK1 b - - 0 17",
+   "played": "Rxe2",
+   "best": "Rb7",
+   "pv": "17...Rb7 18. Ng3 c4 19. Qxc4 Bxd6 20. Qxc6",
+   "played_uci": "e8e2",
+   "best_uci": "b8b7",
+   "loss": 46.1,
+   "cat": "Matt übersehen",
+   "motifs": [
+    "Matt in 2",
+    "Ablenkung",
+    "Königsangriff"
+   ],
+   "missed_motifs": [],
+   "themes": [
+    "mateIn2",
+    "deflection",
+    "kingsideAttack"
+   ],
+   "missed_themes": [],
+   "phase": "Mittelspiel",
+   "clock": 229.5,
+   "spent": 3.3000000000000114,
+   "url": "https://www.chess.com/game/live/184689646016",
+   "date": "2026-10-02",
+   "p_best_me": 0.0334,
+   "p_best_up": 0.0385,
+   "p_played_me": 0.3612,
+   "p_played_up": 0.3289,
+   "maia_class": "Schwer",
+   "trap": true,
+   "color": "black"
+  },
+  {
+   "fen": "1rb2bk1/3P1ppp/p1p5/q1p5/5Q2/1P1P3P/P1P1r1PN/R4RK1 b - - 0 18",
+   "played": "Bb7",
+   "best": "f6",
+   "pv": "18...f6",
+   "played_uci": "c8b7",
+   "best_uci": "f7f6",
+   "loss": 32.5,
+   "cat": "Matt übersehen",
+   "motifs": [
+    "Matt in 3",
+    "Grundreihenmatt",
+    "Ablenkung"
+   ],
+   "missed_motifs": [
+    "Verteidigungszug"
+   ],
+   "themes": [
+    "mateIn3",
+    "backRankMate",
+    "deflection"
+   ],
+   "missed_themes": [
+    "defensiveMove"
+   ],
+   "phase": "Mittelspiel",
+   "clock": 226.2,
+   "spent": 8.5,
+   "url": "https://www.chess.com/game/live/184689646016",
+   "date": "2026-10-02",
+   "p_best_me": 0.0411,
+   "p_best_up": 0.0622,
+   "p_played_me": 0.0486,
+   "p_played_up": 0.0363,
+   "maia_class": "Schwer",
+   "trap": false,
+   "color": "black"
+  }
+ ]
+}
