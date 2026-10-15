@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { loadData, type Loaded } from './lib/data';
 import { loadState, useAppState } from './lib/store';
+import { initSync } from './lib/syncRunner';
 import { Progress } from './views/Progress';
 import { Settings } from './views/Settings';
 import { Today } from './views/Today';
@@ -24,7 +25,7 @@ export function App() {
   const [training, setTraining] = useState(false);
 
   useEffect(() => {
-    loadState();
+    void loadState().then(() => initSync());
     loadData()
       .then(setData)
       .catch((e: Error) => setError(e.message));

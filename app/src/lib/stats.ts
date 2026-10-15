@@ -58,9 +58,8 @@ export function streak(log: ReviewEntry[], now: Date): number {
 
 export function cardCounts(state: AppState, exercises: Exercise[]) {
   const c = { neu: 0, lernen: 0, wiederholen: 0, gefestigt: 0 };
-  const hidden = new Set(state.hidden ?? []);
   for (const ex of exercises) {
-    if (hidden.has(ex.id)) continue;
+    if (state.hidden?.[ex.id]?.on) continue;
     const rec = state.cards[ex.id];
     if (!rec) c.neu++;
     else if (cardState(rec) !== State.Review) c.lernen++;

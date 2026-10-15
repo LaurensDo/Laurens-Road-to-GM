@@ -237,7 +237,7 @@ export function Trainer({ exercises, onExit }: Props) {
 
   const hideAndNext = () => {
     const ex = curRef.current;
-    if (ex) update((s) => ({ ...s, hidden: [...new Set([...(s.hidden ?? []), ex.id])] }));
+    if (ex) update((s) => ({ ...s, hidden: { ...s.hidden, [ex.id]: { on: true, ts: Date.now() } } }));
     next();
   };
 
@@ -366,7 +366,7 @@ export function Trainer({ exercises, onExit }: Props) {
       )}
 
       {phase === 'ask' && (
-        <div class="actions">
+        <div class="actions ask">
           <p class="muted small">Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.</p>
           <button class="btn secondary" onClick={giveUp}>
             Lösung zeigen

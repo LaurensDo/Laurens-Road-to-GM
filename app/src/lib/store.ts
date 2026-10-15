@@ -1,6 +1,7 @@
 import { get, set } from 'idb-keyval';
 import { useEffect, useState } from 'preact/hooks';
-import { DEFAULT_SETTINGS, emptyState, type AppState } from './types';
+import { normalize } from './normalize';
+import { emptyState, type AppState } from './types';
 
 const KEY = 'road-to-gm-state-v1';
 let state: AppState = emptyState();
@@ -10,24 +11,6 @@ let loaded = false;
 
 function notify() {
   listeners.forEach((l) => l());
-}
-
-function normalize(raw: unknown): AppState {
-  const base = emptyState();
-  if (!raw || typeof raw !== 'object') return base;
-  const r = raw as Partial<AppState>;
-  return {
-    version: 1,
-    cards: r.cards && typeof r.cards === 'object' ? r.cards : {},
-    log: Array.isArray(r.log) ? r.log : [],
-    bonus: r.bonus,
-    hidden: Array.isArray(r.hidden) ? r.hidden : [],
-    settings: {
-      ...DEFAULT_SETTINGS,
-      ...(r.settings ?? {}),
-      filters: { ...DEFAULT_SETTINGS.filters, ...(r.settings?.filters ?? {}) },
-    },
-  };
 }
 
 export async function loadState(): Promise<void> {
@@ -67,16 +50,37 @@ export function getState(): AppState {
   return state;
 }
 
+const changeHooks = new Set<() => void>();
+
+/** Wird bei jeder lokalen Änderung aufgerufen (nicht beim Übernehmen eines Abgleichs). */
+export function onLocalChange(fn: () => void): () => void {
+  changeHooks.add(fn);
+  return () => changeHooks.delete(fn);
+}
+
 export function update(fn: (s: AppState) => AppState): void {
   state = fn(state);
   notify();
   scheduleSave();
+  changeHooks.forEach((h) => h());
+}
+
+/** Übernimmt einen zusammengeführten Stand aus dem Abgleich, ohne einen weiteren Abgleich anzustoßen. */
+export function applyMerged(next: AppState): void {
+  state = next;
+  notify();
+  scheduleSave();
+}
+
+export function isLoaded(): boolean {
+  return loaded;
 }
 
 export function replaceState(raw: unknown): void {
   state = normalize(raw);
   notify();
   void saveNow();
+  changeHooks.forEach((h) => h());
 }
 
 export function useAppState(): AppState {

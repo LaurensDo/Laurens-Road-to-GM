@@ -1,5 +1,7 @@
 import { useState } from 'preact/hooks';
 import { exportJson, importJson, replaceState, update, useAppState } from '../lib/store';
+import { hiddenCount } from '../lib/queue';
+import { SyncCard } from './SyncCard';
 import { n0 } from '../lib/format';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
@@ -38,7 +40,7 @@ export function Settings({ exercises, generated }: Props) {
   const [showText, setShowText] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch } }));
+  const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
 
   const phases = ['alle', ...new Set(exercises.map((e) => e.phase))];
@@ -91,6 +93,8 @@ export function Settings({ exercises, generated }: Props) {
         <div class="eyebrow">Road to GM</div>
         <h1>Einstellungen</h1>
       </header>
+
+      <SyncCard />
 
       <div class="card">
         <h2>Training</h2>
@@ -176,11 +180,19 @@ export function Settings({ exercises, generated }: Props) {
         </div>
       </div>
 
-      {(state.hidden?.length ?? 0) > 0 && (
+      {hiddenCount(state) > 0 && (
         <div class="card">
           <h2>Ausgeblendete Aufgaben</h2>
-          <p class="muted">{n0(state.hidden!.length)} Aufgaben werden nicht mehr gezeigt.</p>
-          <button class="btn secondary" onClick={() => update((st) => ({ ...st, hidden: [] }))}>
+          <p class="muted">{n0(hiddenCount(state))} Aufgaben werden nicht mehr gezeigt.</p>
+          <button
+            class="btn secondary"
+            onClick={() =>
+              update((st) => {
+                const ts = Date.now();
+                return { ...st, hidden: Object.fromEntries(Object.entries(st.hidden).map(([id]) => [id, { on: false, ts }])) };
+              })
+            }
+          >
             Alle wieder einblenden
           </button>
         </div>
@@ -251,7 +263,7 @@ export function Settings({ exercises, generated }: Props) {
                 class="btn danger"
                 onClick={() => {
                   const keep = state.settings;
-                  replaceState({ ...emptyState(), settings: keep });
+                  replaceState({ ...emptyState(), settings: keep, settingsTs: state.settingsTs, hidden: state.hidden, epoch: Date.now() });
                   setConfirmReset(false);
                   setMsg('Trainingsstand gelöscht.');
                 }}

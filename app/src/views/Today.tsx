@@ -2,6 +2,7 @@ import { counts } from '../lib/queue';
 import { n0, n1, pct } from '../lib/format';
 import { streak, today } from '../lib/stats';
 import { useAppState } from '../lib/store';
+import { SyncBadge } from './SyncCard';
 import type { Exercise, Meta } from '../lib/types';
 
 interface Props {
@@ -28,6 +29,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
       <header class="page-head">
         <div class="eyebrow">Road to GM</div>
         <h1>Heute</h1>
+        <SyncBadge onOpen={onOpenSettings} />
       </header>
 
       <div class="card">

@@ -168,7 +168,7 @@ describe('Warteschlange', () => {
   });
   it('ausgeblendete Aufgaben kommen nie vor', () => {
     const s = emptyState();
-    s.hidden = ['a', 'c'];
+    s.hidden = { a: { on: true, ts: 1 }, c: { on: true, ts: 1 } };
     expect(pickNext(exs, s, t)?.ex.id).toBe('b');
     expect(counts(exs, s, t).total).toBe(1);
   });

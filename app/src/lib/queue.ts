@@ -31,9 +31,16 @@ export function newQuotaLeft(state: AppState, now: Date): number {
   return Math.max(0, state.settings.newPerDay + bonus - newIntroducedToday(state, now));
 }
 
+export function isHidden(state: AppState, id: string): boolean {
+  return state.hidden?.[id]?.on === true;
+}
+
+export function hiddenCount(state: AppState): number {
+  return Object.values(state.hidden ?? {}).filter((h) => h.on).length;
+}
+
 export function poolOf(exercises: Exercise[], state: AppState): Exercise[] {
-  const hidden = new Set(state.hidden ?? []);
-  return exercises.filter((e) => !hidden.has(e.id) && matchesFilters(e, state.settings.filters));
+  return exercises.filter((e) => !isHidden(state, e.id) && matchesFilters(e, state.settings.filters));
 }
 
 export function counts(exercises: Exercise[], state: AppState, now: Date): QueueCounts {

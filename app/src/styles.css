@@ -199,3 +199,49 @@ th.n, td.n { text-align: right; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Synchronisation */
+input[type='text'], input[type='password'] {
+  width: 100%; min-height: 46px; border-radius: 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink);
+  font: 400 1rem var(--font-body); padding: 10px 12px;
+}
+input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
+.pw { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.howto { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; background: var(--bg); }
+.howto summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.howto ol { margin: 10px 0 0; padding-left: 1.2rem; display: grid; gap: 10px; font-size: 0.92rem; color: var(--ink-2); }
+.notice.bad { background: var(--bad-soft); color: var(--bad); }
+.warn-text { color: var(--bad); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; background: var(--muted); vertical-align: baseline; }
+.dot.idle { background: var(--good); }
+.dot.syncing { background: var(--accent); }
+.dot.error { background: var(--bad); }
+.dot.offline { background: var(--warn); }
+.sync-hint { font-size: 0.85rem; color: var(--muted); }
+.sync-hint.bad { color: var(--bad); }
+
+/* iPad: größeres Brett im Hochformat, Brett und Erklärung nebeneinander im Querformat */
+@media (min-width: 700px) {
+  #app { max-width: 720px; }
+  .board-wrap { width: min(100%, calc(100dvh - 360px), 640px); }
+  h1 { font-size: 2.4rem; }
+}
+@media (min-width: 1000px) {
+  #app { max-width: 1120px; }
+  .screen:not(.trainer) { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 16px; }
+  .screen:not(.trainer) > .page-head { grid-column: 1 / -1; }
+  .screen.trainer {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+    grid-template-areas: 'top top' 'prompt side' 'board side' 'timer side' 'ask side';
+    column-gap: 32px;
+    align-items: start;
+  }
+  .trainer > .topbar { grid-area: top; }
+  .trainer > .prompt { grid-area: prompt; }
+  .trainer > .board-wrap { grid-area: board; width: min(100%, calc(100dvh - 190px), 680px); margin: 0; }
+  .trainer > .timer { grid-area: timer; width: min(100%, calc(100dvh - 190px), 680px); }
+  .trainer > .actions.ask { grid-area: ask; }
+  .trainer > .result { grid-area: side; align-self: start; position: sticky; top: 12px; max-height: calc(100dvh - 90px); overflow-y: auto; padding-right: 4px; }
+  .trainer > .actions.ask { grid-area: side; align-self: start; }
+  .trainer > .card.center { grid-column: 1 / -1; }
+}

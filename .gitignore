@@ -4,3 +4,4 @@ __pycache__/
 app/node_modules/
 app/dist/
 app/dev-dist/
+app/dist-e2e/

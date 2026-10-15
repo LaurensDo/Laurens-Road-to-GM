@@ -124,6 +124,25 @@ await page.waitForSelector('.board cg-board', { timeout: 8000 });
 ok(true, 'Training läuft offline');
 await ctx.setOffline(false);
 
+// iPad im Querformat: Brett und Erklärung nebeneinander
+{
+  const ctxI = await browser.newContext({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, hasTouch: true });
+  const pI = await ctxI.newPage();
+  await pI.goto(BASE, { waitUntil: 'networkidle' });
+  await pI.click('text=/Training starten|Weiter üben/');
+  await pI.waitForSelector('.board cg-board');
+  await pI.waitForTimeout(300);
+  await pI.screenshot({ path: `${OUT}/9-ipad-aufgabe.png` });
+  await pI.click('text=Lösung zeigen');
+  await pI.waitForSelector('.result');
+  await pI.waitForTimeout(300);
+  await pI.screenshot({ path: `${OUT}/10-ipad-ergebnis.png` });
+  const bb = await pI.locator('.board').boundingBox();
+  const rb = await pI.locator('.result').boundingBox();
+  ok(rb.x > bb.x + bb.width - 2, `iPad quer: Erklärung steht rechts neben dem Brett (Brett ${Math.round(bb.width)} px)`);
+  await ctxI.close();
+}
+
 ok(errors.length === 0, `Keine Konsolenfehler ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
 await browser.close();
 console.log(log.join('\n'));

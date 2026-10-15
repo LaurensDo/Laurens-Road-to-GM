@@ -81,15 +81,25 @@ export interface Settings {
   filters: Filters;
 }
 
+export interface HiddenEntry {
+  on: boolean;
+  ts: number;
+}
+
 export interface AppState {
   version: 1;
+  /** Wiederholungsplan je Übung. Wird aus dem Verlauf (log) abgeleitet und beim Abgleich neu berechnet. */
   cards: Record<string, CardRecord>;
   log: ReviewEntry[];
   settings: Settings;
+  /** Zeitpunkt der letzten Änderung der Einstellungen (neuere gewinnen beim Abgleich) */
+  settingsTs: number;
   /** zusätzliche neue Aufgaben, die heute freigegeben wurden */
   bonus?: { day: string; n: number };
-  /** ausgeblendete Übungen (z. B. fehlerhafte Stellungen) */
-  hidden?: string[];
+  /** ausgeblendete Übungen (z. B. fehlerhafte Stellungen), je Übung mit Zeitstempel */
+  hidden: Record<string, HiddenEntry>;
+  /** Zeitpunkt des letzten Zurücksetzens: ältere Antworten zählen nicht mehr */
+  epoch: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -102,5 +112,13 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export function emptyState(): AppState {
-  return { version: 1, cards: {}, log: [], settings: { ...DEFAULT_SETTINGS, filters: { ...DEFAULT_SETTINGS.filters } } };
+  return {
+    version: 1,
+    cards: {},
+    log: [],
+    settings: { ...DEFAULT_SETTINGS, filters: { ...DEFAULT_SETTINGS.filters } },
+    settingsTs: 0,
+    hidden: {},
+    epoch: 0,
+  };
 }
