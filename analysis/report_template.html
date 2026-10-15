@@ -1,0 +1,592 @@
+<title>Road to GM Diagnose</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&display=swap">
+<style>
+/* Layout: eine ruhige Lesespalte wie ein Partieformular; Diagramme und Bretter brechen bei Bedarf in zwei Spalten aus. */
+:root {
+  --bg: #f4f6f4;
+  --surface: #ffffff;
+  --ink: #17201d;
+  --ink-2: #4a5752;
+  --muted: #74817b;
+  --rule: #d9e0dc;
+  --accent: #1d6b58;
+  --accent-soft: #d6ebe4;
+  --ref: #a7b0ac;
+  --bad: #b8432f;
+  --good: #2c7f4a;
+  --sq-light: #e9ede4;
+  --sq-dark: #9cb3a5;
+  --hl-bad: rgba(184, 67, 47, .55);
+  --hl-good: rgba(44, 127, 74, .55);
+  --font-display: "Source Serif 4", "Georgia", "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201d; --ink: #e5ebe8; --ink-2: #a9b6b0; --muted: #7d8a84;
+    --rule: #2a3531; --accent: #52b597; --accent-soft: #1f3a32; --ref: #5e6964;
+    --bad: #e0715c; --good: #5cb87c; --sq-light: #c9d3c8; --sq-dark: #7f978a;
+    --hl-bad: rgba(224, 113, 92, .6); --hl-good: rgba(92, 184, 124, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201d; --ink: #e5ebe8; --ink-2: #a9b6b0; --muted: #7d8a84;
+  --rule: #2a3531; --accent: #52b597; --accent-soft: #1f3a32; --ref: #5e6964;
+  --bad: #e0715c; --good: #5cb87c; --sq-light: #c9d3c8; --sq-dark: #7f978a;
+  --hl-bad: rgba(224, 113, 92, .6); --hl-good: rgba(92, 184, 124, .6);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.page { max-width: 980px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-size: 1.6rem; line-height: 1.2; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 500; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+.lede { color: var(--ink-2); font-size: 1.05rem; }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 8px; border-top: 2px solid var(--ink); padding-top: 16px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 32px; }
+.cols > * { min-width: 0; }
+.figure { display: grid; gap: 10px; min-width: 0; }
+.figure .cap { font-size: .85rem; color: var(--muted); }
+.chart { width: 100%; min-height: 40px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--ink-2); font-family: var(--font-body); font-size: 12px; }
+.chart .val { fill: var(--ink); font-family: var(--font-mono); font-size: 12px; }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: .85rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* Kopf */
+header.top { display: grid; gap: 20px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--ink-2); font-size: .9rem; }
+.meta b { color: var(--ink); font-weight: 600; }
+.ratingcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px 8px; display: grid; gap: 4px; }
+
+/* Kernaussagen */
+.findings { display: grid; gap: 0; counter-reset: f; }
+.finding { display: grid; grid-template-columns: 2.4rem 1fr; gap: 4px 12px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.finding::before { counter-increment: f; content: counter(f); font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; line-height: 1; color: var(--accent); grid-row: span 2; }
+.finding h3 { font-family: var(--font-body); font-weight: 600; font-size: 1.05rem; }
+.finding p { color: var(--ink-2); }
+
+/* Tabellen */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; padding: 8px 10px; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+td { padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+td.n, th.n { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-family: var(--font-mono); font-size: .8rem; padding: 1px 7px; border-radius: 999px; }
+.chip.neg { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+.chip.pos { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+.chip.neu { background: color-mix(in srgb, var(--ref) 25%, transparent); color: var(--ink-2); }
+
+/* Stat-Kacheln */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; }
+.stat .big { font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.stat .lbl { font-size: .85rem; color: var(--ink-2); }
+.stat .sub { font-size: .8rem; color: var(--muted); }
+
+/* Bretter */
+.boards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 24px; }
+.pos { display: grid; gap: 10px; align-content: start; }
+.board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 300px; aspect-ratio: 1; border: 1px solid var(--ink-2); border-radius: 3px; overflow: hidden; }
+.sq { position: relative; display: grid; place-items: center; font-size: clamp(16px, 6.4vw, 30px); line-height: 1; }
+.sq.l { background: var(--sq-light); }
+.sq.d { background: var(--sq-dark); }
+.sq.from-bad, .sq.to-bad { box-shadow: inset 0 0 0 100px var(--hl-bad); }
+.sq.from-good, .sq.to-good { box-shadow: inset 0 0 0 100px var(--hl-good); }
+.pc { font-family: "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols 2", "Arial Unicode MS", serif; }
+.pc.w { color: #ffffff; text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000; }
+.pc.b { color: #111111; text-shadow: 0 0 1px rgba(255,255,255,.4); }
+.coord { position: absolute; font-size: 9px; font-family: var(--font-mono); color: rgba(0,0,0,.45); left: 2px; bottom: 1px; }
+.posinfo { font-size: .88rem; display: grid; gap: 4px; }
+.posinfo .mv { font-family: var(--font-mono); }
+.posinfo .bad { color: var(--bad); font-weight: 600; }
+.posinfo .good { color: var(--good); font-weight: 600; }
+.posinfo a { color: var(--accent); }
+.posinfo .muted { color: var(--muted); }
+
+/* Plan */
+.plan { display: grid; gap: 12px; }
+.slot { display: grid; grid-template-columns: 4.5rem 1fr; gap: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; }
+.slot .min { font-family: var(--font-mono); font-weight: 500; color: var(--accent); }
+.slot h3 { font-family: var(--font-body); font-weight: 600; font-size: 1rem; }
+.slot p { color: var(--ink-2); font-size: .95rem; }
+.method { font-size: .88rem; color: var(--ink-2); display: grid; gap: 8px; }
+
+#tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .8rem; padding: 6px 9px; border-radius: 6px; max-width: 260px; z-index: 10; line-height: 1.35; }
+#tip[hidden] { display: none; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 520px) {
+  body { font-size: 15px; padding-block: 20px 48px; }
+  .page { gap: 44px; }
+  .slot { grid-template-columns: 1fr; gap: 4px; }
+}
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="eyebrow">Road to GM · Diagnose · Blitz 3 bis 5 Minuten</div>
+    <h1 id="headline">Wo du deine Punkte verlierst</h1>
+    <p class="lede" id="lede"></p>
+    <div class="meta" id="meta"></div>
+    <div class="ratingcard">
+      <div class="eyebrow">chess.com Blitz-Rating</div>
+      <div class="chart" id="c-rating"></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Kurz gesagt</div>
+      <h2>Die wichtigsten Befunde</h2>
+    </div>
+    <div class="findings" id="findings"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Punkte-Verlust</div>
+      <h2>Wohin deine Gewinnchancen gehen</h2>
+      <p class="lede">Jeder Zug wurde mit Stockfish bewertet. Gezählt wird, wie viel Gewinnwahrscheinlichkeit ein Zug kostet, aufsummiert nach Fehlerart. Zeitverluste zählen mit der Gewinnchance, die du beim Ablauf der Uhr noch hattest.</p>
+    </div>
+    <div class="cols">
+      <div class="figure">
+        <h3>Nach Fehlerart</h3>
+        <div class="chart" id="c-cat"></div>
+        <div class="cap">Anteil an allen verlorenen Gewinnprozenten.</div>
+      </div>
+      <div class="figure">
+        <h3>Nach Partiephase</h3>
+        <div class="chart" id="c-phase"></div>
+        <div class="cap">Eröffnung bis Zug 12, Endspiel ab höchstens sechs Figuren (ohne Bauern und Könige) auf dem Brett.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Vergleich</div>
+      <h2>Du gegen deine Gegner</h2>
+      <p class="lede">Deine Gegner haben fast genau dein Rating. Ihre Züge in denselben Partien sind deshalb der fairste Maßstab dafür, was auf deinem Niveau normal ist.</p>
+    </div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Du</span><span><i style="background:var(--ref)"></i>Gegner</span></div>
+    <div class="cols">
+      <div class="figure">
+        <h3>Patzer pro 100 Züge</h3>
+        <div class="chart" id="c-bench"></div>
+        <div class="cap">Patzer = Zug, der mindestens 30 Prozentpunkte Gewinnchance kostet.</div>
+      </div>
+      <div class="figure">
+        <h3>Fehler pro 100 Partien nach Art</h3>
+        <div class="chart" id="c-types"></div>
+        <div class="cap">Fehler = mindestens 20 Prozentpunkte Verlust.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Uhr</div>
+      <h2>Zeitmanagement</h2>
+      <p class="lede" id="clock-lede"></p>
+    </div>
+    <div class="stats" id="timeout-stats"></div>
+    <div class="cols">
+      <div class="figure">
+        <h3>Restzeit nach Zugnummer, 3+0</h3>
+        <div class="legend"><span><i style="background:var(--accent)"></i>Du</span><span><i style="background:var(--ref)"></i>Gegner</span></div>
+        <div class="chart" id="c-clock"></div>
+        <div class="cap">Durchschnittliche Restzeit in Sekunden vor dem Zug.</div>
+      </div>
+      <div class="figure">
+        <h3>Patzerquote nach Restzeit</h3>
+        <div class="legend"><span><i style="background:var(--accent)"></i>Du</span><span><i style="background:var(--ref)"></i>Gegner</span></div>
+        <div class="chart" id="c-clockbl"></div>
+        <div class="cap">Anteil der Züge, die ein Patzer waren.</div>
+      </div>
+    </div>
+    <div class="figure">
+      <h3>Kritische Stellungen: Wie lange denkst du nach?</h3>
+      <div class="chart" id="c-crit"></div>
+      <div class="cap" id="crit-cap">Kritisch = nur ein Zug hält die Stellung, der zweitbeste ist mindestens 20 Prozentpunkte schlechter. Ohne Zeitnot.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Eröffnung</div>
+      <h2>Deine Eröffnungen und ihre Lecks</h2>
+      <p class="lede" id="open-lede"></p>
+    </div>
+    <div class="figure">
+      <h3>Eröffnungsfamilien (ab 15 Partien)</h3>
+      <div class="tablewrap"><table id="t-open"></table></div>
+      <div class="cap">Über Erwartung = Ergebnis minus Elo-Erwartung gegen diese Gegner. Chance nach Zug 12 = durchschnittliche Gewinnwahrscheinlichkeit laut Engine.</div>
+    </div>
+    <div class="figure">
+      <h3>Stellungen, in denen du immer wieder danebengreifst</h3>
+      <div class="boards" id="b-leaks"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Endspiel</div>
+      <h2>Endspiel und Verwertung</h2>
+      <p class="lede" id="eg-lede"></p>
+    </div>
+    <div class="stats" id="conv-stats"></div>
+    <div class="figure">
+      <h3>Endspieltypen</h3>
+      <div class="tablewrap"><table id="t-eg"></table></div>
+      <div class="cap">Erwartet = Gewinnchance beim Eintritt ins Endspiel. Erreicht = tatsächliches Ergebnis.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Typische Fehler</div>
+      <h2>So sehen deine Fehler aus</h2>
+      <p class="lede">Aktuelle Beispiele aus deinen Partien, jeweils mit mehr als 30 Sekunden auf der Uhr. Rot ist dein Zug, grün der bessere.</p>
+    </div>
+    <div class="boards" id="b-examples"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Rhythmus</div>
+      <h2>Tilt, Session und Zeitmodus</h2>
+      <p class="lede" id="tilt-lede"></p>
+    </div>
+    <div class="cols">
+      <div class="figure"><h3>Nach Niederlagen in Folge</h3><div class="tablewrap"><table id="t-tilt"></table></div></div>
+      <div class="figure"><h3>Nach Zeitmodus</h3><div class="tablewrap"><table id="t-tc"></table></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Training</div>
+      <h2>Deine 15 Minuten am Tag</h2>
+      <p class="lede" id="plan-lede"></p>
+    </div>
+    <div class="plan" id="plan"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Methode</div>
+      <h2>Wie die Zahlen entstehen</h2>
+    </div>
+    <div class="method" id="method"></div>
+  </section>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const R = /*__REPORT__*/null;
+const F = /*__FINDINGS__*/null;
+
+const de = (x, d = 0) => (x == null ? "–" : Number(x).toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d }));
+const pctf = (x, d = 0) => (x == null ? "–" : de(x, d) + " %");
+const signed = (x, d = 1) => (x == null ? "–" : (x > 0 ? "+" : x < 0 ? "−" : "±") + de(Math.abs(x), d));
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* Tooltip */
+const tip = document.getElementById("tip");
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(window.innerWidth - w - 8, x + 12) + "px";
+  tip.style.top = Math.max(8, y - h - 10) + "px";
+}
+function hideTip() { tip.hidden = true; }
+function bindTip(node, html) {
+  node.addEventListener("pointermove", (e) => showTip(html, e.clientX, e.clientY));
+  node.addEventListener("pointerleave", hideTip);
+}
+
+/* Horizontale Balken, eine Serie */
+function hbars(id, rows, { max, fmt = (v) => pctf(v, 1), color = "var(--accent)" } = {}) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = box.clientWidth || 400, lab = Math.min(210, W * 0.45), right = 56, bh = 18, gap = 12;
+  const H = rows.length * (bh + gap);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, box);
+  const m = max ?? Math.max(...rows.map((r) => r.v || 0));
+  rows.forEach((r, i) => {
+    const y = i * (bh + gap);
+    el("text", { x: 0, y: y + bh / 2 + 4 }, svg).textContent = r.label;
+    const w = Math.max(2, ((r.v || 0) / m) * (W - lab - right));
+    const bar = el("rect", { x: lab, y, width: w, height: bh, rx: 4, fill: r.color || color }, svg);
+    el("text", { x: lab + w + 6, y: y + bh / 2 + 4, class: "val" }, svg).textContent = fmt(r.v);
+    const hit = el("rect", { x: 0, y: y - gap / 2, width: W, height: bh + gap, fill: "transparent" }, svg);
+    bindTip(hit, `<b>${esc(r.label)}</b><br>${r.tip || fmt(r.v)}`);
+  });
+}
+
+/* Gepaarte Balken: Du vs. Gegner, jede Zeile mit eigener Skala */
+function pairbars(id, rows, fmt = (v) => de(v, 1)) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = box.clientWidth || 400, lab = Math.min(190, W * 0.42), right = 48, bh = 12, inner = 3, gap = 16;
+  const rowH = bh * 2 + inner + gap;
+  const H = rows.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, box);
+  const m = Math.max(...rows.flatMap((r) => [r.me || 0, r.opp || 0]));
+  rows.forEach((r, i) => {
+    const y = i * rowH;
+    el("text", { x: 0, y: y + bh + 4 }, svg).textContent = r.label;
+    const scale = (v) => Math.max(2, ((v || 0) / (r.max ?? m)) * (W - lab - right));
+    el("rect", { x: lab, y, width: scale(r.me), height: bh, rx: 4, fill: "var(--accent)" }, svg);
+    el("text", { x: lab + scale(r.me) + 6, y: y + bh - 1, class: "val" }, svg).textContent = fmt(r.me);
+    el("rect", { x: lab, y: y + bh + inner, width: scale(r.opp), height: bh, rx: 4, fill: "var(--ref)" }, svg);
+    el("text", { x: lab + scale(r.opp) + 6, y: y + 2 * bh + inner - 1, class: "val" }, svg).textContent = fmt(r.opp);
+    const hit = el("rect", { x: 0, y: y - gap / 2, width: W, height: rowH, fill: "transparent" }, svg);
+    bindTip(hit, `<b>${esc(r.label)}</b><br>Du: ${fmt(r.me)}<br>Gegner: ${fmt(r.opp)}`);
+  });
+}
+
+/* Liniendiagramm mit Fadenkreuz */
+function lines(id, xs, series, { yfmt = (v) => de(v), xfmt = (v) => v, height = 220, ymin, ymax, xlabel, endLabels = true, area = false } = {}) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = box.clientWidth || 400, H = height, L = 44, Rp = endLabels ? 54 : 12, T = 12, B = 28;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, box);
+  const all = series.flatMap((s) => s.values.filter((v) => v != null));
+  const lo = ymin ?? Math.min(...all), hi = ymax ?? Math.max(...all);
+  const x = (i) => L + (i / (xs.length - 1)) * (W - L - Rp);
+  const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const ticks = niceTicks(lo, hi, 4);
+  ticks.forEach((t) => {
+    el("line", { x1: L, x2: W - Rp, y1: y(t), y2: y(t), class: "grid" }, svg);
+    el("text", { x: L - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = yfmt(t);
+  });
+  const xt = xs.length <= 10 ? xs.map((_, i) => i) : [0, Math.round((xs.length - 1) / 3), Math.round((2 * (xs.length - 1)) / 3), xs.length - 1];
+  xt.forEach((i) => { el("text", { x: x(i), y: H - 8, "text-anchor": "middle" }, svg).textContent = xfmt(xs[i]); });
+  if (xlabel) el("text", { x: W - Rp, y: H - 8, "text-anchor": "end" }, svg);
+  series.forEach((s) => {
+    const pts = s.values.map((v, i) => (v == null ? null : [x(i), y(v)])).filter(Boolean);
+    const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
+    if (area) {
+      el("path", { d: d + `L${pts.at(-1)[0]} ${y(lo)}L${pts[0][0]} ${y(lo)}Z`, fill: s.color, opacity: 0.1 }, svg);
+    }
+    el("path", { d, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+    const last = pts.at(-1);
+    el("circle", { cx: last[0], cy: last[1], r: 4, fill: s.color, stroke: "var(--surface)", "stroke-width": 2 }, svg);
+    if (endLabels) el("text", { x: last[0] + 8, y: last[1] + 4, class: "val" }, svg).textContent = yfmt(s.values.filter((v) => v != null).at(-1));
+  });
+  const cross = el("line", { y1: T, y2: H - B, stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
+  const hit = el("rect", { x: L, y: 0, width: W - L - Rp, height: H, fill: "transparent" }, svg);
+  hit.addEventListener("pointermove", (e) => {
+    const r = svg.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * W;
+    const i = Math.max(0, Math.min(xs.length - 1, Math.round(((px - L) / (W - L - Rp)) * (xs.length - 1))));
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    showTip(`<b>${esc(xfmt(xs[i]))}</b>` + series.map((s) => `<br>${esc(s.name)}: ${yfmt(s.values[i])}`).join(""), e.clientX, e.clientY);
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); hideTip(); });
+}
+function niceTicks(lo, hi, n) {
+  const span = hi - lo, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= n) || 10 * mag;
+  const out = []; for (let t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(6));
+  return out;
+}
+
+/* Segmentierter Balken (geordnete Phasen) */
+function segbar(id, parts) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = box.clientWidth || 400, H = 74;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, box);
+  const total = parts.reduce((a, p) => a + (p.v || 0), 0);
+  let x0 = 0;
+  parts.forEach((p, i) => {
+    const w = ((p.v || 0) / total) * W;
+    const r = el("rect", { x: x0 + (i ? 1 : 0), y: 0, width: Math.max(0, w - (i ? 2 : 0)), height: 28, rx: 4, fill: p.color }, svg);
+    bindTip(r, `<b>${esc(p.label)}</b><br>${pctf(p.v, 1)} der verlorenen Gewinnprozente`);
+    el("text", { x: x0 + 2, y: 46, class: "val" }, svg).textContent = pctf(p.v, 0);
+    el("text", { x: x0 + 2, y: 64 }, svg).textContent = p.label;
+    x0 += w;
+  });
+}
+
+/* Schachbrett aus FEN */
+const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+function boardHTML(fen, flip, marks = {}) {
+  const rows = fen.split(" ")[0].split("/");
+  const grid = [];
+  rows.forEach((row) => { const r = []; for (const ch of row) { if (/\d/.test(ch)) for (let k = 0; k < +ch; k++) r.push(null); else r.push(ch); } grid.push(r); });
+  let html = "";
+  for (let ri = 0; ri < 8; ri++) for (let fi = 0; fi < 8; fi++) {
+    const r = flip ? 7 - ri : ri, f = flip ? 7 - fi : fi;
+    const sqName = "abcdefgh"[f] + (8 - r);
+    const cls = ["sq", (r + f) % 2 === 0 ? "l" : "d"];
+    if (marks[sqName]) cls.push(marks[sqName]);
+    const p = grid[r][f];
+    const piece = p ? `<span class="pc ${p === p.toUpperCase() ? "w" : "b"}">${GLYPH[p.toLowerCase()]}&#xFE0E;</span>` : "";
+    const coord = fi === 0 ? `<span class="coord">${8 - r}</span>` : "";
+    html += `<div class="${cls.join(" ")}">${piece}${coord}</div>`;
+  }
+  return `<div class="board" role="img" aria-label="Stellung ${esc(fen)}">${html}</div>`;
+}
+function marksFor(played, best) {
+  const m = {};
+  if (best && best !== played) { m[best.slice(0, 2)] = "from-good"; m[best.slice(2, 4)] = "to-good"; }
+  if (played) { m[played.slice(0, 2)] = "from-bad"; m[played.slice(2, 4)] = "to-bad"; }
+  return m;
+}
+
+/* -------------------------------------------------------------- Inhalte */
+function render() {
+  const rp = R.rating_chesscom_blitz;
+  const ratings = rp.map((r) => r.rating);
+  const peak = Math.max(...ratings);
+  document.getElementById("lede").innerHTML = F.lede;
+  document.getElementById("meta").innerHTML = [
+    `<span><b>${de(R.n_games)}</b> Blitz-Partien analysiert</span>`,
+    `<span>${new Date(R.period[0]).toLocaleDateString("de-DE")} bis ${new Date(R.period[1]).toLocaleDateString("de-DE")}</span>`,
+    `<span>chess.com <b>${de(R.platforms.chesscom || 0)}</b> · lichess <b>${de(R.platforms.lichess || 0)}</b></span>`,
+    `<span>Rating aktuell <b>${de(ratings.at(-1))}</b> · Höchstwert <b>${de(peak)}</b></span>`,
+  ].join("");
+  // Rating: auf höchstens 300 Punkte verdichten
+  const stepN = Math.max(1, Math.ceil(rp.length / 300));
+  const rs = rp.filter((_, i) => i % stepN === 0 || i === rp.length - 1);
+  lines("c-rating", rs.map((r) => r.date), [{ name: "Rating", values: rs.map((r) => r.rating), color: "var(--accent)" }], {
+    xfmt: (d) => new Date(d).toLocaleDateString("de-DE", { month: "short", year: "2-digit" }), height: 180, area: true,
+    ymin: Math.floor(Math.min(...ratings) / 50) * 50, ymax: Math.ceil(peak / 50) * 50,
+  });
+
+  document.getElementById("findings").innerHTML = F.findings.map((f) => `<div class="finding"><h3>${f.title}</h3><p>${f.text}</p></div>`).join("");
+
+  // Punkte-Verlust
+  const cats = [...R.loss_by_category].sort((a, b) => b.share - a.share);
+  hbars("c-cat", cats.map((c) => ({
+    label: c.cat, v: c.share,
+    tip: `${pctf(c.share, 1)} aller verlorenen Gewinnprozente<br>` + Object.entries(c.by_phase).map(([p, v]) => `${p}: ${pctf(v, 0)}`).join(" · "),
+  })));
+  const ph = R.loss_by_phase;
+  segbar("c-phase", [
+    { label: "Eröffnung", v: ph["Eröffnung"], color: "color-mix(in srgb, var(--accent) 45%, var(--surface))" },
+    { label: "Mittelspiel", v: ph["Mittelspiel"], color: "color-mix(in srgb, var(--accent) 72%, var(--surface))" },
+    { label: "Endspiel", v: ph["Endspiel"], color: "var(--accent)" },
+  ]);
+
+  // Benchmark
+  const me = R.benchmark.me, op = R.benchmark.opp;
+  pairbars("c-bench", [
+    { label: "Eröffnung", me: me["blunders_per_100_Eröffnung"], opp: op["blunders_per_100_Eröffnung"] },
+    { label: "Mittelspiel", me: me["blunders_per_100_Mittelspiel"], opp: op["blunders_per_100_Mittelspiel"] },
+    { label: "Endspiel", me: me["blunders_per_100_Endspiel"], opp: op["blunders_per_100_Endspiel"] },
+    { label: "Ohne Zeitnot", me: me.blunders_per_100_no_tt, opp: op.blunders_per_100_no_tt },
+    { label: "In Zeitnot", me: me.blunders_per_100_tt, opp: op.blunders_per_100_tt },
+  ], (v) => de(v, 1));
+  pairbars("c-types", R.mistake_types_per_100_games.filter((t) => t.cat !== "Kleine Ungenauigkeit").map((t) => ({ label: t.cat, me: t.me, opp: t.opp })), (v) => de(v, 0));
+
+  // Uhr
+  const to = R.timeouts;
+  document.getElementById("clock-lede").innerHTML = F.clock_lede;
+  document.getElementById("timeout-stats").innerHTML = [
+    [pctf((100 * to.lost_on_time) / to.losses, 0), "deiner Niederlagen durch Zeitablauf", `${de(to.lost_on_time)} von ${de(to.losses)}`],
+    [de(to.lost_on_time_losing), "davon standest du schon verloren", "Gewinnchance unter 30 %"],
+    [de(to.lost_on_time_equal), "davon war die Stellung offen", "Gewinnchance 30 bis 70 %"],
+    [de(to.lost_on_time_winning), "davon standest du auf Gewinn", "Gewinnchance über 70 %"],
+  ].map(([b, l, s]) => `<div class="stat"><div class="big num">${b}</div><div class="lbl">${l}</div><div class="sub">${s}</div></div>`).join("");
+  const cc = Object.entries(R.clock_curve_3_0);
+  lines("c-clock", cc.map(([k]) => +k), [
+    { name: "Du", values: cc.map(([, v]) => v.me), color: "var(--accent)" },
+    { name: "Gegner", values: cc.map(([, v]) => v.opp), color: "var(--ref)" },
+  ], { xfmt: (v) => "Zug " + v, yfmt: (v) => de(v) + " s", ymin: 0, ymax: 180 });
+  pairbars("c-clockbl", R.blunder_by_clock.map((b) => ({ label: b.bucket + " Restzeit", me: b.me, opp: b.opp })), (v) => pctf(v, 1));
+  hbars("c-crit", R.critical_by_spent.map((b) => ({
+    label: "Bedenkzeit " + b.bucket, v: b.mistake_rate,
+    tip: `${de(b.n)} kritische Stellungen (${pctf(b.share_of_critical, 0)})<br>Fehlerquote ${pctf(b.mistake_rate, 1)}`,
+  })), { fmt: (v) => pctf(v, 0) });
+  document.getElementById("crit-cap").innerHTML += " " + F.crit_cap;
+
+  // Eröffnungen
+  document.getElementById("open-lede").innerHTML = F.open_lede;
+  const fams = R.opening_families;
+  document.getElementById("t-open").innerHTML =
+    `<thead><tr><th>Eröffnung</th><th>Farbe</th><th class="n">Partien</th><th class="n">Score</th><th class="n">Über Erwartung</th><th class="n">Chance nach Zug 12</th></tr></thead><tbody>` +
+    fams.map((f) => {
+      const cls = f.resid <= -0.04 ? "neg" : f.resid >= 0.04 ? "pos" : "neu";
+      const wcls = f.wp_move12 < 45 ? "neg" : f.wp_move12 > 55 ? "pos" : "neu";
+      return `<tr><td>${esc(f.family)}</td><td>${f.color === "white" ? "Weiß" : "Schwarz"}</td><td class="n">${de(f.n)}</td><td class="n">${pctf(f.score * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(f.resid * 100, 0)} %</span></td><td class="n"><span class="chip ${wcls}">${pctf(f.wp_move12, 0)}</span></td></tr>`;
+    }).join("") + "</tbody>";
+  document.getElementById("b-leaks").innerHTML = R.opening_leaks.slice(0, 6).map((l) => `
+    <div class="pos">${boardHTML(l.fen, l.color === "black", marksFor(l.played_uci, l.best_uci))}
+      <div class="posinfo">
+        <div class="muted">${esc(l.opening || "")} · Zug ${l.fullmove} · ${l.color === "white" ? "Weiß" : "Schwarz"}</div>
+        <div>Du spielst <span class="mv bad">${l.played.map(([m, n]) => `${esc(m)} (${n}×)`).join(", ")}</span></div>
+        <div>Besser: <span class="mv good">${esc(l.best)}</span></div>
+        <div class="muted">${l.bad} von ${l.seen} Mal ungenau, im Schnitt −${de(l.avg_loss, 0)} Prozentpunkte · <a href="${esc(l.example)}" target="_blank" rel="noopener">Beispielpartie</a></div>
+      </div></div>`).join("");
+
+  // Endspiel
+  document.getElementById("eg-lede").innerHTML = F.eg_lede;
+  const cv = R.conversion, eo = R.endgame_overall;
+  document.getElementById("conv-stats").innerHTML = [
+    [pctf(cv.winning_90.win, 0), "Gewinnstellungen verwertet", `Gegner: ${pctf(cv.opp_winning_90.win, 0)} · ${de(cv.winning_90.n)} Partien mit 90 % Gewinnchance`],
+    [pctf(cv.losing_10.win + cv.losing_10.draw, 0), "Verluststellungen gerettet", `${de(cv.losing_10.n)} Partien mit unter 10 % Gewinnchance`],
+    [de(eo.me_blunders_per_100_no_tt, 1), "Patzer pro 100 Endspielzüge ohne Zeitnot", `Gegner: ${de(eo.opp_blunders_per_100_no_tt, 1)}`],
+    [de(eo.me_blunders_per_100_tt, 1), "Patzer pro 100 Endspielzüge in Zeitnot", `Gegner: ${de(eo.opp_blunders_per_100_tt, 1)}`],
+  ].map(([b, l, s]) => `<div class="stat"><div class="big num">${b}</div><div class="lbl">${l}</div><div class="sub">${s}</div></div>`).join("");
+  document.getElementById("t-eg").innerHTML =
+    `<thead><tr><th>Typ</th><th class="n">Partien</th><th class="n">Erwartet</th><th class="n">Erreicht</th><th class="n">Differenz</th><th class="n">Zeitverluste</th><th class="n">Züge in Zeitnot</th></tr></thead><tbody>` +
+    R.endgames.filter((e) => e.n >= 10).map((e) => {
+      const cls = e.diff <= -0.05 ? "neg" : e.diff >= 0.05 ? "pos" : "neu";
+      return `<tr><td>${esc(e.type)}</td><td class="n">${de(e.n)}</td><td class="n">${pctf(e.expected * 100, 0)}</td><td class="n">${pctf(e.actual * 100, 0)}</td><td class="n"><span class="chip ${cls}">${signed(e.diff * 100, 0)} %</span></td><td class="n">${de(e.timeouts)}</td><td class="n">${pctf(e.tt_share, 0)}</td></tr>`;
+    }).join("") + "</tbody>";
+
+  // Beispiele
+  document.getElementById("b-examples").innerHTML = R.examples.map((x) => `
+    <div class="pos">${boardHTML(x.fen, x.color === "black", marksFor(x.played_uci, x.best_uci))}
+      <div class="posinfo">
+        <div class="muted">${esc(x.cat)} · ${esc(x.phase)} · ${new Date(x.date).toLocaleDateString("de-DE")}</div>
+        <div>Du: <span class="mv bad">${esc(x.played)}</span> nach ${de(x.spent, 1)} s · Besser: <span class="mv good">${esc(x.best)}</span></div>
+        <div class="mv muted">${esc(x.pv)}</div>
+        <div class="muted">−${de(x.loss, 0)} Prozentpunkte${(x.motifs || []).length ? " · Motiv: " + esc(x.motifs[0]) : ""}${(x.missed_motifs || []).length ? " · verpasst: " + esc(x.missed_motifs[0]) : ""} · <a href="${esc(x.url)}" target="_blank" rel="noopener">Partie</a></div>
+      </div></div>`).join("");
+
+  // Rhythmus
+  document.getElementById("tilt-lede").innerHTML = F.tilt_lede;
+  const residChip = (v) => `<span class="chip ${v <= -0.03 ? "neg" : v >= 0.03 ? "pos" : "neu"}">${signed(v * 100, 1)} %</span>`;
+  document.getElementById("t-tilt").innerHTML = `<thead><tr><th>Davor verloren</th><th class="n">Partien</th><th class="n">Über Erwartung</th></tr></thead><tbody>` +
+    R.tilt.after_losses.map((r) => `<tr><td>${r.k === "0" ? "keine" : r.k + "×"}</td><td class="n">${de(r.n)}</td><td class="n">${residChip(r.resid)}</td></tr>`).join("") + "</tbody>";
+  document.getElementById("t-tc").innerHTML = `<thead><tr><th>Modus</th><th class="n">Partien</th><th class="n">Score</th><th class="n">Über Erwartung</th></tr></thead><tbody>` +
+    R.by_time_control.map((r) => `<tr><td class="mono">${esc(r.tc)}</td><td class="n">${de(r.n)}</td><td class="n">${pctf(r.score * 100, 0)}</td><td class="n">${residChip(r.resid)}</td></tr>`).join("") + "</tbody>";
+
+  // Plan + Methode
+  document.getElementById("plan-lede").innerHTML = F.plan_lede;
+  document.getElementById("plan").innerHTML = F.plan.map((p) => `<div class="slot"><div class="min">${esc(p.min)}</div><div><h3>${p.title}</h3><p>${p.text}</p></div></div>`).join("");
+  document.getElementById("method").innerHTML = F.method.map((m) => `<p>${m}</p>`).join("");
+}
+
+render();
+let rt;
+window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+</script>
