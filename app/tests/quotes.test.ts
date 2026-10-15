@@ -1,17 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { AUTHOR, QUOTES, nextInBag } from '../src/lib/quotes';
+import { AUTHOR, QUOTES, nextInBag, readTimeMs } from '../src/lib/quotes';
 
 const rng = (seed: number) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 0xffffffff);
 
 describe('Zitate', () => {
   it('Liste: viele, eindeutig, lesbar kurz, Urheber ist Big Dog', () => {
-    expect(QUOTES.length).toBeGreaterThanOrEqual(25);
+    expect(QUOTES.length).toBe(45);
     expect(new Set(QUOTES).size).toBe(QUOTES.length);
     for (const q of QUOTES) {
       expect(q.length).toBeGreaterThan(10);
       expect(q.length).toBeLessThanOrEqual(140);
+      expect(q).not.toMatch(/[„“]/); // innen nur ‚…‘, außen setzt das Startbild „…“
     }
     expect(AUTHOR).toBe('Big Dog');
+  });
+
+  it('der geänderte Favorit steht in der Liste', () => {
+    expect(QUOTES).toContain('En passant? Ich nenne das beim Gassigehen kassieren.');
+  });
+
+  it('Lesezeit: kurz 2,8 s, lang höchstens 4 s', () => {
+    expect(readTimeMs('x'.repeat(10))).toBe(2800);
+    expect(readTimeMs('x'.repeat(80))).toBe(3440);
+    expect(readTimeMs('x'.repeat(300))).toBe(4000);
+    expect(Math.max(...QUOTES.map((q) => readTimeMs(q)))).toBeLessThanOrEqual(4000);
   });
 
   it('jedes Zitat kommt in einem Durchlauf genau einmal', () => {

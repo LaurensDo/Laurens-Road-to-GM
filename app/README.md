@@ -55,12 +55,14 @@ Jede Antwort im Verlauf trägt `set: { id, n }`. Dadurch laufen Sätze automatis
 Änderung am Dateiformat. Nur der laufende Satz liegt lokal (`localStorage`, wird nach 6 Stunden nicht mehr fortgesetzt).
 Die Wiederholungsplanung (FSRS) bleibt unverändert, ein Satz zieht nur Aufgaben aus derselben Warteschlange.
 
-## Start: Startbild mit Zitat
+## Start: Startbild mit Spruch
 
-Beim Öffnen erscheint ein Startbild mit einem Schach-Zitat, als Urheber steht „Big Dog“ (`src/lib/quotes.ts`, 28 Zitate sinngemäß
-ins Deutsche übertragen). Die Zitate werden gemischt und komplett durchlaufen, bevor sich eines wiederholt (Reihenfolge in
-`localStorage`, nur auf dem Gerät). Das Startbild bleibt mindestens 2,8 Sekunden (gut 1 s Einblenden, dann Lesezeit), solange
-Daten und Stand nicht geladen sind auch länger. Tippen überspringt es. Abschaltbar unter Einstellungen → Darstellung → „Startbild“.
+Beim Öffnen erscheint ein Startbild mit einem Spruch, als Urheber steht „Big Dog“ (`src/lib/quotes.ts`, 45 Sprüche). Es ist Satire
+auf übertriebene Männlichkeit im Stil der Big-Dog- und Sigma-Memes: Die Figur behauptet Härte und Souveränität und entlarvt sich
+dabei selbst. Die Sprüche werden gemischt und komplett durchlaufen, bevor sich einer wiederholt (Reihenfolge in `localStorage`,
+nur auf dem Gerät). Das Startbild bleibt mindestens so lange, wie man zum Lesen braucht (2,8 s bei kurzen, bis 4 s bei langen
+Sprüchen, `readTimeMs`), solange Daten und Stand nicht geladen sind auch länger. Tippen überspringt es. Abschaltbar unter
+Einstellungen → Darstellung → „Startbild“.
 `Heute` beginnt mit einer dunkelgrünen Fläche (Fortschritt, Kennzahlen, Hauptknopf) statt einer Reihe gleichartiger Karten. Die
 Startfarbe steht schon in `index.html`, damit beim Öffnen nichts weiß aufblitzt.
 

@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
-import { pickQuote } from '../lib/quotes';
+import { pickQuote, readTimeMs } from '../lib/quotes';
 import { currentBand } from '../lib/viewport';
 import { PawnMark } from './Mark';
 
-/**
- * Mindestdauer in Millisekunden: etwa 1,2 s bis alles eingeblendet ist, danach gut 1,5 s zum Lesen.
- * Tippen überspringt das Startbild, sobald Daten und Stand geladen sind.
- */
-export const SPLASH_MIN_MS = 2800;
+/** Mindestdauer richtet sich nach der Länge des Spruchs (siehe readTimeMs). Tippen überspringt, sobald Daten und Stand geladen sind. */
 const FADE_MS = 380;
 
 /** Startbild beim Öffnen der App: ein Zitat, wechselt bei jedem Start. */
@@ -18,7 +14,7 @@ export function Splash({ ready, onDone }: { ready: boolean; onDone: () => void }
   const [band, setBand] = useState(currentBand);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setMinDone(true), SPLASH_MIN_MS);
+    const t = window.setTimeout(() => setMinDone(true), readTimeMs(quote.text));
     const onResize = () => setBand(currentBand());
     window.addEventListener('resize', onResize);
     return () => {
