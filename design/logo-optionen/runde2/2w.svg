@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs><filter id="ol" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="5" result="d"/><feFlood flood-color="#e6efea"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="512" height="512" rx="112" fill="#1d6b58"/><g transform="translate(0 12)">
+  <path d="M200 300 C194 340 180 370 166 390 H346 C332 370 318 340 312 300 Z" fill="#ffffff"/>
+  <rect x="160" y="384" width="192" height="24" rx="11" fill="#ffffff" stroke="#1d6b58" stroke-width="6"/>
+  <rect x="136" y="410" width="240" height="40" rx="16" fill="#ffffff" stroke="#1d6b58" stroke-width="6"/>
+  <rect x="186" y="294" width="140" height="26" rx="10" fill="#f0c44a" stroke="#1d6b58" stroke-width="5"/>
+    <path d="M188 298 L158 307 L188 316 Z M324 298 L354 307 L324 316 Z" fill="#f0c44a" stroke="#1d6b58" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="210" cy="307" r="5.5" fill="#fffffe" stroke="#1d6b58" stroke-width="3"/><circle cx="238" cy="307" r="5.5" fill="#fffffe" stroke="#1d6b58" stroke-width="3"/><circle cx="266" cy="307" r="5.5" fill="#fffffe" stroke="#1d6b58" stroke-width="3"/><circle cx="294" cy="307" r="5.5" fill="#fffffe" stroke="#1d6b58" stroke-width="3"/>
+  
+  <path d="M194 110 C176 100 156 96 132 98 C136 116 146 132 166 142 C174 130 182 120 194 116 Z" fill="#ffffff" stroke="#1d6b58" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M318 110 C336 100 356 96 380 98 C376 116 366 132 346 142 C338 130 330 120 318 116 Z" fill="#ffffff" stroke="#1d6b58" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M256 96 C226 96 198 100 182 112 C164 126 158 150 160 176 C162 196 154 212 148 228 C140 248 150 266 172 274
+           C198 284 228 288 256 288 C284 288 314 284 340 274 C362 266 372 248 364 228 C358 212 350 196 352 176
+           C354 150 348 126 330 112 C314 100 286 96 256 96 Z" fill="#ffffff"/>
+  <path d="M144 104 C152 114 160 120 172 122" stroke="#1d6b58" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M368 104 C360 114 352 120 340 122" stroke="#1d6b58" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Stirnfalten -->
+  <path d="M256 118 V146 M228 126 q28 -12 56 0 M236 110 q20 -8 40 0" stroke="#1d6b58" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Brauen und Augen -->
+  <path d="M190 150 L234 162 M322 150 L278 162" stroke="#1d6b58" stroke-width="9" stroke-linecap="round"/>
+  <path d="M200 170 C206 162 222 162 228 170 C222 177 206 177 200 170 Z M312 170 C306 162 290 162 284 170 C290 177 306 177 312 170 Z" fill="#1d6b58"/>
+  <!-- Nasenfalte und Nase -->
+  <path d="M222 186 q34 -16 68 0" stroke="#1d6b58" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M232 198 C232 186 280 186 280 198 C280 212 268 218 256 218 C244 218 232 212 232 198 Z" fill="#1d6b58"/>
+  <!-- Lefzen, Maul, Unterbiss -->
+  <path d="M256 218 V232 M190 256 C210 238 234 232 256 232 C278 232 302 238 322 256" stroke="#1d6b58" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M184 226 C176 240 178 254 190 262 M328 226 C336 240 334 254 322 262" stroke="#1d6b58" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M222 256 L229 230 L238 254 Z M274 254 L283 230 L290 256 Z" fill="#fffffe" stroke="#1d6b58" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M206 108 L200 62 L228 84 L256 54 L284 84 L312 62 L306 108 Z" fill="#f0c44a" stroke="#1d6b58" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M256 22 V54 M244 34 H268" stroke="#f0c44a" stroke-width="9" stroke-linecap="round"/>
+  <path d="M256 22 V54 M244 34 H268" stroke="#1d6b58" stroke-width="2" stroke-linecap="round" opacity="0"/></g></svg>

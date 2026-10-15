@@ -1,0 +1,44 @@
+// Runde 2, Entwurf 1: Bulldoggen-Springer (Profil nach links, wie ein Springer). Nur zum Iterieren.
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { writeFileSync } from 'node:fs';
+const BG = '#1d6b58', W = '#ffffff', GOLD = '#f0c44a', TOOTH = '#fffffe';
+const head = `
+  <path d="M290 90 C298 68 310 52 328 40 C332 62 334 82 332 100 Z" fill="${W}"/>
+  <path d="M146 128 C164 122 186 122 200 124 C204 112 210 102 222 96 C246 84 290 80 322 88 C342 94 352 112 352 138
+           C352 172 344 204 326 228 C306 252 270 260 238 256 C222 254 210 250 200 246
+           C188 244 176 238 166 228 C154 216 146 202 144 188 C142 168 142 146 146 128 Z" fill="${W}"/>
+  <!-- Nase, Falte über der Nase -->
+  <path d="M150 132 C162 126 178 130 178 144 C178 158 162 162 150 156 C144 150 144 138 150 132 Z" fill="${BG}"/>
+  <path d="M184 128 q8 -5 16 0" stroke="${BG}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Maul mit Lefze, Fangzahn -->
+  <path d="M148 178 C168 188 194 192 212 192 C218 194 222 200 220 208" stroke="${BG}" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M212 194 C214 214 204 232 186 240" stroke="${BG}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M158 188 L165 166 L173 190 Z" fill="${TOOTH}" stroke="${BG}" stroke-width="3.5" stroke-linejoin="round"/>
+  <!-- Auge, Braue, Stirnfalten -->
+  <path d="M220 134 C226 126 238 124 246 130 C240 138 228 140 220 134 Z" fill="${BG}"/>
+  <path d="M206 122 C216 110 240 106 262 114" stroke="${BG}" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M238 98 q12 -7 26 -2 M252 88 q10 -5 20 -1" stroke="${BG}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Ohr innen, Wangenmuskel -->
+  <path d="M318 64 L320 94" stroke="${BG}" stroke-width="4" stroke-linecap="round"/>
+  <path d="M306 120 C322 156 320 196 298 228" stroke="${BG}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+const piece = `
+  <!-- Nacken und Brust, geschwungen wie beim Springer -->
+  <path d="M214 214 C200 246 186 266 188 300 C190 326 180 348 168 366 H362 C350 348 340 326 342 298 C344 262 334 206 330 150 Z" fill="${W}"/>
+  <path d="M332 176 C344 206 348 232 346 254" stroke="${BG}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Kopf, vergrößert -->
+  <g transform="translate(250 160) scale(1.14) translate(-250 -160)">${head}</g>
+  <!-- Sockel -->
+  <rect x="164" y="362" width="198" height="24" rx="11" fill="${W}" stroke="${BG}" stroke-width="6"/>
+  <rect x="142" y="390" width="244" height="42" rx="16" fill="${W}" stroke="${BG}" stroke-width="6"/>
+  <!-- Stachelhalsband -->
+  <path d="M190 268 L348 254 L351 284 L186 298 Z" fill="${GOLD}" stroke="${BG}" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M188 274 L160 286 L188 296 Z M349 259 L378 263 L351 277 Z" fill="${GOLD}" stroke="${BG}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M222 264 L228 250 L234 263 Z M264 260 L270 246 L276 259 Z M306 256 L312 242 L318 255 Z" fill="${GOLD}" stroke="${BG}" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="228" cy="280" r="5.5" fill="${TOOTH}" stroke="${BG}" stroke-width="3"/><circle cx="270" cy="276" r="5.5" fill="${TOOTH}" stroke="${BG}" stroke-width="3"/><circle cx="312" cy="272" r="5.5" fill="${TOOTH}" stroke="${BG}" stroke-width="3"/>`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="112" fill="${BG}"/><g transform="translate(-6 20)">${piece}</g></svg>`;
+writeFileSync(new URL('./springer.svg', import.meta.url), svg);
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 512, height: 512 } });
+await p.setContent(`<style>html,body{margin:0}svg{display:block}</style>${svg}`);
+await p.screenshot({ path: new URL('./springer.png', import.meta.url).pathname });
+await b.close();
