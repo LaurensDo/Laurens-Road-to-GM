@@ -213,6 +213,9 @@ export function SyncCard() {
                     await disconnect();
                     setConfirmOff(false);
                     setMsg(null);
+                    // der Einrichtungscode enthält das Token: nach dem Trennen nicht mehr im Textfeld stehen lassen
+                    setCode('');
+                    setShowCode(false);
                   }}
                 >
                   Trennen

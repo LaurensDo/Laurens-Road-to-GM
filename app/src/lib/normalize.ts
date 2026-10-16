@@ -16,13 +16,16 @@ export function normalize(raw: unknown): AppState {
   const base = emptyState();
   if (!raw || typeof raw !== 'object') return base;
   const r = raw as Partial<AppState> & { hidden?: unknown };
+  const epoch = typeof r.epoch === 'number' ? r.epoch : 0;
   return {
     version: 1,
     cards: r.cards && typeof r.cards === 'object' ? r.cards : {},
     log: Array.isArray(r.log) ? r.log : [],
     bonus: r.bonus,
     hidden: normalizeHidden(r.hidden),
-    epoch: typeof r.epoch === 'number' ? r.epoch : 0,
+    epoch,
+    // ältere Stände kennen nur die Epoche: Sie wurde beim Zurücksetzen auf die damalige Uhrzeit gesetzt
+    epochTs: typeof r.epochTs === 'number' ? r.epochTs : epoch,
     settingsTs: typeof r.settingsTs === 'number' ? r.settingsTs : 0,
     settings: {
       ...DEFAULT_SETTINGS,

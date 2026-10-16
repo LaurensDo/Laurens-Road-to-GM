@@ -1,5 +1,5 @@
 import { useMemo } from 'preact/hooks';
-import { dayLabel, n0, n1, pct } from '../lib/format';
+import { count, dayKey, dayLabel, n0, n1, pct } from '../lib/format';
 import { breakdown, cardCounts, correct, lastDays, streak, today, windowStats } from '../lib/stats';
 import { listSets, rateOf } from '../lib/sets';
 import { useAppState } from '../lib/store';
@@ -98,18 +98,20 @@ function Table({ rows }: { rows: ReturnType<typeof breakdown> }) {
 export function Progress({ exercises, byId, meta }: Props) {
   const state = useAppState();
   const now = new Date();
-  const days = useMemo(() => lastDays(state.log, 14, now), [state.log.length]);
+  // Abhängig vom Verlauf selbst, nicht nur seiner Länge: Ein Abgleich mit Zurücksetzen oder eine Wiederherstellung kann
+  // den Inhalt bei gleicher Länge ändern. Die Tagesleiste rückt außerdem um Mitternacht weiter.
+  const days = useMemo(() => lastDays(state.log, 14, now), [state.log, dayKey(now.getTime())]);
   const cards = cardCounts(state, exercises);
   const t = today(state.log, now);
   const week = windowStats(state.log, now.getTime() - 7 * 86400000, now.getTime() + 1);
   const before = windowStats(state.log, now.getTime() - 14 * 86400000, now.getTime() - 7 * 86400000);
   const total = state.log.length;
   const right = state.log.filter(correct).length;
-  const byCat = useMemo(() => breakdown(state.log, byId, 'cat'), [state.log.length]);
-  const byPhase = useMemo(() => breakdown(state.log, byId, 'phase'), [state.log.length]);
-  const byMotif = useMemo(() => breakdown(state.log, byId, 'motif'), [state.log.length]);
+  const byCat = useMemo(() => breakdown(state.log, byId, 'cat'), [state.log, byId]);
+  const byPhase = useMemo(() => breakdown(state.log, byId, 'phase'), [state.log, byId]);
+  const byMotif = useMemo(() => breakdown(state.log, byId, 'motif'), [state.log, byId]);
   const b = meta?.baseline;
-  const runs = useMemo(() => listSets(state.log).filter((r) => r.entries.length >= Math.min(r.planned, 3)), [state.log.length]);
+  const runs = useMemo(() => listSets(state.log).filter((r) => r.entries.length >= Math.min(r.planned, 3)), [state.log]);
   const lastRuns = runs.slice(-10);
   const lastRates = lastRuns.map(rateOf);
 
@@ -136,7 +138,7 @@ export function Progress({ exercises, byId, meta }: Props) {
             </div>
             <div>
               <dt>Serie</dt>
-              <dd class="mono">{n0(streak(state.log, now))} Tage</dd>
+              <dd class="mono">{count(streak(state.log, now), 'Tag', 'Tage')}</dd>
             </div>
             <div>
               <dt>Heute</dt>
@@ -151,8 +153,9 @@ export function Progress({ exercises, byId, meta }: Props) {
           <h2>Aufgabensätze</h2>
           <SetBars rates={lastRates} />
           <p class="muted">
-            {n0(runs.length)} Sätze insgesamt. Quote der letzten {n0(lastRates.length)}: Ø {pct(lastRates.reduce((a, x) => a + x, 0) / lastRates.length)}, bester{' '}
-            {pct(Math.max(...lastRates))}.
+            {runs.length === 1
+              ? `1 Satz bisher: ${pct(lastRates[0])} richtig.`
+              : `${count(runs.length, 'Satz', 'Sätze')} insgesamt. Quote der letzten ${n0(lastRates.length)}: Ø ${pct(lastRates.reduce((a, x) => a + x, 0) / lastRates.length)}, bester ${pct(Math.max(...lastRates))}.`}
           </p>
         </div>
       )}
@@ -170,8 +173,8 @@ export function Progress({ exercises, byId, meta }: Props) {
         </div>
         {week && (
           <p class="muted">
-            Diese Woche: {n0(week.n)} Aufgaben, {pct(week.rate)} richtig, Ø {n1(week.avgMs / 1000)} s.
-            {before && ` Vorwoche: ${n0(before.n)} Aufgaben, ${pct(before.rate)} richtig, Ø ${n1(before.avgMs / 1000)} s.`}
+            Letzte 7 Tage: {count(week.n, 'Aufgabe', 'Aufgaben')}, {pct(week.rate)} richtig, Ø {n1(week.avgMs / 1000)} s.
+            {before && ` Die 7 Tage davor: ${count(before.n, 'Aufgabe', 'Aufgaben')}, ${pct(before.rate)} richtig, Ø ${n1(before.avgMs / 1000)} s.`}
           </p>
         )}
       </div>

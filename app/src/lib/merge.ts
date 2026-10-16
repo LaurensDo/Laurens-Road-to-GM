@@ -47,8 +47,17 @@ function mergeBonus(a: AppState['bonus'], b: AppState['bonus']): AppState['bonus
   return { day: a.day, n: Math.max(a.n, b.n) };
 }
 
+/**
+ * Epoche: Die jüngere Festlegung gilt. Ein Zurücksetzen setzt sie nach vorn, das Wiederherstellen einer älteren Sicherung
+ * wieder zurück. Bei gleichem Zeitpunkt gilt die spätere Epoche.
+ */
+function mergeEpoch(a: AppState, b: AppState): { epoch: number; epochTs: number } {
+  if (a.epochTs !== b.epochTs) return a.epochTs > b.epochTs ? { epoch: a.epoch, epochTs: a.epochTs } : { epoch: b.epoch, epochTs: b.epochTs };
+  return { epoch: Math.max(a.epoch, b.epoch), epochTs: a.epochTs };
+}
+
 export function mergeStates(a: AppState, b: AppState): AppState {
-  const epoch = Math.max(a.epoch, b.epoch);
+  const { epoch, epochTs } = mergeEpoch(a, b);
   const log = mergeLogs(a.log, b.log, epoch);
   const useB = b.settingsTs > a.settingsTs;
   return {
@@ -60,6 +69,7 @@ export function mergeStates(a: AppState, b: AppState): AppState {
     bonus: mergeBonus(a.bonus, b.bonus),
     hidden: mergeHidden(a.hidden, b.hidden),
     epoch,
+    epochTs,
   };
 }
 
@@ -68,6 +78,8 @@ export interface RemoteState {
   app: 'road-to-gm';
   schema: 1;
   epoch: number;
+  /** fehlt in Dateien älterer Versionen, dann gilt die Epoche selbst */
+  epochTs: number;
   log: ReviewEntry[];
   hidden: Record<string, HiddenEntry>;
   settings: Settings;
@@ -77,7 +89,7 @@ export interface RemoteState {
 
 export function toRemote(s: AppState): RemoteState {
   const log = mergeLogs(s.log, [], s.epoch);
-  return { app: 'road-to-gm', schema: 1, epoch: s.epoch, log, hidden: s.hidden, settings: s.settings, settingsTs: s.settingsTs, bonus: s.bonus };
+  return { app: 'road-to-gm', schema: 1, epoch: s.epoch, epochTs: s.epochTs, log, hidden: s.hidden, settings: s.settings, settingsTs: s.settingsTs, bonus: s.bonus };
 }
 
 /** Prüft die Form einer gelesenen Sync-Datei und baut daraus einen Stand. null = unbrauchbar. */

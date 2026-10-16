@@ -1,4 +1,4 @@
-import { correct } from './stats';
+import { correct, slowCorrect } from './stats';
 import { n0, n1 } from './format';
 import type { Exercise, ReviewEntry } from './types';
 
@@ -105,7 +105,7 @@ export interface SetSummary {
 }
 
 export interface SummaryOptions {
-  /** Zeitlimit in Sekunden, 0 = aus */
+  /** aktuelles Zeitlimit in Sekunden für den Text, 0 = aus. Ob eine Antwort zu langsam war, steht in ihrer Note. */
   limit: number;
   /** Quoten (Prozent) der letzten abgeschlossenen Sätze davor, neueste zuletzt */
   previous: number[];
@@ -143,8 +143,9 @@ function groupsOf(entries: ReviewEntry[], byId: Map<string, Exercise>): Group[] 
 export function summarize(entries: ReviewEntry[], planned: number, byId: Map<string, Exercise>, opt: SummaryOptions): SetSummary {
   const n = entries.length;
   const right = entries.filter(correct).length;
-  const inTime = entries.filter((e) => correct(e) && (opt.limit <= 0 || e.ms <= opt.limit * 1000)).length;
-  const slowRight = right - inTime;
+  // nach der Note beim Antworten: Ein später geändertes Zeitlimit deutet alte Antworten nicht um
+  const slowRight = entries.filter(slowCorrect).length;
+  const inTime = right - slowRight;
   const quickWrong = entries.filter((e) => !correct(e) && e.verdict !== 'gaveup' && e.ms < QUICK_MS).length;
   const gaveUp = entries.filter((e) => e.verdict === 'gaveup').length;
   const rate = n ? (100 * right) / n : 0;

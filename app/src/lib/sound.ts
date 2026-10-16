@@ -338,13 +338,18 @@ export function play(name: Sfx, opts: { gain?: number } = {}): void {
 
 let unlockInstalled = false;
 
-/** iOS erlaubt Ton erst nach einer Berührung. Beim ersten Tippen den Kontext starten. */
+/**
+ * iOS erlaubt Ton erst nach einer Berührung. Beim ersten Tippen den Kontext starten. Die Zuhörer bleiben, weil iOS den
+ * Kontext nach Anrufen oder im Hintergrund anhält; sie tun aber nur etwas, solange er nicht läuft.
+ */
 export function installAudioUnlock(): void {
   if (unlockInstalled || typeof document === 'undefined') return;
   unlockInstalled = true;
   const unlock = () => {
+    // ohne Ton kein Audio-Kontext: ein laufender Kontext hält die Audio-Hardware wach
+    if (!getPrefs().sound) return;
     const c = ensureContext();
-    if (!c) return;
+    if (!c || c.state === 'running') return;
     void c.resume().catch(() => undefined);
     try {
       const b = c.createBuffer(1, 1, 22050);

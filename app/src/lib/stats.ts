@@ -1,8 +1,11 @@
 import { State, cardState, stability } from './srs';
-import { dayKey } from './format';
+import { dayKey, dayKeyBefore } from './format';
+import { isCorrect } from './judge';
 import type { AppState, Exercise, ReviewEntry } from './types';
 
-export const correct = (e: ReviewEntry) => e.verdict === 'best' || e.verdict === 'equal';
+export const correct = (e: ReviewEntry) => isCorrect(e.verdict);
+/** Richtig, aber langsamer als das Zeitlimit. Maßgeblich ist die Note beim Antworten (mit dem damaligen Limit), wie im Wiederholungsplan. */
+export const slowCorrect = (e: ReviewEntry) => correct(e) && e.grade === 2;
 
 export interface DayStat {
   key: string;
@@ -16,7 +19,7 @@ export function lastDays(log: ReviewEntry[], days: number, now: Date): DayStat[]
   const out: DayStat[] = [];
   const index = new Map<string, DayStat>();
   for (let i = days - 1; i >= 0; i--) {
-    const key = dayKey(now.getTime() - i * 86400000);
+    const key = dayKeyBefore(now, i);
     const s = { key, n: 0, right: 0, ms: 0, dur: 0 };
     out.push(s);
     index.set(key, s);
@@ -47,11 +50,10 @@ export function today(log: ReviewEntry[], now: Date) {
 export function streak(log: ReviewEntry[], now: Date): number {
   const days = new Set(log.map((e) => dayKey(e.ts)));
   let n = 0;
-  let t = now.getTime();
-  if (!days.has(dayKey(t))) t -= 86400000;
-  while (days.has(dayKey(t))) {
+  let back = days.has(dayKeyBefore(now, 0)) ? 0 : 1;
+  while (days.has(dayKeyBefore(now, back))) {
     n++;
-    t -= 86400000;
+    back++;
   }
   return n;
 }

@@ -16,7 +16,8 @@ export interface Exercise {
   cat: string;
   motifs: string[];
   themes: string[];
-  lines: Line[]; // beste Züge, absteigend nach Gewinnchance
+  /** beste Züge in der Reihenfolge der Engine (MultiPV): der erste ist der beste, die Gewinnchancen der weiteren können leicht von der Reihenfolge abweichen */
+  lines: Line[];
   played: { san: string; uci: string; wp: number; cp: number };
   loss: number; // Prozentpunkte, tiefe Suche
   clock: number; // Restzeit in der Partie (s)
@@ -48,13 +49,16 @@ export interface Meta {
 export type Verdict = 'best' | 'equal' | 'playable' | 'wrong' | 'gaveup';
 export type Grade = 1 | 2 | 3; // 1 = nochmal, 2 = schwer (zu langsam), 3 = gut
 
+/** Obergrenze für ReviewEntry.dur: Eine liegengebliebene Aufgabe zählt nicht als stundenlanges Training. */
+export const MAX_DUR_MS = 180000;
+
 export interface ReviewEntry {
   id: string;
   ts: number; // Zeitpunkt der Antwort
   grade: Grade;
   verdict: Verdict;
   ms: number; // Zeit bis zur Antwort
-  dur: number; // gesamte Zeit mit der Aufgabe (inkl. Auswertung), begrenzt
+  dur: number; // gesamte Zeit mit der Aufgabe (inkl. Auswertung), höchstens MAX_DUR_MS
   san?: string;
   /** Aufgabensatz, zu dem die Antwort gehört (id) und dessen geplante Größe. Fehlt bei Einzelaufgaben. */
   set?: { id: string; n: number };
@@ -108,6 +112,11 @@ export interface AppState {
   hidden: Record<string, HiddenEntry>;
   /** Zeitpunkt des letzten Zurücksetzens: ältere Antworten zählen nicht mehr */
   epoch: number;
+  /**
+   * Wann die Epoche festgelegt wurde (Zurücksetzen oder Wiederherstellen einer Sicherung). Beim Abgleich gilt die jüngere
+   * Festlegung, so kann eine Sicherung ein Zurücksetzen auch auf dem anderen Gerät rückgängig machen.
+   */
+  epochTs: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -130,5 +139,6 @@ export function emptyState(): AppState {
     settingsTs: 0,
     hidden: {},
     epoch: 0,
+    epochTs: 0,
   };
 }

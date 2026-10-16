@@ -24,7 +24,7 @@ export function judge(ex: Exercise, san: string, tolerance: boolean): Judgement 
   else if (loss <= TOLERANCE_WP) verdict = tolerance ? 'equal' : 'playable';
   else if (loss <= PLAYABLE_WP) verdict = 'playable';
   else verdict = 'wrong';
-  return { verdict, lossWp: loss, rank: idx, correct: verdict === 'best' || verdict === 'equal' };
+  return { verdict, lossWp: loss, rank: idx, correct: isCorrect(verdict) };
 }
 
 /** Wiederholungsnote: falsch = 1, richtig aber zu langsam = 2, richtig in der Zeit = 3. */

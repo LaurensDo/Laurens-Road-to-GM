@@ -109,13 +109,27 @@ describe('Zusammenführen', () => {
   });
   it('Zurücksetzen (neue Epoche) wirkt auf das andere Gerät', () => {
     const old = stateWith([entry('x', 0), entry('y', 5)]);
-    const reset = { ...emptyState(), epoch: T0 + 10 * 60000 };
+    const reset = { ...emptyState(), epoch: T0 + 10 * 60000, epochTs: T0 + 10 * 60000 };
     const m = mergeStates(old, reset);
     expect(m.log).toHaveLength(0);
     expect(Object.keys(m.cards)).toHaveLength(0);
     // Antworten nach dem Zurücksetzen bleiben
     const newer = mergeStates(m, stateWith([entry('z', 20)]));
     expect(newer.log.map((e) => e.id)).toEqual(['z']);
+  });
+  it('Wiederherstellen nach dem Zurücksetzen: die jüngere Festlegung der Epoche gilt, in beiden Richtungen', () => {
+    const backup = stateWith([entry('x', 0), entry('y', 5)]);
+    const reset = { ...stateWith([entry('z', 30)]), epoch: T0 + 10 * 60000, epochTs: T0 + 10 * 60000 };
+    const restored = { ...backup, epochTs: T0 + 40 * 60000 };
+    for (const m of [mergeStates(reset, restored), mergeStates(restored, reset)]) {
+      expect(m.epoch).toBe(0);
+      expect(m.log.map((e) => e.id)).toEqual(['x', 'y', 'z']);
+    }
+    expect(canonical(toRemote(mergeStates(reset, restored)))).toBe(canonical(toRemote(mergeStates(restored, reset))));
+  });
+  it('ältere Stände ohne Zeitpunkt der Epoche: die Epoche selbst gilt als Zeitpunkt', () => {
+    const old = fromRemote({ app: 'road-to-gm', schema: 1, epoch: 777, log: [], hidden: {}, settings: {}, settingsTs: 0 });
+    expect(old?.epochTs).toBe(777);
   });
   it('Ausblenden und Einblenden: die jüngere Entscheidung gewinnt', () => {
     const x = { ...emptyState(), hidden: { a: { on: true, ts: 10 }, b: { on: true, ts: 5 } } };
@@ -215,11 +229,37 @@ describe('Abgleich über GitHub (Fake)', () => {
     const B = device(emptyState());
     await syncOnce(gh, cfg('a'), A.io);
     await syncOnce(gh, cfg('b'), B.io);
-    A.set({ ...emptyState(), epoch: T0 + 3600000 });
+    A.set({ ...emptyState(), epoch: T0 + 3600000, epochTs: T0 + 3600000 });
     await syncOnce(gh, cfg('a'), A.io);
     await syncOnce(gh, cfg('b'), B.io);
     expect(B.get().log).toHaveLength(0);
     expect(Object.keys(B.get().cards)).toHaveLength(0);
+  });
+});
+
+describe('Sicherung nach dem Zurücksetzen (zwei Geräte über GitHub)', () => {
+  it('bringt den Verlauf auf beiden Geräten zurück, Antworten nach dem Zurücksetzen bleiben', async () => {
+    const gh = fakeGithub();
+    const A = device(stateWith([entry('x', 0), entry('y', 1)]));
+    const B = device(emptyState());
+    await syncOnce(gh, cfg('a'), A.io);
+    await syncOnce(gh, cfg('b'), B.io);
+    const backup = A.get();
+    // B setzt zurück und trainiert weiter
+    const t = T0 + 3600000;
+    B.set({ ...emptyState(), epoch: t, epochTs: t });
+    await syncOnce(gh, cfg('b'), B.io);
+    B.set(stateWith([entry('z', 70)], { epoch: t, epochTs: t }));
+    await syncOnce(gh, cfg('b'), B.io);
+    await syncOnce(gh, cfg('a'), A.io);
+    expect(A.get().log.map((e) => e.id)).toEqual(['z']);
+    // A stellt die Sicherung wieder her (wie importJson: Epoche der Sicherung, jetzt festgelegt)
+    A.set({ ...backup, epochTs: T0 + 2 * 3600000 });
+    await syncOnce(gh, cfg('a'), A.io);
+    await syncOnce(gh, cfg('b'), B.io);
+    await syncOnce(gh, cfg('a'), A.io);
+    expect(A.get().log.map((e) => e.id)).toEqual(['x', 'y', 'z']);
+    expect(canonical(toRemote(A.get()))).toBe(canonical(toRemote(B.get())));
   });
 });
 

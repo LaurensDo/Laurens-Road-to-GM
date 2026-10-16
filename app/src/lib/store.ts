@@ -113,7 +113,9 @@ export function importJson(text: string): { ok: boolean; message: string } {
     if (!raw || typeof raw !== 'object' || !('cards' in raw) || !('log' in raw)) {
       return { ok: false, message: 'Die Datei enthält keinen gültigen Trainingsstand.' };
     }
-    replaceState(raw);
+    // Die Epoche der Sicherung gilt ab jetzt, auch gegenüber einem späteren Zurücksetzen auf einem anderen Gerät.
+    // Sonst würde der Abgleich die wiederhergestellten Antworten gleich wieder verwerfen.
+    replaceState({ ...raw, epochTs: Date.now() });
     return { ok: true, message: 'Trainingsstand wiederhergestellt.' };
   } catch {
     return { ok: false, message: 'Der Text ist kein gültiges JSON.' };

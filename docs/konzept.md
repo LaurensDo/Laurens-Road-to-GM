@@ -1,6 +1,6 @@
 # Road to GM – Konzept
 
-Stand: 15.10.2026 · Status: Ideation, noch kein Code
+Stand: 15.10.2026 · Status: Ideenphase (abgeschlossen). Was davon gebaut ist, steht in [app-spezifikation.md](app-spezifikation.md).
 
 ## 1. Kernidee in einem Satz
 

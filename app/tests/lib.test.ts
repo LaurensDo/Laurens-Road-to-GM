@@ -6,6 +6,7 @@ import { counts, newQuotaLeft, pickNext } from '../src/lib/queue';
 import { emptyState, type Exercise } from '../src/lib/types';
 import { explain } from '../src/lib/explain';
 import { lastDays, streak } from '../src/lib/stats';
+import { dateLabel, inWords } from '../src/lib/format';
 
 const ex = (over: Partial<Exercise> = {}): Exercise => ({
   id: 'a1',
@@ -195,5 +196,37 @@ describe('Erklärung und Statistik', () => {
     expect(streak([mk('2026-10-14T08:00:00')], now)).toBe(1);
     expect(streak([], now)).toBe(0);
     expect(lastDays([mk('2026-10-15T08:00:00')], 3, now).map((d) => d.n)).toEqual([0, 0, 1]);
+  });
+  it('Zeitumstellung: kein Tag doppelt oder ausgelassen', () => {
+    const tz = process.env.TZ;
+    process.env.TZ = 'Europe/Berlin'; // Sommerzeit ab 29.03.2026, Winterzeit ab 25.10.2026
+    try {
+      const mk = (d: string) => ({ id: 'a', ts: new Date(d).getTime(), grade: 3 as const, verdict: 'best' as const, ms: 1000, dur: 5000 });
+      const lateEvening = new Date('2026-10-26T23:30:00');
+      const keys = lastDays([], 14, lateEvening).map((d) => d.key);
+      expect(new Set(keys).size).toBe(14);
+      expect([keys[0], keys[13]]).toEqual(['2026-10-13', '2026-10-26']);
+      expect(streak([mk('2026-10-26T20:00:00'), mk('2026-10-25T12:00:00')], lateEvening)).toBe(2);
+      expect(streak([mk('2026-03-30T00:10:00'), mk('2026-03-29T12:00:00')], new Date('2026-03-30T00:30:00'))).toBe(2);
+    } finally {
+      if (tz === undefined) delete process.env.TZ;
+      else process.env.TZ = tz;
+    }
+  });
+});
+
+describe('Zeitangaben', () => {
+  it('nächste Wiederholung: Minuten, Stunden, dann Kalendertage', () => {
+    const at = (iso: string) => new Date(iso);
+    expect(inWords(at('2026-10-15T10:00:00'), at('2026-10-15T10:00:20'))).toBe('gleich');
+    expect(inWords(at('2026-10-15T10:00:00'), at('2026-10-15T10:05:00'))).toBe('in 5 Min');
+    expect(inWords(at('2026-10-15T10:00:00'), at('2026-10-15T15:00:00'))).toBe('in 5 Std');
+    // abends 26 Stunden: übermorgen, nicht "morgen"
+    expect(inWords(at('2026-10-15T23:00:00'), at('2026-10-17T01:00:00'))).toBe('in 2 Tagen');
+    expect(inWords(at('2026-10-15T01:00:00'), at('2026-10-16T03:00:00'))).toBe('morgen');
+    expect(inWords(at('2026-10-15T10:00:00'), at('2026-10-25T10:00:00'))).toBe('in 10 Tagen');
+  });
+  it('Partiedatum wird als Ortsdatum gelesen', () => {
+    expect(dateLabel('2026-07-12')).toBe('12. Juli 2026');
   });
 });

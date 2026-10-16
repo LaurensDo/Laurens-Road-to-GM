@@ -62,7 +62,15 @@ const doneCount = async (d) => {
   const m = t.match(/Aufgaben\s*(\d+)/);
   return m ? Number(m[1]) : 0;
 };
-const syncNowClick = async (d) => { await openSettings(d); await d.page.getByRole('button', { name: 'Jetzt abgleichen' }).click(); await d.page.waitForSelector('text=/Zuletzt abgeglichen: (gerade eben|vor)/', { timeout: 8000 }); };
+// Abgleich auslösen und abwarten: erst muss die Anfrage beim Mock ankommen, sonst stünde noch der alte "Zuletzt abgeglichen"-Text da
+const syncNowClick = async (d) => {
+  await openSettings(d);
+  const n = mock.log.length;
+  await d.page.getByRole('button', { name: 'Jetzt abgleichen' }).click();
+  const t = Date.now();
+  while (mock.log.length === n && Date.now() - t < 5000) await d.page.waitForTimeout(50);
+  await d.page.waitForSelector('text=/Zuletzt abgeglichen: (gerade eben|vor)/', { timeout: 8000 });
+};
 const remoteLog = () => {
   const t = mock.files.get('road-to-gm/state.json')?.text;
   return t ? JSON.parse(t).log : [];
@@ -124,14 +132,30 @@ await ipad2.page.waitForSelector('text=Verbunden mit', { timeout: 8000 });
 ok((await doneCount(ipad2)) === 2, 'Drittes Gerät hat nach dem Einrichten über den Code den ganzen Fortschritt');
 await ipad2.page.screenshot({ path: `${OUT}/3-ipad2-heute.png`, fullPage: true });
 
-// Token wird nicht in der Sicherungsdatei exportiert
+// Das Token steht weder in der Sync-Datei noch in der Sicherung
+ok(!JSON.stringify([...mock.files.values()]).includes('ghp_mock'), 'Das Token steht nicht in der Sync-Datei');
 await openSettings(phone);
-const exported = await phone.page.evaluate(async () => {
-  const mod = await import(new URL('assets/', location.href).href).catch(() => null);
-  return null;
-});
-const repoFileHasToken = JSON.stringify([...mock.files.values()]).includes('ghp_mock');
-ok(!repoFileHasToken, 'Das Token steht nicht in der Sync-Datei');
+await phone.page.getByRole('button', { name: 'Sicherung exportieren' }).click();
+await phone.page.waitForSelector('text=Sicherung in die Zwischenablage kopiert', { timeout: 5000 });
+const backup = await phone.page.evaluate(() => navigator.clipboard.readText());
+ok(backup.includes('"log"') && !backup.includes('ghp_mock'), 'Das Token steht nicht in der Sicherung');
+
+// Zurücksetzen wirkt auf beiden Geräten, die Sicherung holt den Stand auf beiden zurück
+await openSettings(phone);
+await phone.page.getByRole('button', { name: 'Trainingsstand löschen' }).click();
+ok(/auch auf deinen anderen Geräten/.test(await phone.page.locator('text=Das löscht alle').textContent()), 'Hinweis: Zurücksetzen gilt über den Abgleich auch auf den anderen Geräten');
+await phone.page.getByRole('button', { name: 'Ja, löschen', exact: true }).click();
+await syncNowClick(phone);
+await syncNowClick(ipad);
+ok((await doneCount(phone)) === 0 && (await doneCount(ipad)) === 0 && remoteLog().length === 0, 'Zurücksetzen auf dem iPhone löscht auch auf dem iPad');
+await openSettings(phone);
+await phone.page.getByRole('button', { name: 'Sicherung als Text einfügen' }).click();
+await phone.page.fill('#import-text', backup);
+await phone.page.getByRole('button', { name: 'Wiederherstellen', exact: true }).click();
+await phone.page.waitForSelector('text=Trainingsstand wiederhergestellt');
+await syncNowClick(phone);
+await syncNowClick(ipad);
+ok((await doneCount(phone)) === 2 && (await doneCount(ipad)) === 2 && remoteLog().length === 2, 'Sicherung nach dem Zurücksetzen bringt den Stand auf beiden Geräten zurück');
 
 // Trennen
 await openSettings(ipad2);

@@ -4,18 +4,23 @@ Persönlicher Schach-Trainer als installierbare Web-App (PWA) für iPhone und iP
 offline nutzbar, kein Konto und kein eigener Server. Fortschritt liegt auf dem Gerät und gleicht sich
 optional über eine Datei in einem privaten GitHub-Repository zwischen den Geräten ab.
 
-Stand: Version 1.1 (Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer; dazu alles aus Version 1: Heute, Fehler-Trainer mit Wiederholung, Fortschritt, Einstellungen, Sicherung, Abgleich). Version 1 entspricht dem Commit `edcae70`.
-Geplant laut `docs/app-spezifikation.md`: Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill (1.1), Eröffnungs-Lecks,
-Partie-Review, automatischer Import (2).
+Stand: Version 1.1 (Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer, letzter
+Gegnerzug vor der Aufgabe, Startbild mit Big-Dog-Sprüchen, Marke Big Dog; dazu alles aus Version 1: Heute, Fehler-Trainer mit
+Wiederholung, Fortschritt, Einstellungen, Sicherung, Abgleich). Version 1 ist als Tag `v1.0` festgehalten.
+Geplant laut `docs/app-spezifikation.md`: Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill (Phase 2), Eröffnungs-Lecks,
+Partie-Review, automatischer Import (Version 2).
 
 ## Aufbau
 
 - `src/lib/` Logik ohne Oberfläche: `judge.ts` (Wertung), `srs.ts` (FSRS-Wiederholung), `queue.ts` (Auswahl),
-  `chess.ts` (Regeln mit chessops), `stats.ts`, `store.ts` (IndexedDB, Export und Import),
+  `chess.ts` (Regeln mit chessops), `explain.ts` (Erklärtexte), `stats.ts`, `format.ts` (Zahlen und Daten),
+  `store.ts` (IndexedDB, Export und Import), `normalize.ts` (ältere Stände ergänzen), `data.ts` (Übungen laden),
   `merge.ts` (Zusammenführen zweier Stände), `sync.ts` (GitHub-Contents-API), `syncRunner.ts` (Auslöser, Status),
   `sets.ts` (Aufgabensätze: laufender Satz, Auswertung und Einordnung), `sound.ts` (Töne, im Browser erzeugt),
-  `device.ts` (Einstellungen nur für dieses Gerät, z. B. Ton).
-- `src/views/` Oberflächen: `Today`, `Trainer`, `SetResult`, `Progress`, `Settings`, `SoundCard`, `SyncCard`.
+  `device.ts` (Einstellungen nur für dieses Gerät, z. B. Ton), `quotes.ts` (Sprüche fürs Startbild),
+  `viewport.ts` und `diag.ts` (Startbild auf dem iPad, Anzeige-Info).
+- `src/views/` Oberflächen: `Splash`, `Today`, `Trainer`, `SetResult`, `Progress`, `Settings`, `SoundCard`, `SyncCard`,
+  dazu `Segmented` (Umschalter) und `Mark` (Big-Dog-Zeichen).
 - `public/data/exercises.json` und `meta.json`: Übungen und Diagnose-Werte, erzeugt von `analysis/build_exercises.py`.
 - Brett: [chessground](https://github.com/lichess-org/chessground), Regeln: [chessops](https://github.com/niklasf/chessops),
   Wiederholung: [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs). Alles GPL beziehungsweise MIT, das Repo ist öffentlich.
@@ -36,7 +41,7 @@ Ende-zu-Ende-Tests (Chromium über Playwright):
 ```bash
 npx vite preview --port 4173 --strictPort &
 node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Geräteformate
-bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub
+bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
@@ -47,7 +52,8 @@ Das Training läuft in Sätzen: eine Runde mit 5, 10, 15 oder 20 Aufgaben (Einst
 Ergebnisseite mit Quote, Tempo und einer **Einordnung nach festen Regeln** (keine KI):
 
 - Richtwert aus den Maia-Werten der Aufgaben: wie viele Spieler deiner Stärke in diesen Stellungen den besten Zug finden.
-- Tempo: richtige Antworten innerhalb des Zeitlimits, Hinweis bei vielen zu langsamen.
+- Tempo: richtige Antworten innerhalb des Zeitlimits, Hinweis bei vielen zu langsamen. Maßgeblich ist die Note beim Antworten
+  (mit dem damals eingestellten Limit), so wie sie auch die Wiederholung plant.
 - Muster: Fehler in unter 3 Sekunden gelten als vorschnell.
 - Stärke und Schwäche nach Partiephase, Fehlerart und Motiv (ab zwei Aufgaben je Gruppe), Vergleich mit den letzten 5 Sätzen.
 
@@ -115,11 +121,14 @@ ohne eigenen Server über **eine Datei** (`road-to-gm/state.json`) in einem **pr
 - **Zusammenführen statt überschreiben:** Das Antwort-Protokoll beider Geräte wird vereinigt (Schlüssel
   `id|ts`), die Wiederholungs-Karten werden daraus mit FSRS neu berechnet. Ausgeblendete Aufgaben und
   Einstellungen gelten nach „zuletzt geändert gewinnt“, der Bonus pro Tag nach Maximum.
-  Zurücksetzen setzt eine Epoche; ältere Einträge anderer Geräte werden verworfen.
-- **Auslöser:** App-Start, 15 s nach einer Änderung, Wechsel in den Vordergrund (mindestens 30 s Abstand),
-  Wieder-online. iOS erlaubt keinen Abgleich im Hintergrund.
+  Zurücksetzen setzt eine Epoche; ältere Einträge werden auf allen Geräten verworfen. Wann die Epoche festgelegt wurde,
+  steht in `epochTs`, und die jüngere Festlegung gilt: Das Wiederherstellen einer Sicherung legt deren Epoche neu fest und
+  holt so den Stand nach einem Zurücksetzen auf allen Geräten zurück.
+- **Auslöser:** App-Start, 15 s nach einer Änderung, Verlassen der App, Wechsel in den Vordergrund (mindestens 30 s
+  Abstand), Wieder-online. iOS erlaubt keinen Abgleich im Hintergrund.
 - **Schutz:** Öffentliche Repositories werden abgelehnt. Eine nicht lesbare Datei wird nie überschrieben.
-  Bei gleichzeitigem Schreiben (409/422) wird neu gelesen und erneut zusammengeführt.
+  Bei gleichzeitigem Schreiben (409/422) wird neu gelesen und erneut zusammengeführt. Antworten von GitHub werden nie aus
+  dem Browser-Cache gelesen (`cache: 'no-store'`): GitHub erlaubt 60 s Cache, der Abgleich sähe sonst alte Stände.
 - **Token:** liegt nur im lokalen Speicher des Geräts (`road-to-gm-sync-config-v1`), nie in der Sicherung
   und nie in der Sync-Datei. Zweites Gerät: „Einrichtungscode“ (`rtgm1.…`) per Zwischenablage übertragen.
 - **Test:** `VITE_SYNC_API` setzt die API-Adresse nur zur Build-Zeit (für den Mock).

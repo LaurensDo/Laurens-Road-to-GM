@@ -5,9 +5,10 @@ import { Segmented } from './Segmented';
 import { SoundCard } from './SoundCard';
 import { setPrefs, usePrefs } from '../lib/device';
 import { SyncCard } from './SyncCard';
+import { useSyncStatus } from '../lib/syncRunner';
 import { saveActive } from '../lib/sets';
 import { diagText } from '../lib/diag';
-import { n0 } from '../lib/format';
+import { count, n0 } from '../lib/format';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
 interface Props {
@@ -24,6 +25,8 @@ export function Settings({ exercises, generated }: Props) {
   const [confirmReset, setConfirmReset] = useState(false);
   const prefs = usePrefs();
   const [diag, setDiag] = useState('');
+  const [diagCopied, setDiagCopied] = useState(false);
+  const synced = useSyncStatus().state !== 'off';
 
   const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
@@ -43,8 +46,9 @@ export function Settings({ exercises, generated }: Props) {
         setMsg('Sicherung geteilt. Speichere sie in Dateien oder schick sie dir selbst.');
         return;
       }
-    } catch {
-      // Teilen abgebrochen oder nicht möglich: Text anzeigen
+    } catch (e) {
+      // selbst abgebrochen: nichts weiter tun. Teilen nicht möglich: Zwischenablage oder Text
+      if (e instanceof DOMException && e.name === 'AbortError') return;
     }
     try {
       await navigator.clipboard.writeText(json);
@@ -66,9 +70,13 @@ export function Settings({ exercises, generated }: Props) {
   };
 
   const onFile = async (e: Event) => {
-    const f = (e.target as HTMLInputElement).files?.[0];
+    const input = e.target as HTMLInputElement;
+    const f = input.files?.[0];
     if (!f) return;
-    const r = importJson(await f.text());
+    const text = await f.text();
+    // zurücksetzen, damit dieselbe Datei noch einmal gewählt werden kann (sonst kommt kein change-Ereignis)
+    input.value = '';
+    const r = importJson(text);
     setMsg(r.message);
   };
 
@@ -192,7 +200,7 @@ export function Settings({ exercises, generated }: Props) {
         <div class="card">
           <h2>Ausgeblendete Aufgaben</h2>
           <p class="muted">
-            {hiddenCount(state) === 1 ? '1 Aufgabe wird' : `${n0(hiddenCount(state))} Aufgaben werden`} nicht mehr gezeigt.
+            {count(hiddenCount(state), 'Aufgabe wird', 'Aufgaben werden')} nicht mehr gezeigt.
           </p>
           <button
             class="btn secondary"
@@ -239,7 +247,11 @@ export function Settings({ exercises, generated }: Props) {
 
       <div class="card">
         <h2>Sicherung</h2>
-        <p class="muted">Dein Fortschritt liegt nur auf diesem Gerät. Exportiere ihn regelmäßig, zum Beispiel einmal pro Woche.</p>
+        <p class="muted">
+          {synced
+            ? 'Der Abgleich hält deinen Fortschritt auf deinen Geräten und im Repository. Eine Sicherung ab und zu schützt zusätzlich, zum Beispiel einmal im Monat.'
+            : 'Dein Fortschritt liegt nur auf diesem Gerät. Exportiere ihn regelmäßig, zum Beispiel einmal pro Woche.'}
+        </p>
         <div class="actions row">
           <button class="btn secondary" onClick={doExport}>
             Sicherung exportieren
@@ -282,14 +294,19 @@ export function Settings({ exercises, generated }: Props) {
           </button>
         ) : (
           <div>
-            <p>Das löscht alle Wiederholungsdaten und den Verlauf auf diesem Gerät. Die Einstellungen bleiben.</p>
+            <p>
+              {synced
+                ? 'Das löscht alle Wiederholungsdaten und den Verlauf, über den Abgleich auch auf deinen anderen Geräten.'
+                : 'Das löscht alle Wiederholungsdaten und den Verlauf auf diesem Gerät.'}{' '}
+              Die Einstellungen bleiben. Eine vorher exportierte Sicherung holt den Stand zurück.
+            </p>
             <div class="actions row">
               <button
                 class="btn danger"
                 onClick={() => {
-                  const keep = state.settings;
+                  const now = Date.now();
                   saveActive(null);
-                  replaceState({ ...emptyState(), settings: keep, settingsTs: state.settingsTs, hidden: state.hidden, epoch: Date.now() });
+                  replaceState({ ...emptyState(), settings: state.settings, settingsTs: state.settingsTs, hidden: state.hidden, epoch: now, epochTs: now });
                   setConfirmReset(false);
                   setMsg('Trainingsstand gelöscht.');
                 }}
@@ -307,8 +324,19 @@ export function Settings({ exercises, generated }: Props) {
       <details class="howto" data-nosound onToggle={(e) => (e.currentTarget as HTMLDetailsElement).open && setDiag(diagText())}>
         <summary>Anzeige-Info (bei Darstellungsproblemen)</summary>
         <pre class="diag">{diag}</pre>
-        <button class="btn secondary" onClick={() => void navigator.clipboard?.writeText(diag).catch(() => undefined)}>
-          Kopieren
+        <button
+          class="btn secondary"
+          onClick={() =>
+            void navigator.clipboard
+              ?.writeText(diag)
+              .then(() => {
+                setDiagCopied(true);
+                window.setTimeout(() => setDiagCopied(false), 2000);
+              })
+              .catch(() => undefined)
+          }
+        >
+          {diagCopied ? 'Kopiert' : 'Kopieren'}
         </button>
       </details>
 

@@ -5,6 +5,7 @@ import { counts, pickNext } from '../src/lib/queue';
 import { listSets, loadActive, newSetId, rateOf, RESUME_WINDOW_MS, saveActive, summarize } from '../src/lib/sets';
 import { startCue, timerCue } from '../src/lib/sound';
 import { fromRemote, mergeStates, toRemote } from '../src/lib/merge';
+import { gradeFor, isCorrect } from '../src/lib/judge';
 import { emptyState, type Exercise, type ReviewEntry, type Verdict } from '../src/lib/types';
 
 const ex = (id: string, over: Partial<Exercise> = {}): Exercise => ({
@@ -27,13 +28,14 @@ const ex = (id: string, over: Partial<Exercise> = {}): Exercise => ({
   ...over,
 });
 
-const entry = (id: string, verdict: Verdict, ms: number, ts: number, set = { id: 's1', n: 5 }): ReviewEntry => ({
+/** Antwort wie in der App: Die Note entsteht beim Antworten mit dem damaligen Zeitlimit (Standard 10 s). */
+const entry = (id: string, verdict: Verdict, ms: number, ts: number, set = { id: 's1', n: 5 }, limitThen = 10): ReviewEntry => ({
   id,
   ts,
   verdict,
   ms,
   dur: ms,
-  grade: verdict === 'best' || verdict === 'equal' ? 3 : 1,
+  grade: gradeFor(isCorrect(verdict), ms, limitThen),
   set,
 });
 
@@ -129,9 +131,18 @@ describe('summarize', () => {
   });
 
   it('Zeitlimit aus: kein Tempo-Urteil', () => {
-    const s = summarize([entry('a', 'best', 40000, 1)], 1, byId, { limit: 0, previous: [] });
+    const s = summarize([entry('a', 'best', 40000, 1, undefined, 0)], 1, byId, { limit: 0, previous: [] });
     expect(s.slowRight).toBe(0);
     expect(s.lines[1]).toContain('Im Schnitt');
+  });
+
+  it('Zeitlimit später geändert: zählt, was beim Antworten galt', () => {
+    // mit 20 s Limit beantwortet (in der Zeit), danach auf 10 s gestellt
+    const es = ['a', 'b', 'c', 'd', 'e'].map((id, i) => entry(id, 'best', 12000, 1000 + i, undefined, 20));
+    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    expect(s.slowRight).toBe(0);
+    expect(s.inTime).toBe(5);
+    expect(s.tier).toBe('strong');
   });
 });
 

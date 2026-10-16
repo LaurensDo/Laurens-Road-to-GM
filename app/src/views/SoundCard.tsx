@@ -20,7 +20,11 @@ export function SoundCard() {
             { value: 'an', label: 'An' },
             { value: 'aus', label: 'Aus' },
           ]}
-          onChange={(v) => setPrefs({ sound: v === 'an' })}
+          onChange={(v) => {
+            setPrefs({ sound: v === 'an' });
+            // beim Einschalten hörbar bestätigen (der Klick-Ton davor fiel noch unter "aus")
+            if (v === 'an') play('ui');
+          }}
         />
       </div>
       {p.sound && (

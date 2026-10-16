@@ -1,5 +1,5 @@
 import { counts } from '../lib/queue';
-import { dayKey, n0, n1, pct } from '../lib/format';
+import { count, dayKey, n0, n1, pct } from '../lib/format';
 import { KingMark } from './Mark';
 import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
@@ -64,7 +64,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
           </button>
           {filtered && (
             <p class="hero-note">
-              Es gilt ein Filter ({c.total} Aufgaben).{' '}
+              Es gilt ein Filter ({count(c.total, 'Aufgabe', 'Aufgaben')}).{' '}
               <button class="link inline" onClick={onOpenSettings}>
                 Ändern
               </button>
@@ -81,7 +81,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
             {todaySets.map((r) => (
               <li key={r.id}>
                 <span class="mono">{new Date(r.startTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>{' '}
-                Satz mit {n0(r.entries.length)} {r.entries.length === 1 ? 'Aufgabe' : 'Aufgaben'}: <b class="mono">{pct(rateOf(r))}</b> richtig
+                Satz mit {count(r.entries.length, 'Aufgabe', 'Aufgaben')}: <b class="mono">{pct(rateOf(r))}</b> richtig
                 {r.entries.length < r.planned && <span class="muted"> (nicht fertig)</span>}
               </li>
             ))}

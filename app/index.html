@@ -2,6 +2,8 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
+    <!-- Viewport vor der frühen Messung: Sonst misst Safari beim Start noch die Standardbreite von 980 px statt der Gerätebreite -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script>
       // Frühe Messung ab dem allerersten Moment, noch vor Stil und App (für die Anzeige-Info in den Einstellungen)
       (function () {
@@ -26,7 +28,6 @@
         });
       })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#1d6b58" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />

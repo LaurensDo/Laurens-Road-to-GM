@@ -1,16 +1,16 @@
 import { n0, n1, pct, seconds } from '../lib/format';
 import type { SetSummary } from '../lib/sets';
-import { correct } from '../lib/stats';
+import { correct, slowCorrect } from '../lib/stats';
 import type { Exercise, ReviewEntry } from '../lib/types';
 
 /** Fortschrittsleiste eines Satzes: ein Abschnitt je Aufgabe, eingefärbt nach Ergebnis. */
-export function SetBar({ size, entries, limit, open }: { size: number; entries: ReviewEntry[]; limit: number; open?: boolean }) {
+export function SetBar({ size, entries, open }: { size: number; entries: ReviewEntry[]; open?: boolean }) {
   return (
     <div class="setbar" role="img" aria-label={`${entries.length} von ${size} Aufgaben beantwortet`}>
       {Array.from({ length: size }, (_, i) => {
         const e = entries[i];
         let cls = 'todo';
-        if (e) cls = !correct(e) ? 'bad' : limit > 0 && e.ms > limit * 1000 ? 'slow' : 'ok';
+        if (e) cls = !correct(e) ? 'bad' : slowCorrect(e) ? 'slow' : 'ok';
         else if (open && i === entries.length) cls = 'now';
         return <i key={i} class={cls} />;
       })}
@@ -52,7 +52,7 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
           </span>
           <span class="muted">richtig</span>
         </div>
-        <SetBar size={s.n} entries={entries} limit={limit} />
+        <SetBar size={s.n} entries={entries} />
         <dl class="facts">
           <div>
             <dt>Quote</dt>
@@ -94,7 +94,7 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
           {entries.map((e, i) => {
             const ex = byId.get(e.id);
             const ok = correct(e);
-            const slow = ok && limit > 0 && e.ms > limit * 1000;
+            const slow = slowCorrect(e);
             return (
               <li key={`${e.id}${e.ts}`}>
                 <span class={`mark ${ok ? (slow ? 'slow' : 'ok') : 'bad'}`} aria-label={ok ? (slow ? 'richtig, aber langsam' : 'richtig') : 'falsch'}>

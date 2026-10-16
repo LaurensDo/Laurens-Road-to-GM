@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { Chessground } from 'chessground';
 import type { Api } from 'chessground/api';
 import type { DrawShape } from 'chessground/draw';
@@ -8,8 +8,8 @@ import 'chessground/assets/chessground.cburnett.css';
 import type { Role, SquareName } from 'chessops/types';
 import { destsOf, isCapture, isPromotion, lastSquares, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
 import { explain, lastMoveLabel, sideName } from '../lib/explain';
-import { dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
-import { gradeFor, judge, type Judgement } from '../lib/judge';
+import { count, dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
+import { gradeFor, isCorrect, judge, SAME_WP, TOLERANCE_WP, type Judgement } from '../lib/judge';
 import { counts, pickNext, type PickKind } from '../lib/queue';
 import { getPrefs } from '../lib/device';
 import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type ActiveSet, type SetSummary } from '../lib/sets';
@@ -17,7 +17,7 @@ import { play, startCue, timerCue } from '../lib/sound';
 import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
-import type { Exercise, Grade, ReviewEntry, Verdict } from '../lib/types';
+import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
 import { SetBar, SetResult } from './SetResult';
 
 interface Props {
@@ -204,13 +204,15 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercises, byId]);
 
-  useEffect(() => {
+  // Vor dem ersten Zeichnen: sonst steht für ein Bild "Für heute ist alles erledigt" da, bis die erste Aufgabe gewählt ist
+  useLayoutEffect(() => {
     const st = getState();
     let act = loadActive();
     if (act) {
       const answeredIds = new Set(st.log.filter((e) => e.set?.id === act!.id).map((e) => e.id));
       act.served = act.served.filter((id) => answeredIds.has(id));
-      if (answeredIds.size >= act.size) act = null;
+      // Ohne Antwort wird nicht fortgesetzt (wie auf Heute): Der neue Satz bekommt die aktuelle Satzgröße
+      if (answeredIds.size === 0 || answeredIds.size >= act.size) act = null;
     }
     if (act) {
       activeRef.current = act;
@@ -367,13 +369,16 @@ export function Trainer({ exercises, byId, onExit }: Props) {
       grade,
       verdict,
       ms,
-      dur: ms,
+      // schon hier begrenzen: Beim Abgleich gewinnt die längere Dauer, eine spätere Begrenzung käme sonst nie an
+      dur: Math.min(ms, MAX_DUR_MS),
       san: san ?? undefined,
       ...(act ? { set: { id: act.id, n: act.size } } : {}),
     };
     update((s) => ({ ...s, cards: { ...s.cards, [ex.id]: rec }, log: [...s.log, entry] }));
     setResult({ verdict, judgement, san, ms, grade, nextDue: dueDate(rec), ts: entry.ts });
     setPhase('result');
+    // "Lösung zeigen" bei offener Umwandlungswahl: die Auswahl würde sonst das Brett mit der Lösung verdecken
+    setPromo(null);
     lockBoard();
   };
 
@@ -437,7 +442,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
     const ex = current?.ex;
     if (r && ex && !durDone.current) {
       durDone.current = true;
-      const dur = Math.min(180000, Date.now() - shownWall.current);
+      const dur = Math.min(MAX_DUR_MS, Date.now() - shownWall.current);
       update((s) => ({
         ...s,
         log: s.log.map((e) => (e.id === ex.id && e.ts === r.ts ? { ...e, dur } : e)),
@@ -503,8 +508,6 @@ export function Trainer({ exercises, byId, onExit }: Props) {
 
   const ex = current?.ex ?? null;
   const limit = settings.timeLimit;
-  const c = counts(exercises, state, new Date());
-  const t = today(state.log, new Date());
   const explanation = ex ? explain(ex) : [];
   const over = limit > 0 && elapsed > limit * 1000;
   const barPct = limit > 0 ? Math.min(100, (elapsed / (limit * 1000)) * 100) : 0;
@@ -524,6 +527,9 @@ export function Trainer({ exercises, byId, onExit }: Props) {
   }
 
   if (finished || !ex) {
+    // nur hier gebraucht: nicht bei jedem Uhr-Takt (zehnmal pro Sekunde) alle Übungen durchgehen
+    const c = counts(exercises, state, new Date());
+    const t = today(state.log, new Date());
     return (
       <section class="screen">
         <header class="topbar">
@@ -536,7 +542,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
           <p class="muted">
             {c.total === 0
               ? 'Ändere den Filter in den Einstellungen.'
-              : `Heute ${n0(t.n)} Aufgaben${t.rate !== null ? `, ${pct(t.rate)} richtig` : ''}. Neue Aufgaben kommen morgen, fällige Wiederholungen früher.`}
+              : `Heute ${count(t.n, 'Aufgabe', 'Aufgaben')}${t.rate !== null ? `, ${pct(t.rate)} richtig` : ''}. Neue Aufgaben kommen morgen, fällige Wiederholungen früher.`}
           </p>
           {c.total > 0 && c.newTotal > 0 && (
             <button
@@ -563,8 +569,9 @@ export function Trainer({ exercises, byId, onExit }: Props) {
   }
 
   const best = ex.lines[0];
-  const alts = ex.lines.slice(1).filter((l) => best.wp - l.wp <= 10);
-  const correctNow = result && (result.verdict === 'best' || result.verdict === 'equal');
+  // "gleichwertig" wie in der Wertung: mit Toleranz bis TOLERANCE_WP, bei "Nur der beste" nur praktisch gleich gute Züge
+  const alts = ex.lines.slice(1).filter((l) => best.wp - l.wp <= (settings.tolerance ? TOLERANCE_WP : SAME_WP));
+  const correctNow = result && isCorrect(result.verdict);
   const slow = result && correctNow && result.grade === 2;
   const lastOfSet = answered >= setSize;
   const taskNo = Math.min(setSize, phase === 'ask' ? answered + 1 : answered);
@@ -581,7 +588,7 @@ export function Trainer({ exercises, byId, onExit }: Props) {
           </span>
         </div>
       </header>
-      <SetBar size={setSize} entries={setEntries} limit={limit} open={phase === 'ask'} />
+      <SetBar size={setSize} entries={setEntries} open={phase === 'ask'} />
 
       <div class="prompt">
         <span class={`side ${ex.turn}`}>{sideName(ex.turn)} am Zug</span>
@@ -654,8 +661,8 @@ export function Trainer({ exercises, byId, onExit }: Props) {
             )}
           </p>
           <p class="muted">
-            In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Punkte weniger als der
-            beste Zug).
+            In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Prozentpunkte weniger
+            als der beste Zug).
           </p>
 
           <ul class="why">

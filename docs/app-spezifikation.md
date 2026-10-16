@@ -1,10 +1,10 @@
 # Road to GM – App-Spezifikation (Entwurf)
 
-Stand: 15.10.2026 · Status: Entwurf zur Abstimmung, noch kein App-Code
+Stand: 16.10.2026 · Status: Version 1 und 1.1 umgesetzt und auf iPhone und iPad im Einsatz, Phase 2 offen. Abschnitte 1 bis 8 beschreiben das Zielbild, umgesetzt ist, was in 9a und 10 steht.
 
 ## 1. Was die App ist
 
-Eine installierbare **Web-App für das iPhone** (Safari → „Zum Home-Bildschirm“). Deutsch, hell und dunkel, nach dem ersten Laden offline nutzbar. Kein Konto, kein eigener Server.
+Eine installierbare **Web-App für iPhone und iPad** (Safari → „Zum Home-Bildschirm“). Deutsch, hell und dunkel, nach dem ersten Laden offline nutzbar. Kein Konto, kein eigener Server.
 
 Zweck: Die Befunde aus der Diagnose (Phase 0) abtrainieren. Größter Hebel ist die Uhr, danach hängende Figuren und Gabeln, Gewinnstellungen verwerten, ein paar Eröffnungs-Lecks.
 
@@ -12,10 +12,10 @@ Zweck: Die Befunde aus der Diagnose (Phase 0) abtrainieren. Größter Hebel ist 
 
 | Bereich | Was du tust | Warum (Diagnose) | Version |
 |---|---|---|---|
-| **Heute** | Ein Tipp startet die Tagesration (15 min): 5 min Fehler-Trainer, 5 min Taktik-Sprint, 5 min Wechsel (Gewinn verwerten, Eröffnungs-Leck oder Endspiel). Fortschrittsbalken, Serie. | Training muss ohne Überwindung starten | 1 |
-| **Fehler-Trainer** | Stellungen aus deinen eigenen Partien (rund 1.230). Zug auf dem Brett ausführen, Timer läuft (Standard 10 s). Danach Erklärung. Wiederholung nach Plan. | 49 % der Fehler sind trainierbar | 1 |
-| **Taktik-Sprint** | Puzzles der lichess-Datenbank auf deinem Niveau, Themen nach deinen Schwächen (hängende Figur, Gabel, Fesselung, Matt in 1 und 2). 3-Minuten-Runden mit Uhr. | Hängende Figuren 23 pro 100 Partien | 1.1 |
-| **Uhr-Coach** | (a) Gewinn verwerten: Stellung aus deinen Partien mit mindestens 90 % Gewinnchance, du spielst mit 1 Minute gegen Stockfish zu Ende. (b) Zeitbudget-Check: Restzeit bei Zug 20 und 30 gegen das Ziel 2:00 und 1:20. | 101 von 136 verlorenen Gewinnstellungen auf Zeit | 1.1 |
+| **Heute** | Ein Tipp startet einen Aufgabensatz (Standard 10 Aufgaben), Fortschrittsbalken zum Tagesziel (15 min). Geplant: Wechsel mit Taktik-Sprint und Gewinn-Drill. | Training muss ohne Überwindung starten | 1 (Satz), Phase 2 (Wechsel) |
+| **Fehler-Trainer** | Stellungen aus deinen eigenen Partien (1.200). Zug auf dem Brett ausführen, Timer läuft (Standard 10 s). Danach Erklärung. Wiederholung nach Plan. | 49 % der Fehler sind trainierbar | 1 |
+| **Taktik-Sprint** | Puzzles der lichess-Datenbank auf deinem Niveau, Themen nach deinen Schwächen (hängende Figur, Gabel, Fesselung, Matt in 1 und 2). 3-Minuten-Runden mit Uhr. | Hängende Figuren 23 pro 100 Partien | Phase 2 |
+| **Uhr-Coach** | (a) Gewinn verwerten: Stellung aus deinen Partien mit mindestens 90 % Gewinnchance, du spielst mit 1 Minute gegen Stockfish zu Ende. (b) Zeitbudget-Check: Restzeit bei Zug 20 und 30 gegen das Ziel 2:00 und 1:20. | 101 von 136 verlorenen Gewinnstellungen auf Zeit | Phase 2 |
 | **Eröffnungs-Lecks** | Die in der Praxis bestätigten Lecks als Karten: „Welcher Zug?“ Mit Explorer-Zahlen für Spieler deiner Stärke. | 11 von 17 Lecks bestätigt | 2 |
 | **Fortschritt** | Kennzahlen im Verlauf: Zeitverluste pro 100 Partien, Restzeit bei Zug 30, hängende Figuren und Gabeln pro 100 Partien, Trefferquote und Tempo im Training. Basis ist die Diagnose vom 15.10.2026. | Wirkung messen statt raten | 1 (Training), 2 (Partien) |
 
@@ -27,9 +27,9 @@ Zweck: Die Befunde aus der Diagnose (Phase 0) abtrainieren. Größter Hebel ist 
   - Richtig: dein Zug liegt höchstens **10 Prozentpunkte** unter dem besten. Gleichwertige Züge zählen also.
   - Richtig, aber zu langsam: gilt als „schwer“ für die Wiederholung.
   - Falsch: Erklärung folgt.
-- **Erklärung:** Engine-Variante in Zügen, Motiv, was du damals gezogen hast, wie viele Spieler deiner Stärke den Zug finden (Maia-3), Link zur Partie. Texte für die wichtigsten Stellungen schreibt Claude vorab.
+- **Erklärung:** Engine-Variante in Zügen, Motiv, was du damals gezogen hast, wie viele Spieler deiner Stärke den Zug finden (Maia-3), Link zur Partie. Umgesetzt als feste Sätze aus den Daten; eigene Texte von Claude für die wichtigsten Stellungen sind noch offen.
 - **Wiederholung:** FSRS (MIT-lizenzierter Algorithmus, auch in Anki). Falsch oder langsam heißt bald wieder, richtig und schnell heißt immer längere Abstände.
-- **Filter:** nach Phase, Motiv, Zeitnot-Fehler, Seite.
+- **Filter:** nach Partiephase, Fehlerart und Motiv (umgesetzt). Zeitnot-Fehler und Seite sind noch offen.
 
 ## 4. Stockfish und KI
 
@@ -63,8 +63,8 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 - **Start:** Die App kommt mit den vorhandenen Übungen (aus data-backup erzeugt).
 - **Neue Partien (Variante A, manuell):** Du sagst im Chat „neue Runde“, Claude importiert, analysiert, erzeugt Übungen und veröffentlicht die Daten. Die App holt sie beim Öffnen.
 - **Neue Partien (Variante B, automatisch):** Ein GitHub-Workflow läuft nachts, holt neue Partien von lichess und chess.com, rechnet Stockfish, schreibt neue Übungen. Kostenlos bei öffentlichem Repo. Empfohlen für Version 2.
-- **Fortschritt:** liegt lokal auf dem Gerät (IndexedDB). Knopf für Export und Import als Sicherung. Installierte Home-Bildschirm-Apps unterliegen nach heutigem Stand nicht der 7-Tage-Löschregel von Safari, die Sicherung ist trotzdem Pflicht.
-- **Abgleich iPhone und iPad (Weg C, umgesetzt):** Eine Datei in einem privaten GitHub-Repository, erreicht über die Contents-API mit einem Token nur für dieses Repository. Kein Server, kein Konto bei Dritten außer GitHub. Die App ist offline-first, der Abgleich holt nach, sobald Netz da ist. Zusammenführung ohne Verlust: Antwort-Protokolle werden vereinigt, Karten daraus neu berechnet. Details in `app/README.md`. Offene Prüfung: Verhalten gegen die echte GitHub-API (CORS) ist erst auf dem Gerät belegt, im Test lief ein Mock.
+- **Fortschritt:** liegt lokal auf dem Gerät (IndexedDB) und wird über den Abgleich (nächster Punkt) zwischen den Geräten geteilt. Knopf für Export und Import als Sicherung. Installierte Home-Bildschirm-Apps unterliegen nach heutigem Stand nicht der 7-Tage-Löschregel von Safari, die Sicherung ist trotzdem Pflicht.
+- **Abgleich iPhone und iPad (Weg C, umgesetzt):** Eine Datei in einem privaten GitHub-Repository, erreicht über die Contents-API mit einem Token nur für dieses Repository. Kein Server, kein Konto bei Dritten außer GitHub. Die App ist offline-first, der Abgleich holt nach, sobald Netz da ist. Zusammenführung ohne Verlust: Antwort-Protokolle werden vereinigt, Karten daraus neu berechnet. Zurücksetzen gilt für alle Geräte, eine vorher exportierte Sicherung holt den Stand auf allen Geräten zurück. Details in `app/README.md`. Auf iPhone und iPad mit der echten GitHub-API in Betrieb.
 - **iOS-Besonderheit:** Die installierte App und Safari haben getrennten Speicher. Erst installieren, dann trainieren. iCloud gleicht Web-Speicher nicht ab, deshalb der Abgleich über GitHub.
 
 ## 6. Was die App nicht macht
@@ -78,7 +78,7 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 
 - Vite, TypeScript, Preact, Service Worker (offline).
 - Brett: [chessground](https://github.com/lichess-org/chessground) (wie lichess, touch-tauglich). Regeln: chessops. Wiederholung: ts-fsrs.
-- Stockfish-WASM im Web Worker. Puzzle-Teilmenge (rund 3.000) aus der lichess-Puzzle-Datenbank (CC0).
+- Geplant (Phase 2): Stockfish-WASM im Web Worker, Puzzle-Teilmenge (rund 3.000) aus der lichess-Puzzle-Datenbank (CC0).
 - Open-Source-Lizenzen (GPL) vertragen sich mit einem öffentlichen Repo.
 
 ## 8. Festlegungen, die später teuer wären
@@ -89,7 +89,7 @@ Stärke ist an drei Stellen unterschiedlich wichtig:
 | Datenformat der Übungen | MultiPV-Lösung (bis 5 Züge mit Gewinnchance) | Nur ein Lösungszug (einfacher, aber unfair bei gleichwertigen Zügen) |
 | Zeitlimit pro Aufgabe | 10 s, einstellbar 5, 10, 20 oder aus | feste Vorgabe |
 | Gleichwertige Züge | zählen (bis 10 Prozentpunkte) | nur der beste Zug |
-| Stockfish in der App | ja, ab Version 1.1 | nein, nur vorberechnete Lösungen |
+| Stockfish in der App | ja, ab Phase 2 | nein, nur vorberechnete Lösungen |
 | Wiederholung | FSRS | einfache feste Abstände |
 | Neue Partien | zuerst manuell, ab Version 2 automatisch | dauerhaft manuell |
 | Abgleich der Geräte | privates GitHub-Repo, Datei per Contents-API (umgesetzt) | nur manuelle Sicherung; oder eigener Server (Konto, Betrieb) |
@@ -117,7 +117,7 @@ Schon jetzt festgelegt, damit später nichts umgebaut werden muss:
 - Hosting: GitHub Pages mit öffentlichem Repo. ✔
 - Gegnernamen aus dem Backup-Branch entfernt. ✔
 - Bereiche, Festlegungen aus Abschnitt 8 und Reihenfolge: wie vorgeschlagen. ✔
-- Stockfish: Lösungen tiefer neu rechnen, in der App Lite plus optional „Starke Engine“.
+- Stockfish: Lösungen tiefer neu rechnen (✔, 3 Mio. Knoten, MultiPV 5), in der App Lite plus optional „Starke Engine“ (Phase 2).
 
 - iPad: wird genutzt. Querformat zeigt Brett links und Erklärung rechts, Karten in zwei Spalten. ✔
 - Abgleich der Geräte: Weg C (privates GitHub-Repo) von Anfang an. ✔
@@ -129,13 +129,14 @@ Feinschliff am bestehenden Umfang, vor Phase 2:
 - **Aufgabensätze:** feste Runde (5/10/15/20, Standard 10) mit Ergebnisseite und Einordnung nach festen Regeln. Satz pausieren und fortsetzen, vorzeitig beenden. Verlauf der Sätze unter Fortschritt, heutige Sätze unter Heute. Sätze laufen über den Abgleich auf beide Geräte.
 - **Töne:** Figur anklicken, Zug, Schlagzug, unzulässiger Zug, richtig, richtig aber langsam, falsch, Uhr (Start, Ticks in den letzten 3 Sekunden, Ablauf), Auswahl in der Oberfläche, Satz geschafft. Im Browser erzeugt (keine Dateien, keine Lizenzfragen). Nur pro Gerät einstellbar.
 - **Layouts:** iPhone quer (Brett links in voller Höhe, Erklärung rechts), iPad hoch (größeres Brett, größere Schrift), iPad quer (Brett links, Erklärung rechts, Karten in zwei Spalten). „Weiter“ steht in einer festen Leiste und ist ohne Scrollen erreichbar.
-- **Letzter Gegnerzug vor der Aufgabe:** wird gespielt und hervorgehoben, danach läuft die Zeit (abschaltbar). Entspricht dem Partieverhalten, in dem man immer zuerst den Zug des Gegners sieht. Der Maia-Richtwert wurde ohne Zugvorgeschichte berechnet und ist dadurch eher vorsichtig.
-- **Start-Theme:** Startbild mit rotierendem Spruch (45 Satire-Sprüche im Big-Dog-Stil, Urheber „Big Dog“, mindestens 2,8 bis 4 s je nach Länge, Tippen überspringt, abschaltbar, nur pro Gerät) und dunkle Fläche oben auf „Heute“ ohne Begrüßung und Serie. Anzeige-Info in den Einstellungen für Darstellungsprobleme. Auf dem iPad Pro 12,9" fehlen im Fenster 32 Punkte oben (gemessen): Das Startbild gleicht das aus und bekommt ein passendes iOS-Startbild (nur beim Hinzufügen zum Home-Bildschirm wirksam). Offen: ein iOS-eigenes Startbild (`apple-touch-startup-image`) je Gerätegröße, damit auch der erste Moment vor der App im Thema bleibt.
+- **Letzter Gegnerzug vor der Aufgabe:** wird gespielt und hervorgehoben, danach läuft die Zeit (abschaltbar). Entspricht dem Partieverhalten, in dem man immer zuerst den Zug des Gegners sieht. Der Maia-Richtwert wurde mit der echten Zugvorgeschichte der Partie berechnet (bis zu 8 Stellungen davor).
+- **Start-Theme:** Startbild mit rotierendem Spruch (45 Satire-Sprüche im Big-Dog-Stil, Urheber „Big Dog“, mindestens 2,8 bis 4 s je nach Länge, Tippen überspringt, abschaltbar, nur pro Gerät) und dunkle Fläche oben auf „Heute“ ohne Begrüßung und Serie. Anzeige-Info in den Einstellungen für Darstellungsprobleme. Auf dem iPad Pro 12,9" fehlen im Fenster 32 Punkte oben (gemessen): Das Startbild gleicht das aus und bekommt ein passendes iOS-Startbild (`apple-touch-startup-image`, nur beim Hinzufügen zum Home-Bildschirm wirksam). Bisher nur für das iPad Pro 12,9"; fürs iPhone fehlt es noch (Modell nötig).
 - **Töne ohne Überlagerung:** ein Mixer sorgt dafür, dass immer nur ein Ton klingt (Rang und Regel je Ton).
 - **Brett-Markierungen:** gewähltes Feld, erlaubte Zielfelder, Schach und letzter Zug sind jetzt farbig. Das Brett-Thema von chessground war bisher nicht eingebunden.
-- Version 1 ist im Repo als Commit `edcae70` festgehalten (ein Tag `v1.0` konnte aus der Cloud-Sitzung nicht gepusht werden).
+- **Marke Big Dog:** Bulldoggen-König als App-Symbol und im Startbild, auf dem Brett Bauer und König als Bulldoggen (Quelle `app/tools/brand.mjs`).
+- Version 1 ist im Repo als Tag `v1.0` (Commit `edcae70`) festgehalten.
 
-Offen aus 1.1: Töne und Layouts sind nur im simulierten Browser geprüft (Pegel und Abläufe), nicht auf echten Geräten gehört.
+Auf den Geräten bestätigt: Abgleich, Töne, Layouts. Offen aus 1.1: Auf dem iPad quer verrutscht das Startbild beim Öffnen kurz (Ursache noch offen, die Anzeige-Info in den Einstellungen misst es).
 
 ## 10. Reihenfolge
 

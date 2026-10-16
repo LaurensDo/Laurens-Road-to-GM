@@ -77,10 +77,13 @@ export async function syncNow(): Promise<void> {
   inFlight = (async () => {
     try {
       const out = await syncOnce({ fetch: window.fetch.bind(window) }, cfg, { getState, setState: applyMerged });
-      setStatus({ state: 'idle', last: out.at, message: null, errorKind: null });
+      // Inzwischen getrennt oder neu verbunden: Das Ergebnis gehört zur alten Verbindung und darf den Status nicht überschreiben
+      if (config === cfg) setStatus({ state: 'idle', last: out.at, message: null, errorKind: null });
     } catch (e) {
-      const d = describe(e);
-      setStatus({ state: d.kind === 'network' ? 'offline' : 'error', message: d.message, errorKind: d.kind });
+      if (config === cfg) {
+        const d = describe(e);
+        setStatus({ state: d.kind === 'network' ? 'offline' : 'error', message: d.message, errorKind: d.kind });
+      }
     } finally {
       inFlight = null;
       if (again) {
