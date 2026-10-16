@@ -1,5 +1,5 @@
 // Marke "Big Dog": Bulldoggen-König (App-Symbol, Startbild) und Bulldoggen-Bauer/-König als Brettfiguren.
-// Eine Quelle für alles: Brettfiguren (src/assets/pieces), Zeichen fürs Startbild (src/assets/brand), App-Symbole (public/icons).
+// Eine Quelle für alles: Brettfiguren (src/assets/pieces, nur der König), Zeichen fürs Startbild (src/assets/brand), App-Symbole (public/icons).
 // Aufruf: node tools/brand.mjs   (Playwright mit Chromium für die PNG-Symbole)
 // Entwürfe und Herleitung: design/logo-optionen/runde2
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
@@ -50,13 +50,6 @@ const king = (p) => `
   <path d="M206 108 L200 62 L228 84 L256 54 L284 84 L312 62 L306 108 Z" fill="${GOLD}" stroke="${p.line}" stroke-width="6" stroke-linejoin="round"/>
   <path d="M256 22 V54 M244 34 H268" stroke="${GOLD}" stroke-width="9" stroke-linecap="round"/>`;
 
-const pawn = (p) => `
-  <path d="M214 270 H298 C312 326 334 360 344 384 H168 C178 360 200 326 214 270 Z" fill="${p.fill}"/>
-  <rect x="148" y="380" width="216" height="36" rx="12" fill="${p.fill}" stroke="${p.line}" stroke-width="6"/>
-  <rect x="128" y="418" width="256" height="30" rx="14" fill="${p.fill}" stroke="${p.line}" stroke-width="6"/>
-  <g transform="translate(256 176) scale(0.8) translate(-256 -190)">${bullHead(p)}</g>
-  ${collar(p, 254, 194, 318)}`;
-
 // Rand um die ganze Figur (für Kontrast auf jedem Untergrund)
 const outlined = (p, body, id) =>
   p.outline
@@ -65,13 +58,11 @@ const outlined = (p, body, id) =>
 
 const svg = (viewBox, inner, size = '') => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${size}>${inner}</svg>\n`;
 
-// Brettfiguren: gleiches Quadrat für König und Bauer, damit die Größen zueinander passen
-const PIECE_BOX = { K: '13 -9 486 486', P: '13 -6 486 486' };
+// Brettfiguren: nur der König ist eine Bulldogge, der Bauer bleibt klassisch (sonst sind beide im Blitz kaum zu unterscheiden)
+const PIECE_BOX = { K: '13 -9 486 486' };
 const pieces = {
   'wK.svg': svg(PIECE_BOX.K, outlined(PAL.white, king(PAL.white), 'o')),
   'bK.svg': svg(PIECE_BOX.K, outlined(PAL.black, king(PAL.black), 'o')),
-  'wP.svg': svg(PIECE_BOX.P, outlined(PAL.white, pawn(PAL.white), 'o')),
-  'bP.svg': svg(PIECE_BOX.P, outlined(PAL.black, pawn(PAL.black), 'o')),
 };
 for (const [name, s] of Object.entries(pieces)) writeFileSync(`${APP}src/assets/pieces/${name}`, s);
 

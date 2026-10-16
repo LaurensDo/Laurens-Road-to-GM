@@ -87,8 +87,8 @@ im Testbrowser ist es in jeder Größe exakt mittig, das Verhalten von iPadOS is
 ## Marke: Big Dog
 
 App-Symbol und Startbild zeigen den Bulldoggen-König (schwarz, heller Rand, goldene Krone und Stachelhalsband). Auf dem Brett
-sind Bauer (Bulldogge ohne Krone) und König (mit Krone) in Weiß und Schwarz ersetzt, die übrigen Figuren bleiben klassisch
-(cburnett). Alles entsteht aus einer Quelle: `tools/brand.mjs` schreibt `src/assets/pieces/{wP,bP,wK,bK}.svg`,
+ist nur der König (mit Krone) in Weiß und Schwarz eine Bulldogge, alle übrigen Figuren inklusive Bauer bleiben klassisch
+(cburnett). Der Bulldoggen-Bauer war zu schwer vom König zu unterscheiden, vor allem unter Zeitdruck. Alles entsteht aus einer Quelle: `tools/brand.mjs` schreibt `src/assets/pieces/{wK,bK}.svg`,
 `src/assets/brand/king.svg` und `public/icons/*`. Die Entwürfe und Alternativen liegen in `design/logo-optionen/`.
 Nach einer Änderung auch die iOS-Startbilder neu erzeugen (`tools/make-launch-images.mjs`). Ein neues Symbol auf dem
 Home-Bildschirm erscheint erst, wenn die App dort neu hinzugefügt wird.

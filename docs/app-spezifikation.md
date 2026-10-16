@@ -133,7 +133,7 @@ Feinschliff am bestehenden Umfang, vor Phase 2:
 - **Start-Theme:** Startbild mit rotierendem Spruch (45 Satire-Sprüche im Big-Dog-Stil, Urheber „Big Dog“, mindestens 2,8 bis 4 s je nach Länge, Tippen überspringt, abschaltbar, nur pro Gerät) und dunkle Fläche oben auf „Heute“ ohne Begrüßung und Serie. Anzeige-Info in den Einstellungen für Darstellungsprobleme. Auf dem iPad Pro 12,9" fehlen im Fenster 32 Punkte oben (gemessen): Das Startbild gleicht das aus und bekommt ein passendes iOS-Startbild (`apple-touch-startup-image`, nur beim Hinzufügen zum Home-Bildschirm wirksam). Bisher nur für das iPad Pro 12,9"; fürs iPhone fehlt es noch (Modell nötig).
 - **Töne ohne Überlagerung:** ein Mixer sorgt dafür, dass immer nur ein Ton klingt (Rang und Regel je Ton).
 - **Brett-Markierungen:** gewähltes Feld, erlaubte Zielfelder, Schach und letzter Zug sind jetzt farbig. Das Brett-Thema von chessground war bisher nicht eingebunden.
-- **Marke Big Dog:** Bulldoggen-König als App-Symbol und im Startbild, auf dem Brett Bauer und König als Bulldoggen (Quelle `app/tools/brand.mjs`).
+- **Marke Big Dog:** Bulldoggen-König als App-Symbol und im Startbild, auf dem Brett der König als Bulldogge, der Bauer bleibt klassisch, damit beide unter Zeitdruck sofort zu unterscheiden sind (Quelle `app/tools/brand.mjs`).
 - Version 1 ist im Repo als Tag `v1.0` (Commit `edcae70`) festgehalten.
 
 Auf den Geräten bestätigt: Abgleich, Töne, Layouts. Offen aus 1.1: Auf dem iPad quer verrutscht das Startbild beim Öffnen kurz (Ursache noch offen, die Anzeige-Info in den Einstellungen misst es).
