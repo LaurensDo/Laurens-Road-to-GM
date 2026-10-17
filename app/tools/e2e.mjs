@@ -191,6 +191,7 @@ await page.waitForTimeout(300);
   ok(s.includes('move') || s.includes('capture'), 'Zugton beim Durchsehen der Variante');
 }
 await page.screenshot({ path: `${OUT}/5-variante.png`, fullPage: true });
+await btn('Fertig').click();
 await page.click('text=Diese Aufgabe nicht mehr zeigen');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 4 von 5'), 'Nach dem Ausblenden geht es mit Aufgabe 4 weiter');

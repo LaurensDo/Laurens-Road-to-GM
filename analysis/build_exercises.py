@@ -163,6 +163,23 @@ def order_by_priority(exercises):
     return out
 
 
+def line_out(i, l, pe):
+    """Linie mit Gewinnchance nach jedem Halbzug (ev), wenn sie in analysis/ply_evals.py bewertet wurde: Halbzug 1 ist die Gewinnchance der Linie."""
+    out = {"san": l["san"], "uci": l["uci"], "wp": l["wp"], "cp": l["cp"], "pv": pv_list(l["pv"])}
+    vals = pe["lines"].get(str(i))
+    if vals is not None:
+        out["ev"] = [l["wp"]] + vals
+    return out
+
+
+def ref_out(r, pe):
+    """Widerlegung [Zug, Folgezüge, Gewinnchance nach jedem Halbzug]: Halbzug 1 ist 100 minus die Gewinnchance des Gegners nach dem Zug."""
+    vals = pe["refs"].get(r["san"])
+    if vals is not None and r.get("oppWp") is not None:
+        return [r["san"], r["pv"], [round(100 - r["oppWp"], 1)] + vals]
+    return [r["san"], r["pv"]]
+
+
 def main():
     positions = {key_of(p): p for p in json.loads((DATA / "training_positions.json").read_text())}
     report = json.loads((DATA / "report.json").read_text())
@@ -172,6 +189,7 @@ def main():
     all_moves = load_jsonl(DATA / "all_moves.jsonl")
     maia_dist = load_jsonl(DATA / "maia_dist.jsonl")
     refutations = load_jsonl(DATA / "refutations.jsonl")
+    ply_evals = load_jsonl(DATA / "ply_evals.jsonl") if (DATA / "ply_evals.jsonl").exists() else {}
     exercises, dropped = [], {"kein_fehler": 0, "verloren": 0, "ohne_lösung": 0}
     no_prev = 0
     for line in (DATA / "solutions.jsonl").open():
@@ -201,6 +219,7 @@ def main():
         rf = refutations.get(eid)
         am = all_moves.get(eid)
         md = maia_dist.get(eid)
+        pe = ply_evals.get(eid) or {"lines": {}, "refs": {}}
         maia = {"me": p.get("p_best_me"), "up": p.get("p_best_up"), "cls": p.get("maia_class")}
         if md and am:
             maia["ok"], maia["ok0"] = maia_ok(md["me"], lines, am["more"])
@@ -213,7 +232,7 @@ def main():
             "cat": p["cat"],
             "motifs": [m for m in p.get("motifs", []) if m not in GENERIC],
             "themes": p.get("themes", []),
-            "lines": [{"san": l["san"], "uci": l["uci"], "wp": l["wp"], "cp": l["cp"], "pv": pv_list(l["pv"])} for l in lines],
+            "lines": [line_out(i, l, pe) for i, l in enumerate(lines)],
             "played": {"san": played["san"], "uci": played["uci"], "wp": played["wp"], "cp": played["cp"]},
             "loss": round(loss, 1),
             "clock": round(p["clock"]),
@@ -225,7 +244,7 @@ def main():
             **({"more": [[m["san"], m["wp"]] for m in am["more"]]} if am else {}),
             # Drohung nur, wenn der Zug etwas Greifbares tut (Schlagen, Schach, Matt): Stille Züge als "Drohung" wären Rauschen
             **({"threat": rf["threat"]} if rf and rf.get("threat") and re.search(r"[x+#]", rf["threat"]["san"]) else {}),
-            **({"refs": [[r["san"], r["pv"]] for r in rf["refs"]]} if rf and rf.get("refs") else {}),
+            **({"refs": [ref_out(r, pe) for r in rf["refs"]]} if rf and rf.get("refs") else {}),
             **({"missed": [m for m in p.get("missed_motifs", []) if m not in GENERIC]} if p.get("missed_motifs") else {}),
             **({"prev": prev} if prev else {}),
             **({"hold": True} if ex_id(s["key"]) in holdout else {}),

@@ -242,10 +242,13 @@ describe('Schlagzug und Geräteeinstellungen', () => {
       timerSound: 'off',
       ignoreMute: true,
       splash: false,
+      evalbar: DEFAULT_PREFS.evalbar,
       games: DEFAULT_PREFS.games,
       chesscom: DEFAULT_PREFS.chesscom,
       lichess: DEFAULT_PREFS.lichess,
     });
+    expect(clean({ evalbar: 'always' }).evalbar).toBe('always');
+    expect(clean({ evalbar: 'ja' }).evalbar).toBe('result');
     expect(clean({ games: false, chesscom: '  anna  ', lichess: 5 })).toMatchObject({ games: false, chesscom: 'anna', lichess: DEFAULT_PREFS.lichess });
   });
 });

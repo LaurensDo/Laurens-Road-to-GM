@@ -244,9 +244,32 @@ describe('Auswertung für Claude', () => {
     expect(r.trainingstageProWoche.at(-1)).toEqual({ von: '2026-10-12', tage: 2 });
     expect(r.saetze30Tage).toMatchObject({ gesamt: 2, fertig: 1, abgebrochen: 1 });
     expect(r.pruefsatz).toEqual({ groesse: 2, schonGesehen: ['c'] });
+    expect(r.varianten14Tage).toEqual({ antworten: expect.any(Number), geoeffnet: 0, minutenDarin: 0 });
     expect(r.dauerbrenner).toEqual([{ id: 'b', fehlversuche: 3, antworten: 1, art: 'Matt übersehen' }]);
     expect(r.pausen).toEqual([{ tage: 5, trainingstageInDenErsten3Tagen: 1 }]);
     expect(JSON.stringify(r)).not.toMatch(/opp_name|https?:/);
+  });
+});
+
+describe('Auswertung: Variantenansicht', () => {
+  it('zählt geöffnete Varianten und die Zeit darin', () => {
+    const t = (d: string) => new Date(d).getTime();
+    const log = [
+      { ...entry('a', t('2026-10-16T10:00:00'), 3), pv: 30000 },
+      { ...entry('b', t('2026-10-16T10:01:00'), 1), pv: 15000 },
+      entry('c', t('2026-10-16T10:02:00'), 3),
+      { ...entry('d', t('2026-09-01T10:00:00'), 3), pv: 600000 },
+    ];
+    const r = usageReport({ ...emptyState(), log }, {
+      now: new Date('2026-10-17T12:00:00'),
+      appVersion: '1.5.0',
+      build: 'x',
+      dataVersion: 2,
+      holdoutIds: [],
+      byId: new Map(),
+      queue: { due: 0, learning: 0, newAvailable: 0, newTotal: 0, total: 0, waiting: 0, backlogDays: 0 },
+    });
+    expect(r.varianten14Tage).toEqual({ antworten: 3, geoeffnet: 2, minutenDarin: 0.8 });
   });
 });
 

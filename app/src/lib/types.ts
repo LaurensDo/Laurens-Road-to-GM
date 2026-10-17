@@ -6,6 +6,11 @@ export interface Line {
   wp: number; // Gewinnchance in %, aus Sicht des Ziehenden
   cp: number;
   pv: string[];
+  /**
+   * Gewinnchance nach jedem Halbzug der Variante, aus Sicht des Spielers, der in der Übung am Zug ist (analysis/ply_evals.py).
+   * Index 0 = nach dem ersten Zug der Linie. Nur für die beste und die gleichwertigen Linien, fehlt sonst.
+   */
+  ev?: number[];
 }
 
 export interface Exercise {
@@ -38,8 +43,11 @@ export interface Exercise {
   };
   /** Was der Gegner droht, wenn man nichts tut (Nullzug), nur bei echter Drohung. SAN gilt in der Stellung nach einem Nullzug. */
   threat?: { uci: string; san: string; gain: number };
-  /** Widerlegungen falscher Züge: [Zug als SAN, die folgenden Halbzüge als SAN], für den Partiezug und wahrscheinliche Fehlzüge */
-  refs?: [string, string[]][];
+  /**
+   * Widerlegungen falscher Züge: [Zug als SAN, die folgenden Halbzüge als SAN, Gewinnchance nach jedem Halbzug ab dem Zug selbst],
+   * für den Partiezug und wahrscheinliche Fehlzüge. Die Gewinnchancen fehlen in älteren Daten.
+   */
+  refs?: [string, string[], number[]?][];
   /** Motive der besten Fortsetzung (was in der Stellung zu gewinnen war), bei "Gegnerfehler nicht bestraft" und anderen */
   missed?: string[];
   /** Letzter Zug des Gegners vor der Stellung: Brett davor (nur Figurenstellung), Zug als UCI und SAN */
@@ -95,6 +103,8 @@ export interface ReviewEntry {
   lim?: number;
   /** Datenstand der Übungen bei der Antwort (ExerciseFile.version) */
   dv?: number;
+  /** Zeit in der Variantenansicht in ms (steckt auch in dur). Fehlt, wenn keine Variante geöffnet wurde. */
+  pv?: number;
 }
 
 /** Welche App-Version ein Gerät zuletzt gemeldet hat (steht in der Sync-Datei) */

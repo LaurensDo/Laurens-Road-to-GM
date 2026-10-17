@@ -6,6 +6,8 @@ import { useEffect, useState } from 'preact/hooks';
  */
 
 export type TimerSound = 'off' | 'end' | 'standard' | 'every';
+/** Bewertungsbalken: aus, nach dem Zug (Ergebnis und Varianten) oder auch schon in der Aufgabe (verrät, ob in der Stellung etwas los ist) */
+export type EvalBarMode = 'off' | 'result' | 'always';
 
 export interface DevicePrefs {
   sound: boolean;
@@ -16,6 +18,7 @@ export interface DevicePrefs {
   ignoreMute: boolean;
   /** Startbild beim Öffnen der App */
   splash: boolean;
+  evalbar: EvalBarMode;
   /** Eigene Partien beim Öffnen automatisch holen (chess.com und lichess) */
   games: boolean;
   /** Spielernamen für den Abruf (öffentliche Schnittstellen, kein Passwort). Leer = nicht holen. */
@@ -29,6 +32,7 @@ export const DEFAULT_PREFS: DevicePrefs = {
   timerSound: 'standard',
   ignoreMute: false,
   splash: true,
+  evalbar: 'result',
   games: true,
   chesscom: 'laurens3495',
   lichess: 'Poquitonator',
@@ -56,6 +60,7 @@ export function clean(raw: unknown): DevicePrefs {
     timerSound: r.timerSound === 'off' || r.timerSound === 'end' || r.timerSound === 'standard' || r.timerSound === 'every' ? r.timerSound : DEFAULT_PREFS.timerSound,
     ignoreMute: typeof r.ignoreMute === 'boolean' ? r.ignoreMute : DEFAULT_PREFS.ignoreMute,
     splash: typeof r.splash === 'boolean' ? r.splash : DEFAULT_PREFS.splash,
+    evalbar: r.evalbar === 'off' || r.evalbar === 'result' || r.evalbar === 'always' ? r.evalbar : DEFAULT_PREFS.evalbar,
     games: typeof r.games === 'boolean' ? r.games : DEFAULT_PREFS.games,
     chesscom: typeof r.chesscom === 'string' ? r.chesscom.trim().slice(0, 40) : DEFAULT_PREFS.chesscom,
     lichess: typeof r.lichess === 'string' ? r.lichess.trim().slice(0, 40) : DEFAULT_PREFS.lichess,

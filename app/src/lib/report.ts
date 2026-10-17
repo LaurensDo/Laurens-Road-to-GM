@@ -81,6 +81,9 @@ export function usageReport(state: AppState, c: ReportContext) {
 
   const week = log.filter((e) => now - e.ts < 7 * DAY);
   const fast = week.filter((e) => !correct(e) && e.verdict !== 'gaveup' && e.ms < 3000).length;
+  // Variantenansicht der letzten 14 Tage: bei wie vielen Antworten geöffnet und wie viel Zeit darin (steckt auch in minutenProTag)
+  const fortnight = log.filter((e) => now - e.ts < 14 * DAY);
+  const viewed = fortnight.filter((e) => (e.pv ?? 0) > 0);
   const holdSet = new Set(c.holdoutIds);
   const seenHold = [...new Set(log.filter((e) => holdSet.has(e.id)).map((e) => e.id))];
   const stubborn = Object.entries(state.cards)
@@ -108,6 +111,11 @@ export function usageReport(state: AppState, c: ReportContext) {
       richtigProzent: week.length ? Math.round((100 * week.filter(correct).length) / week.length) : null,
       medianMs: median(week.map((e) => e.ms)),
       vorschnelleFehler: fast,
+    },
+    varianten14Tage: {
+      antworten: fortnight.length,
+      geoeffnet: viewed.length,
+      minutenDarin: Math.round(viewed.reduce((a, e) => a + (e.pv ?? 0), 0) / 6000) / 10,
     },
     warteschlange: { heuteDran: c.queue.due, neu: c.queue.newAvailable, wartenAufSpaeter: c.queue.waiting, rueckstandTage: c.queue.backlogDays },
     pruefsatz: { groesse: c.holdoutIds.length, schonGesehen: seenHold },

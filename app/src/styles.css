@@ -163,11 +163,33 @@ b { font-weight: 600; }
 .chip.warn { background: var(--warn-soft); color: var(--warn); }
 .chip.bad { background: var(--bad-soft); color: var(--bad); }
 .why { margin: 0; padding-left: 1.1rem; display: grid; gap: 4px; color: var(--ink-2); font-size: 0.95rem; }
-.pv { display: grid; gap: 10px; }
-.pv-moves { display: flex; flex-wrap: wrap; gap: 6px; }
 .pv-move { appearance: none; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 6px 10px; font: 500 0.9rem var(--font-mono); cursor: pointer; }
 .pv-move.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.pv-controls { display: grid; grid-template-columns: 56px 56px 1fr; gap: 8px; }
+
+/* Bewertungsbalken: links neben dem Brett, im Seitenrand; unten der Anteil des Spielers, der am Zug ist */
+.evalbar { position: absolute; right: 100%; margin-right: 4px; top: 0; bottom: 0; width: 10px; border-radius: 5px; overflow: hidden; display: flex; align-items: flex-end; border: 1px solid #8b9791; }
+.evalbar::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); opacity: 0.75; }
+.evalbar > i { display: block; width: 100%; transition: height 0.35s ease; }
+.evalbar.w { background: #353b38; }
+.evalbar.w > i { background: #f2f3ef; }
+.evalbar.b { background: #e9ebe7; }
+.evalbar.b > i { background: #1f2421; }
+
+/* Variantenansicht: Brett bleibt oben stehen, unten die Leiste mit Auswahl, Zugliste und Vor/Zurück */
+/* nur im einspaltigen Layout (hoch, schmal): Im Querformat steht das Brett ohnehin fest neben dem Text */
+@media (orientation: portrait), (max-width: 639px) {
+  .screen.trainer.varopen > .board-wrap { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 6px); z-index: 6; box-shadow: 0 0 0 100vw var(--bg); clip-path: inset(0 -100vw -10px); }
+}
+.varbar { gap: 8px; background: var(--bg); border-top: 1px solid var(--rule); padding-top: 10px; }
+.var-pick, .var-moves { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.var-pick::-webkit-scrollbar, .var-moves::-webkit-scrollbar { display: none; }
+.var-chip { flex: none; appearance: none; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 4px 10px; display: grid; justify-items: start; text-align: left; min-height: 44px; cursor: pointer; font: 500 0.9rem var(--font-body); }
+.var-chip span { font-size: 0.72rem; color: var(--muted); }
+.var-chip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.var-chip.on span { color: inherit; opacity: 0.85; }
+.var-moves .pv-move { flex: none; }
+.var-controls { display: grid; grid-template-columns: 56px 56px 1fr auto; gap: 8px; align-items: center; }
+.var-wp { text-align: center; color: var(--ink-2); font-size: 0.95rem; }
 
 /* Formulare */
 .field { display: grid; gap: 6px; }

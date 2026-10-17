@@ -45,10 +45,19 @@ node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Ger�
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
 node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echten Übungsdaten
+node tools/e2e-variation.mjs /tmp/v # Variantenansicht: festes Brett, Auswahl, Bewertungsbalken, Tastatur, Wischen, alle Formate
 node tools/e2e-games.mjs /tmp/g    # Partien holen (chess.com und lichess nachgebaut), Karten auf Heute und Fortschritt, Offline, Ausschalten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.5: Variantenansicht und Bewertungsbalken
+
+- **Feste Leiste.** „Variante ansehen“ öffnet unten eine Leiste, die stehen bleibt: Auswahl der Variante, Zugliste mit Zugnummern (seitlich scrollbar, der aktive Zug wandert in die Mitte), ◀ ▶, die Gewinnchance der Stellung und „Fertig“ (zurück zu „Weiter“). Im Hochformat bleibt das Brett oben stehen (`position: sticky`, nur im einspaltigen Layout; im Querformat steht es ohnehin neben dem Text). Zusätzlich: Pfeiltasten (iPad mit Tastatur) und Wischen auf dem Brett.
+- **Mehrere Varianten** (`src/lib/variation.ts`). Zur Auswahl stehen der beste Zug, alle gleichwertigen Linien aus den fünf gespeicherten (nach der Einstellung „Gleichwertige Züge“, wie in der Wertung), dein Zug und der Zug aus der Partie, soweit dazu eine Variante gespeichert ist (Linie oder Widerlegung). Gleichwertige Züge außerhalb der fünf besten haben keine Variante und stehen weiter nur als Text da (208 Übungen).
+- **Bewertungsbalken** (`EvalBar`). Links neben dem Brett, im Seitenrand. Er zeigt die Gewinnchance des Spielers, der in der Übung am Zug ist (unten, also immer aus deiner Sicht), für die Stellung, die das Brett zeigt. Nach einem falschen Zug fällt er gleich auf den Wert deines Zuges und folgt der vorgeführten Widerlegung, danach steht er wieder auf dem Wert der Stellung. Einstellung „Bewertungsbalken“ (nur dieses Gerät): *Nach dem Zug* (Standard), *Auch in der Aufgabe*, *Aus*. In der Aufgabe ist er aus gutem Grund standardmäßig aus: Er verriete, ob in der Stellung etwas los ist.
+- **Daten.** `analysis/ply_evals.py` rechnet einmalig mit Stockfish (150.000 Knoten je Stellung) die Gewinnchance nach jedem Halbzug der besten und der gleichwertigen Linien und der Widerlegungen. `build_exercises.py` legt sie als `ev` an die Linien und als drittes Element an die Widerlegungen (`[Zug, Folgezüge, ev]`), Halbzug 1 stammt aus den tiefen Werten. Fehlen sie (ältere Daten, schwächere Linien), bleibt der Balken auf dem Wert der Linie stehen. Ehrlich gesagt: Entlang einer besten Linie ist die Bewertung ungefähr konstant (das ist es, was „beste Linie“ heißt, sie schwankt nur um wenige Punkte); sichtbar verändert sie sich beim eigenen Fehler, beim Wechsel der Variante und in Abtauschfolgen.
+- **Zeit.** Die Zeit in der Variantenansicht steckt weiter in `dur` (zählt zum Tagesziel) und steht zusätzlich als `pv` am Eintrag. „Auswertung für Claude“ nennt unter `varianten14Tage`, bei wie vielen Antworten sie geöffnet wurde und wie viele Minuten darin steckten, damit „Aufgaben pro 15 Minuten“ nicht verzerrt gelesen wird.
 
 ## Version 1.4: die Uhr-Schleife (Partien holen und auswerten)
 

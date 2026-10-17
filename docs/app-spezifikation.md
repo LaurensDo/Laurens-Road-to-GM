@@ -171,8 +171,18 @@ Schritt 3 aus dem [Roadmap-Entwurf](roadmap-entwurf.md): die Uhr-Schleife.
 - **Abweichungen vom Entwurf:** Die Denkpausen der Basis liegen bei 2,62 je Partie statt 2,16 (die App zählt nur Partien, die Zug 30 erreichen, und zieht das Inkrement ab); Basis und App rechnen mit derselben Funktion, der Vergleich bleibt also stimmig. „In lichess-Analyse öffnen“ und das Vormerken von Denkpausen sind nicht gebaut (siehe Roadmap, Schritt 5). Das Archiv von chess.com liefert eine Partie nach unter einer Minute, es braucht keinen Hinweis auf Verzögerung.
 - **Privatsphäre:** Der Repo enthält nur die Basis-Kennzahlen (`uhr-basis.json`) und die Regel (`regel.json`), keine Partien, keine Namen. Die Benutzernamen liegen als Geräteeinstellung im Browser.
 
+## 9e. Version 1.5 (umgesetzt)
+
+Einschub „Varianten“ aus dem [Roadmap-Entwurf](roadmap-entwurf.md), auf Wunsch von Laurens.
+
+- **Variantenansicht:** Brett oben fest, untere Leiste mit Variantenauswahl, Zugliste, Vor/Zurück und „Fertig“. Pfeiltasten und Wischen funktionieren auch. Keine Scrollerei beim Durchklicken.
+- **Weitere gute Züge:** Auswahl aus bestem Zug, gleichwertigen Linien (soweit unter den fünf gespeicherten), eigenem Zug und Partiezug, jeweils mit Zugliste. Der eigene falsche Zug zeigt seine Widerlegung.
+- **Bewertungsbalken:** Gewinnchance aus Sicht des Spielers, nach dem Zug (Standard), auf Wunsch auch in der Aufgabe, oder aus. Nach einem Fehler fällt er sichtbar. Die Werte je Halbzug sind einmalig vorgerechnet, nicht live berechnet.
+- **Bewusst nicht:** Live-Stockfish im Browser und freies Ausprobieren von Zügen mit Bewertung (7 bis 10 MB, iOS nur single-threaded, Zahlen würden von den gespeicherten abweichen). Freies Ausprobieren ohne Bewertung wäre ohne Motor möglich, wurde aber nicht beauftragt.
+- **Zeit in Varianten:** zählt zur Trainingszeit, wird aber getrennt als `pv` erfasst und in der Auswertung genannt.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2, 1.3 und 1.4 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2, 1.3, 1.4 und 1.5 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

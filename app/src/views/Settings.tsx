@@ -172,6 +172,24 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           <p class="muted small">Zählen heißt: Züge, die höchstens 10 Prozentpunkte Gewinnchance unter dem besten liegen, sind richtig.</p>
         </div>
         <div class="field">
+          <label>Bewertungsbalken</label>
+          <Segmented
+            label="Bewertungsbalken"
+            value={prefs.evalbar}
+            options={[
+              { value: 'result', label: 'Nach dem Zug' },
+              { value: 'always', label: 'Auch in der Aufgabe' },
+              { value: 'off', label: 'Aus' },
+            ]}
+            onChange={(v) => setPrefs({ evalbar: v })}
+          />
+          <p class="muted small">
+            Der Balken neben dem Brett zeigt deine Gewinnchance in der Stellung, die gerade auf dem Brett steht. In der Aufgabe verrät er, ob in
+            der Stellung etwas los ist, das bekommst du in der Partie auch nicht. Deshalb erscheint er standardmäßig erst nach deinem Zug. Gilt nur für
+            dieses Gerät.
+          </p>
+        </div>
+        <div class="field">
           <label>Neue Aufgaben pro Tag</label>
           <Segmented
             label="Neue Aufgaben pro Tag"

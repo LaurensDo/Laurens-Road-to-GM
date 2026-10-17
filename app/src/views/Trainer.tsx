@@ -19,6 +19,8 @@ import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
 import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
 import { SetBar, SetResult } from './SetResult';
+import { EvalBar, VarBar } from './Variation';
+import { buildVariations, evAt } from '../lib/variation';
 
 interface Props {
   exercises: Exercise[];
@@ -94,7 +96,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const [result, setResult] = useState<Result | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [promo, setPromo] = useState<{ orig: SquareName; dest: SquareName } | null>(null);
-  const [pv, setPv] = useState<{ line: number; step: number } | null>(null);
+  /** offene Variante: Kennung (Variation.key) und Schritt (0 = Ausgangsstellung) */
+  const [pv, setPv] = useState<{ key: string; step: number } | null>(null);
   const [finished, setFinished] = useState(false);
   const [setId, setSetId] = useState<string | null>(null);
   const [summary, setSummary] = useState<Finished | null>(null);
@@ -102,6 +105,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const [live, setLive] = useState(false);
   /** läuft gerade die Widerlegung des eigenen Zuges auf dem Brett? */
   const [animating, setAnimating] = useState(false);
+  /** Gewinnchance der Stellung, die die Widerlegung gerade zeigt (Bewertungsbalken), null außerhalb der Vorführung */
+  const [animBar, setAnimBar] = useState<number | null>(null);
 
   const animTimers = useRef<number[]>([]);
   const animatingRef = useRef(false);
@@ -118,6 +123,9 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const dragOrig = useRef<string | null>(null);
   const moved = useRef(false);
   const liveRef = useRef(false);
+  /** Zeit in der Variantenansicht: bisher gesammelt und Beginn der laufenden Ansicht */
+  const pvAcc = useRef(0);
+  const pvSince = useRef<number | null>(null);
 
   phaseRef.current = phase;
   liveRef.current = live;
@@ -193,6 +201,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     const st = getState();
     const done = st.log.filter((e) => e.set?.id === act.id).length;
     durDone.current = false;
+    pvAcc.current = 0;
+    pvSince.current = null;
     setPv(null);
     setPromo(null);
     setResult(null);
@@ -387,19 +397,23 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     if (animatingRef.current) {
       animatingRef.current = false;
       setAnimating(false);
+      setAnimBar(null);
       if (settle) settleBoard();
     }
   };
 
   /** Zeigt nach einem falschen Zug, wie der Gegner ihn bestraft: seine Antwort und die nächsten Züge, dann zurück zur Aufgabe. */
-  const startRefutation = (e: Exercise, san: string, pv: string[]) => {
+  const startRefutation = (e: Exercise, san: string, pv: string[], ev?: number[]) => {
     const steps = walkVariation(e.fen, [san, ...pv.slice(0, 3)]);
     if (steps.length < 3) {
       settleBoard();
       return;
     }
+    // Bewertungsbalken: gleich nach dem eigenen Zug auf den Wert des Zuges, dann Halbzug für Halbzug
+    const evTo = (i: number) => (ev?.length ? ev[Math.min(i, ev.length) - 1] : null);
     animatingRef.current = true;
     setAnimating(true);
+    setAnimBar(evTo(1));
     cg.current?.set({ drawable: { autoShapes: [] } } as never);
     let t = 1000; // erst den eigenen Zug stehen lassen
     for (let i = 2; i < steps.length; i++) {
@@ -408,6 +422,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       animTimers.current.push(
         window.setTimeout(() => {
           cg.current?.set({ fen: st.fen, lastMove: st.lastMove as never } as never);
+          setAnimBar(evTo(i));
           play(tok.includes('x') ? 'capture' : 'move');
         }, t),
       );
@@ -478,7 +493,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     else if (ref) {
       // erst die Widerlegung vorführen, danach erscheinen die Pfeile
       resultShapes.current = shapes;
-      startRefutation(ex, san, ref[1]);
+      startRefutation(ex, san, ref[1], ref[2]);
     } else showShapes(shapes, ex.fen);
   };
 
@@ -512,6 +527,29 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     showShapes([shape(bf, bt, 'green')], ex.fen);
   };
 
+  /** Die Zeit einer offenen Variantenansicht zur gesammelten Zeit zählen */
+  const flushPv = () => {
+    if (pvSince.current !== null) {
+      pvAcc.current += Date.now() - pvSince.current;
+      pvSince.current = null;
+    }
+  };
+
+  const openPv = (key: string, step = 0) => {
+    cancelAnim(false);
+    if (pvSince.current === null) {
+      pvSince.current = Date.now();
+      // Querformat: der Ergebnistext scrollt in der Spalte neben dem Brett, nach dem Tipp auf "Variante ansehen" wieder nach oben
+      document.querySelector('.trainer > .result')?.scrollTo?.({ top: 0 });
+    }
+    setPv({ key, step });
+  };
+
+  const closePv = () => {
+    flushPv();
+    setPv(null);
+  };
+
   /** Gesamtzeit mit der Aufgabe nachtragen, sobald man sie verlässt */
   const commitDur = () => {
     const r = result;
@@ -519,9 +557,11 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     if (r && ex && !durDone.current) {
       durDone.current = true;
       const dur = Math.min(MAX_DUR_MS, Date.now() - shownWall.current);
+      flushPv();
+      const pvMs = Math.min(dur, Math.round(pvAcc.current));
       update((s) => ({
         ...s,
-        log: s.log.map((e) => (e.id === ex.id && e.ts === r.ts ? { ...e, dur } : e)),
+        log: s.log.map((e) => (e.id === ex.id && e.ts === r.ts ? { ...e, dur, ...(pvMs > 0 ? { pv: pvMs } : {}) } : e)),
       }));
     }
   };
@@ -563,26 +603,62 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     loadNext();
   };
 
-  // Varianten ansehen
-  const steps = useMemo(() => {
-    if (!pv || !current) return null;
-    return walkVariation(current.ex.fen, current.ex.lines[pv.line].pv);
-  }, [pv?.line, current]);
+  // Varianten ansehen: beste Linie, gleichwertige, eigener Zug und Partiezug, jeweils mit eigener Zugliste
+  const variations = useMemo(
+    () => (current && result ? buildVariations(current.ex, result.san, settings.tolerance) : []),
+    [current, result?.san, settings.tolerance],
+  );
+  const activeVar = pv ? (variations.find((v) => v.key === pv.key) ?? null) : null;
+  const steps = useMemo(() => (activeVar && current ? walkVariation(current.ex.fen, activeVar.moves) : null), [activeVar?.key, current]);
+  const maxStep = steps ? steps.length - 1 : 0;
 
   useEffect(() => {
     if (!cg.current || !current) return;
-    if (pv && steps) {
+    if (pv && steps && activeVar) {
       const st = steps[Math.min(pv.step, steps.length - 1)];
       cg.current.set({ fen: st.fen, lastMove: st.lastMove as never, drawable: { autoShapes: [] } } as never);
       if (pv.step > 0) {
-        const tok = current.ex.lines[pv.line].pv[pv.step - 1] ?? '';
+        const tok = activeVar.moves[pv.step - 1] ?? '';
         play(tok.includes('x') ? 'capture' : 'move');
       }
     } else if (phase === 'result') {
       cg.current.set({ fen: current.ex.fen, lastMove: shownLast(current.ex), drawable: { autoShapes: resultShapes.current } } as never);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pv?.line, pv?.step]);
+  }, [pv?.key, pv?.step]);
+
+  const stepTo = (step: number) => setPv((p) => (p ? { key: p.key, step: Math.max(0, Math.min(maxStep, step)) } : p));
+  const stepRef = useRef(stepTo);
+  stepRef.current = stepTo;
+  const pvOpenRef = useRef(false);
+  pvOpenRef.current = !!pv;
+  const pvStepRef = useRef(0);
+  pvStepRef.current = pv?.step ?? 0;
+
+  // Pfeiltasten (iPad mit Tastatur) und Wischen auf dem Brett: ein Zug vor oder zurück
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!pvOpenRef.current || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === 'ArrowLeft') stepRef.current(pvStepRef.current - 1);
+      else if (e.key === 'ArrowRight') stepRef.current(pvStepRef.current + 1);
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+  const swipeFrom = useRef<[number, number] | null>(null);
+  const onSwipeStart = (e: PointerEvent) => {
+    if (pvOpenRef.current) swipeFrom.current = [e.clientX, e.clientY];
+  };
+  const onSwipeEnd = (e: PointerEvent) => {
+    const from = swipeFrom.current;
+    swipeFrom.current = null;
+    if (!from || !pvOpenRef.current) return;
+    const dx = e.clientX - from[0];
+    const dy = e.clientY - from[1];
+    if (Math.abs(dx) >= 40 && Math.abs(dx) > 2 * Math.abs(dy)) stepRef.current(pvStepRef.current + (dx < 0 ? 1 : -1));
+  };
 
   const ex = current?.ex ?? null;
   const limit = settings.timeLimit;
@@ -659,9 +735,13 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const threatLine = result && !correctNow && result.verdict !== 'gaveup' && ex.threat && THREAT_CATS.has(ex.cat) ? ex.threat.san : null;
   const sameAsGame = !!result && !correctNow && result.verdict !== 'gaveup' && result.san === ex.played.san;
   const taskNo = Math.min(setSize, phase === 'ask' ? answered + 1 : answered);
+  // Bewertungsbalken: zeigt die Stellung, die das Brett zeigt. Nach dem Zug (Standard) oder auch in der Aufgabe (Einstellung)
+  const barMode = getPrefs().evalbar;
+  const showBar = barMode === 'always' || (barMode === 'result' && phase === 'result');
+  const barWp = pv ? evAt(ex, activeVar, pv.step) : animBar !== null ? animBar : ex.lines[0].wp;
 
   return (
-    <section class="screen trainer">
+    <section class={`screen trainer${pv ? ' varopen' : ''}`}>
       <header class="topbar">
         <button class="link" onClick={requestExit} aria-label="Training beenden">
           ← Beenden
@@ -685,7 +765,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
         )}
       </div>
 
-      <div class="board-wrap" data-live={live ? '1' : '0'} data-ex={ex.id}>
+      <div class="board-wrap" data-live={live ? '1' : '0'} data-ex={ex.id} onPointerDown={onSwipeStart} onPointerUp={onSwipeEnd} onPointerCancel={() => (swipeFrom.current = null)}>
+        {showBar && <EvalBar wp={barWp} color={ex.turn} />}
         <div ref={boardEl} class="board" role="img" aria-label={`Schachstellung, ${sideName(ex.turn)} am Zug`} />
         {animating && <div class="skip-anim" onClick={() => cancelAnim(true)} aria-hidden="true" />}
         {promo && (
@@ -770,41 +851,9 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
             Nächste Wiederholung {inWords(new Date(), result.nextDue)}. Partie vom {dateLabel(ex.date)}.
           </p>
 
-          {pv && steps ? (
-            <div class="pv" data-nosound>
-              <div class="pv-moves mono">
-                {ex.lines[pv.line].pv.slice(0, steps.length - 1).map((m, i) => (
-                  <button key={i} class={`pv-move ${i + 1 === pv.step ? 'on' : ''}`} onClick={() => setPv({ line: pv.line, step: i + 1 })}>
-                    {m}
-                  </button>
-                ))}
-              </div>
-              <div class="pv-controls">
-                <button class="btn secondary" disabled={pv.step <= 0} onClick={() => setPv({ line: pv.line, step: pv.step - 1 })} aria-label="Ein Zug zurück">
-                  ◀
-                </button>
-                <button
-                  class="btn secondary"
-                  disabled={pv.step >= steps.length - 1}
-                  onClick={() => setPv({ line: pv.line, step: pv.step + 1 })}
-                  aria-label="Ein Zug vor"
-                >
-                  ▶
-                </button>
-                <button class="btn secondary" onClick={() => setPv(null)}>
-                  Variante schließen
-                </button>
-              </div>
-            </div>
-          ) : (
+          {!pv && (
             <div class="actions row">
-              <button
-                class="btn secondary"
-                onClick={() => {
-                  cancelAnim(false);
-                  setPv({ line: 0, step: 0 });
-                }}
-              >
+              <button class="btn secondary" onClick={() => openPv(variations[0].key)}>
                 Variante ansehen
               </button>
               <a class="btn secondary" href={ex.url} target="_blank" rel="noopener noreferrer">
@@ -815,7 +864,11 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
         </div>
       )}
 
-      {phase === 'result' && result && (
+      {phase === 'result' && result && pv && activeVar && (
+        <VarBar fen={ex.fen} variations={variations} active={activeVar.key} step={pv.step} maxStep={maxStep} wp={barWp} onPick={(key) => openPv(key)} onStep={stepTo} onClose={closePv} />
+      )}
+
+      {phase === 'result' && result && !pv && (
         <div class="dock">
           <button class="btn" onClick={next}>
             {lastOfSet ? 'Ergebnis ansehen' : 'Weiter'}
