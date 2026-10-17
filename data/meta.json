@@ -1,0 +1,32 @@
+{
+ "version": 1,
+ "generated": "2026-10-15T15:46+02:00",
+ "games": 1606,
+ "period": [
+  "2025-01-03",
+  "2026-10-15"
+ ],
+ "baseline": {
+  "lost_on_time": 317,
+  "losses": 755,
+  "lost_on_time_not_losing": 109,
+  "clock_move20": 119.6,
+  "clock_move20_opp": 125.19,
+  "clock_move30": 65.35,
+  "clock_move30_opp": 79.85,
+  "hanging_per_100": 23.0,
+  "hanging_per_100_opp": 19.5,
+  "fork_per_100": 10.3,
+  "fork_per_100_opp": 9.1,
+  "blunders_middlegame": 3.59,
+  "blunders_middlegame_opp": 3.29
+ },
+ "counts": {
+  "exercises": 1200,
+  "by_phase": {
+   "Eröffnung": 215,
+   "Mittelspiel": 649,
+   "Endspiel": 336
+  }
+ }
+}
