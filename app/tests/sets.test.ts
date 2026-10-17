@@ -242,7 +242,11 @@ describe('Schlagzug und Geräteeinstellungen', () => {
       timerSound: 'off',
       ignoreMute: true,
       splash: false,
+      games: DEFAULT_PREFS.games,
+      chesscom: DEFAULT_PREFS.chesscom,
+      lichess: DEFAULT_PREFS.lichess,
     });
+    expect(clean({ games: false, chesscom: '  anna  ', lichess: 5 })).toMatchObject({ games: false, chesscom: 'anna', lichess: DEFAULT_PREFS.lichess });
   });
 });
 

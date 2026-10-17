@@ -45,9 +45,22 @@ node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Ger�
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
 node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echten Übungsdaten
+node tools/e2e-games.mjs /tmp/g    # Partien holen (chess.com und lichess nachgebaut), Karten auf Heute und Fortschritt, Offline, Ausschalten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.4: die Uhr-Schleife (Partien holen und auswerten)
+
+Die App sieht jetzt deine echten Partien, damit die Übungen und die Uhr zusammenkommen. Schwerpunkt ist 3+0, Bullet läuft getrennt.
+
+- **Holen** (`src/lib/gamesStore.ts`). Beim Öffnen und beim Zurückkehren in die App, höchstens alle zehn Minuten, dazu die Knöpfe „Jetzt holen“ (Heute, Einstellungen) und „Alles neu holen“. chess.com: Monatsarchiv von `chesscom` ab dem 15.10.2026; vergangene, vollständige Monate werden nicht noch einmal geholt. lichess: `/api/games/user/<name>?since=…&clocks=true&perfType=bullet,blitz` als NDJSON. Beide Seiten erlauben den Zugriff aus dem Browser (CORS). Die Archivverzögerung bei chess.com liegt unter einer Minute (gemessen am 17.10.2026). Nur Bullet und Blitz in Standardschach. Die Namen der Gegner werden nie gelesen oder gespeichert.
+- **Speicher.** IndexedDB `road-to-gm-games-v1`, nur auf dem jeweiligen Gerät. Die Partien laufen nicht über den Abgleich, jedes Gerät holt selbst. Die Sicherung enthält sie nicht. In den Einstellungen unter „Deine Partien“ lassen sich das automatische Holen ausschalten und die Benutzernamen ändern (`device.ts`: `games`, `chesscom`, `lichess`).
+- **Heute: „Deine Partien“.** Oben die eine Regel (aus `public/data/regel.json`), dann „3+0 seit gestern“ mit Zug 30 im Budget und auf Zeit verloren mit Mehrmaterial, eine eigene Bullet-Zeile (Vorsprung vor Zug 20) und die letzten fünf Blitzpartien. Jede Partie zeigt zwei Marken, ✓ im Budget, ○ knapp darunter, – Partie war vorher zu Ende, nie ein rotes Kreuz. Aufgeklappt: Uhr vor Zug 30, die längste Denkpause mit Mini-Brett und der Link zur Partie. Die Fokus-Karte ist darunter einklappbar („Dein Fokus laut Diagnose“, ohne die Regel).
+- **Fortschritt: „Uhr in deinen Partien“** (`ClockCard`). Eigene Zeit von Zug 16 bis 29, Vorsprung vor Zug 30, Denkpausen über 10 s je Partie, Budget-Quoten, jeweils neben der eingefrorenen Basis (`public/data/uhr-basis.json`, erzeugt mit `node tools/make-baseline.mjs` aus den Partien vor dem 15.10.; die Rohdaten liegen nicht im Repo). Ein Urteil („besser / im normalen Bereich / schlechter“) gibt es erst ab 120 3+0-Partien mit Uhr vor Zug 30, Bullet ab 600. Der normale Bereich ist das, was der Zufall bei dieser Zahl von Partien erklärt (`basis.ts`). Darunter laufender Durchschnitt über 20 Partien mit dem Streifen der Monatswerte.
+- **Definitionen** (`src/lib/gameStats.ts`, mit Tests in `tests/games.test.ts`). „Uhr vor Zug N“ ist die Restzeit nach dem eigenen Zug N−1. Denkpause: mindestens 10 s auf einem eigenen Zug 15 bis 35 (Inkrement abgezogen). Budget in 3+0: Uhr vor Zug 20 mindestens 2:00, vor Zug 30 mindestens 1:20, bei anderer Grundzeit entsprechend skaliert, ohne Inkrement. Qualitätsbremse: Material, das nach einem Zug unter 2 s bei mindestens 30 s Restzeit binnen zwei Halbzügen verloren geht.
+- **Die Regel** liegt als öffentliche Datei `data/regel.json` und ändert sich nur, wenn du es willst. Ein iOS-Kurzbefehl kann sie mit „Inhalte von URL abrufen“ lesen und beim Öffnen von chess.com oder lichess als Mitteilung zeigen.
+- **Nicht gebaut (bewusst):** „In lichess-Analyse öffnen“ (iOS blockiert das Fenster nach einem Netzwerkaufruf) und Denkpausen vormerken (`kind: 'mark'`). Beides gehört zu Schritt 5, wenn es einen Ort gibt, an dem die vorgemerkten Stellungen landen.
 
 ## Version 1.3: faires Urteil, ehrlicher Richtwert, Widerlegung
 

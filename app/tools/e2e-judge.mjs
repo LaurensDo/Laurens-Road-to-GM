@@ -3,6 +3,7 @@
 //  B  ein falscher Zug mit bekannter Widerlegung: Vorführung, Text, Drohungspfeil, Überspringen per Tipp
 // Aufruf: npx vite preview --port 4173 --strictPort &  node tools/e2e-judge.mjs [Ausgabeordner]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { mockGames } from './mock-games.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
@@ -19,6 +20,7 @@ const ok = (c, m) => { results.push(`${c ? 'OK  ' : 'FAIL'} ${m}`); if (!c) proc
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+await mockGames(ctx);
 await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false })));
 const page = await ctx.newPage();
 const errors = [];

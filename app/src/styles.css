@@ -92,6 +92,7 @@ b { font-weight: 600; }
 .facts dd { margin: 0; font-size: 1.15rem; font-weight: 500; }
 .facts.two > div { grid-template-columns: 1fr auto; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
 .facts.two dd { font-size: 1rem; text-align: right; }
+.facts.two dd.note { grid-column: 1 / -1; text-align: left; font-size: 0.85rem; font-weight: 400; margin-top: -4px; }
 
 .btn {
   appearance: none; border: 0; border-radius: 12px; min-height: 50px; padding: 12px 16px; width: 100%;
@@ -253,6 +254,31 @@ input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
 .tasklist .mark.bad { color: var(--bad); }
 .tasklist a { color: var(--accent); }
 .sets-today { margin-bottom: 4px; }
+.regel { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+.g-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.g-list > li { border-top: 1px solid var(--rule); }
+.g-row > summary { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 10px 0; cursor: pointer; list-style: none; }
+.g-row > summary::-webkit-details-marker { display: none; }
+.g-when { font-weight: 500; }
+.g-tc { color: var(--ink-2); font-size: 0.85rem; }
+.g-res { color: var(--muted); font-size: 0.88rem; }
+.g-marks { flex-basis: 100%; display: flex; gap: 16px; color: var(--ink-2); font-size: 0.8rem; }
+.g-marks > span { white-space: nowrap; }
+.g-body a { color: var(--accent); }
+.g-body { display: grid; gap: 8px; padding: 0 0 12px; }
+.g-pause { display: flex; gap: 12px; align-items: center; }
+.miniboard { width: 120px; height: 120px; flex: none; }
+.g-foot .link { white-space: nowrap; flex: none; }
+.g-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.howto-card > summary { cursor: pointer; list-style: none; }
+.howto-card > summary::-webkit-details-marker { display: none; }
+.howto-card > summary h2::after { content: ' ▾'; color: var(--muted); font-size: 0.8em; }
+.howto-card[open] > summary h2::after { content: ' ▴'; }
+.howto-card[open] > summary { margin-bottom: 8px; }
+.verdicts { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; font-size: 0.9rem; }
+.chart .band { fill: var(--accent-soft); }
+.chart .line { stroke: var(--accent); stroke-width: 2; }
+.bullet-box h3 { font: 600 1rem var(--font-body); margin: 4px 0; }
 .skill-row { display: grid; gap: 4px; }
 .skill-rate { font-size: 1.8rem; font-weight: 600; line-height: 1.1; }
 .sfx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }

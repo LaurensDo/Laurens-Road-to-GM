@@ -1,6 +1,6 @@
 # Road to GM – Roadmap nach Version 1.1 (Entwurf)
 
-Stand: 17.10.2026 · Status: Entwurf zur Abstimmung, noch nichts davon gebaut.
+Stand: 17.10.2026 · Status: Entwurf, abgestimmt; Schritte 1 bis 3 gebaut (Versionen 1.2 bis 1.4).
 
 Entstanden aus sechs unabhängigen Blickwinkeln (Lernwissenschaft, Motivation und Gewohnheit, Blitz-Trainer, Wirkungsmessung, Produkt und UX im Code, Spieldesign) mit 55 Ideen, gebündelt zu 29 Kandidaten, bewertet von vier Juroren (Spielstärke, Spaß und Regelmäßigkeit, Machbarkeit, Skeptiker) und danach auf Lücken geprüft. Die Kernzahlen wurden gegen die Partiedaten nachgerechnet. Die Entscheidungen am Ende trifft Laurens.
 
@@ -16,7 +16,7 @@ Entstanden aus sechs unabhängigen Blickwinkeln (Lernwissenschaft, Motivation un
 
 - Schritt 1 (Version 1.2): umgesetzt und veröffentlicht am 17.10.2026.
 - Schritt 2 (Version 1.3): faires Urteil über alle Züge, Richtwert `maia.ok`, Erstversuch-Karte, Widerlegung und Drohungspfeil, Motive, Reihenfolge nach Priorität umgesetzt. Offen aus Schritt 2: das Herauslösen der Brett-Komponente (folgt mit Schritt 4 oder 5, wenn ein zweiter Nutzer sie braucht), „ruhige Stellungen“ als vorgerechnete Kandidaten (gehört zu Schritt 5), Umwerten alter Antworten (bewusst weggelassen, siehe Spezifikation 9c).
-- Schritt 3 (Uhr-Schleife mit den echten Partien): als Nächstes.
+- Schritt 3 (Version 1.4): Partien aus chess.com und lichess holen, Karten „Deine Partien“ (Heute) und „Uhr in deinen Partien“ (Fortschritt) mit eingefrorener Basis umgesetzt. Offen aus Schritt 3: „In lichess-Analyse öffnen“ und das Vormerken von Denkpausen (`kind: 'mark'`) wandern zu Schritt 5. Abweichung: Die Denkpausen der Basis liegen bei 2,62 je Partie statt 2,16, weil die App nur Partien zählt, die Zug 30 erreichen, und das Inkrement abzieht. Nach der ersten echten Nutzung: Prüfen, ob es auf dem iPhone und iPad wirklich Partien holt (CORS wurde nur mit Mocks und aus der Sandbox geprüft).
 
 ## Kernthese
 

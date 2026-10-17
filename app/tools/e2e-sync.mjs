@@ -1,6 +1,7 @@
 // Sync-Test mit zwei Geräten (iPhone- und iPad-Format) gegen einen Mock der GitHub-API.
 // Aufruf: bash tools/e2e-sync.sh
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { mockGames } from './mock-games.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { startMockGithub } from './mock-github.mjs';
 
@@ -16,6 +17,7 @@ const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromi
 const errors = [];
 async function device(name, viewport) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, hasTouch: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  await mockGames(ctx);
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(`${name}: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error' && !/fonts\.g|status of 40[14]/.test(m.text())) errors.push(`${name}: ${m.text()}`); });

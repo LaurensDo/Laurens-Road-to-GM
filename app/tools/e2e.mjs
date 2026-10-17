@@ -1,6 +1,7 @@
 // Ende-zu-Ende-Test: Sätze, Töne, Ablauf, Speicherung, Offline und alle Geräteformate.
 // Aufruf: npx vite preview --port 4173 &  dann  node tools/e2e.mjs [Ausgabeordner]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { mockGames } from './mock-games.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
@@ -19,6 +20,7 @@ const ok = (cond, msg) => { log.push(`${cond ? 'OK  ' : 'FAIL'} ${msg}`); if (!c
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: 'light', hasTouch: true, isMobile: true });
+await mockGames(ctx);
 await ctx.addInitScript(() => {
   window.__sfx = [];
   window.addEventListener('road-sfx', (e) => window.__sfx.push(e.detail));

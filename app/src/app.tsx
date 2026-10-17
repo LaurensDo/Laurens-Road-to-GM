@@ -5,6 +5,7 @@ import { loadState, useAppState } from './lib/store';
 import { usePrefs } from './lib/device';
 import { initSync } from './lib/syncRunner';
 import { startUpdater } from './lib/updater';
+import { initGames } from './lib/gamesStore';
 import { installAudioUnlock, play } from './lib/sound';
 import { Progress } from './views/Progress';
 import { Splash } from './views/Splash';
@@ -39,6 +40,7 @@ export function App() {
     startUpdater(() => reloadSafe.current);
     void loadState().then(() => {
       initSync();
+      void initGames();
       setStateReady(true);
     });
     loadData()
@@ -101,8 +103,8 @@ export function App() {
     content = (
       <>
         <main>
-          {tab === 'today' && <Today exercises={data.exercises} meta={data.meta} onStart={() => setTraining(true)} onOpenSettings={() => setTab('settings')} />}
-          {tab === 'progress' && <Progress exercises={data.exercises} byId={data.byId} meta={data.meta} />}
+          {tab === 'today' && <Today exercises={data.exercises} meta={data.meta} regel={data.regel} onStart={() => setTraining(true)} onOpenSettings={() => setTab('settings')} />}
+          {tab === 'progress' && <Progress exercises={data.exercises} byId={data.byId} meta={data.meta} basis={data.basis} />}
           {tab === 'settings' && <Settings exercises={data.exercises} generated={data.generated} holdout={data.holdout} byId={data.byId} dataVersion={data.dataVersion} />}
         </main>
         <nav class="tabbar" aria-label="Hauptnavigation">

@@ -54,9 +54,13 @@ function headers(cfg: SyncConfig, accept = 'application/vnd.github+json'): Recor
 async function call(ctx: Ctx, cfg: SyncConfig, url: string, init: RequestInit = {}, accept?: string): Promise<Response> {
   let res: Response;
   try {
-    // GitHub erlaubt dem Browser, Antworten 60 s zu cachen (Cache-Control: private, max-age=60). Ohne no-store liest der
+    // GitHub erlaubt dem Browser, Antworten 60 s zu cachen (Cache-Control: private, max-age=60). Ohne Gegenmaßnahme liest der
     // Abgleich in dieser Zeit einen veralteten Stand, und nach einem Konflikt (409) käme bei jedem neuen Versuch derselbe alte sha.
-    res = await ctx.fetch(`${API}${url}`, { ...init, cache: 'no-store', headers: { ...headers(cfg, accept), ...(init.headers as Record<string, string> | undefined) } });
+    // Ein zusätzlicher Parameter macht jede Anfrage zu einer neuen Adresse. Das ist verlässlicher als cache: 'no-store', das je nach
+    // Browser zusätzliche Anfrage-Kopfzeilen setzt und bei strenger CORS-Prüfung Ärger machen kann.
+    const method = (init.method ?? 'GET').toUpperCase();
+    const target = method === 'GET' ? `${API}${url}${url.includes('?') ? '&' : '?'}_=${Date.now().toString(36)}` : `${API}${url}`;
+    res = await ctx.fetch(target, { ...init, headers: { ...headers(cfg, accept), ...(init.headers as Record<string, string> | undefined) } });
   } catch {
     throw new SyncError('network', 'Keine Verbindung zu GitHub. Der Abgleich läuft, sobald du wieder online bist.');
   }

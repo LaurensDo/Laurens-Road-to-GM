@@ -16,9 +16,23 @@ export interface DevicePrefs {
   ignoreMute: boolean;
   /** Startbild beim Öffnen der App */
   splash: boolean;
+  /** Eigene Partien beim Öffnen automatisch holen (chess.com und lichess) */
+  games: boolean;
+  /** Spielernamen für den Abruf (öffentliche Schnittstellen, kein Passwort). Leer = nicht holen. */
+  chesscom: string;
+  lichess: string;
 }
 
-export const DEFAULT_PREFS: DevicePrefs = { sound: true, volume: 2, timerSound: 'standard', ignoreMute: false, splash: true };
+export const DEFAULT_PREFS: DevicePrefs = {
+  sound: true,
+  volume: 2,
+  timerSound: 'standard',
+  ignoreMute: false,
+  splash: true,
+  games: true,
+  chesscom: 'laurens3495',
+  lichess: 'Poquitonator',
+};
 
 const KEY = 'road-to-gm-device-v1';
 let prefs: DevicePrefs = load();
@@ -42,6 +56,9 @@ export function clean(raw: unknown): DevicePrefs {
     timerSound: r.timerSound === 'off' || r.timerSound === 'end' || r.timerSound === 'standard' || r.timerSound === 'every' ? r.timerSound : DEFAULT_PREFS.timerSound,
     ignoreMute: typeof r.ignoreMute === 'boolean' ? r.ignoreMute : DEFAULT_PREFS.ignoreMute,
     splash: typeof r.splash === 'boolean' ? r.splash : DEFAULT_PREFS.splash,
+    games: typeof r.games === 'boolean' ? r.games : DEFAULT_PREFS.games,
+    chesscom: typeof r.chesscom === 'string' ? r.chesscom.trim().slice(0, 40) : DEFAULT_PREFS.chesscom,
+    lichess: typeof r.lichess === 'string' ? r.lichess.trim().slice(0, 40) : DEFAULT_PREFS.lichess,
   };
 }
 

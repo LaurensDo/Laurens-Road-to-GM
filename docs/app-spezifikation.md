@@ -161,8 +161,18 @@ Schritt 2 aus dem [Roadmap-Entwurf](roadmap-entwurf.md): ein Urteil, dem man ver
 - **Reihenfolge neuer Übungen:** nach Priorität statt nach altem Verlust, mit Mischregeln je zehn Aufgaben.
 - **Bewusst anders als im Entwurf:** Alte Antworten werden nicht nachträglich umgewertet (der Wiederholungsplan muss auf beiden Geräten gleich ausfallen). Das Herauslösen der Brett-Komponente aus dem Trainer folgt, wenn sie ein zweiter Modus braucht (Ergebnisseite und ruhige Stellungen), nicht auf Vorrat.
 
+## 9d. Version 1.4 (umgesetzt)
+
+Schritt 3 aus dem [Roadmap-Entwurf](roadmap-entwurf.md): die Uhr-Schleife.
+
+- **Partien holen:** automatisch beim Öffnen (höchstens alle 10 Minuten) und per Knopf, aus dem chess.com-Monatsarchiv und der lichess-Export-Schnittstelle. Nur Bullet und Blitz, ab dem 15.10.2026, ohne Gegnernamen, nur auf dem jeweiligen Gerät in IndexedDB. Abschaltbar in den Einstellungen.
+- **Heute:** Die Karte „Deine Partien“ ersetzt die Fokus-Karte: eine Regel, ein positives Fazit („3+0 seit gestern“, Zug 30 im Budget, auf Zeit verloren mit Mehrmaterial), eine Bullet-Zeile, die letzten fünf Blitzpartien mit Budget-Marken, längster Denkpause mit Mini-Brett und Link. Keine roten Kreuze, kein Tagesziel.
+- **Fortschritt:** „Uhr in deinen Partien“: eigene Zeit von Zug 16 bis 29, Vorsprung vor Zug 30, Denkpausen, Budget-Quoten, neben einer eingefrorenen Basis (die 299 letzten 3+0-Partien vor dem 15.10.). Ein Urteil erst ab 120 Partien (Bullet: 600), dazu der normale Bereich der Monate.
+- **Abweichungen vom Entwurf:** Die Denkpausen der Basis liegen bei 2,62 je Partie statt 2,16 (die App zählt nur Partien, die Zug 30 erreichen, und zieht das Inkrement ab); Basis und App rechnen mit derselben Funktion, der Vergleich bleibt also stimmig. „In lichess-Analyse öffnen“ und das Vormerken von Denkpausen sind nicht gebaut (siehe Roadmap, Schritt 5). Das Archiv von chess.com liefert eine Partie nach unter einer Minute, es braucht keinen Hinweis auf Verzögerung.
+- **Privatsphäre:** Der Repo enthält nur die Basis-Kennzahlen (`uhr-basis.json`) und die Regel (`regel.json`), keine Partien, keine Namen. Die Benutzernamen liegen als Geräteeinstellung im Browser.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2 und 1.3 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2, 1.3 und 1.4 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

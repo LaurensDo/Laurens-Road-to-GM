@@ -3,6 +3,8 @@ import { count, dayKey, dayLabel, n0, n1, pct } from '../lib/format';
 import { breakdown, cardCounts, correct, lastDays, today, trainingDays, windowStats } from '../lib/stats';
 import { listSets, rateOf } from '../lib/sets';
 import { MIN_TRIES, SKILL_TEXT, firstTries, skillStat, type SkillStat } from '../lib/skill';
+import type { UhrBasis } from '../lib/basis';
+import { ClockCard } from './Games';
 import { useAppState } from '../lib/store';
 import type { Exercise, Meta } from '../lib/types';
 
@@ -10,6 +12,7 @@ interface Props {
   exercises: Exercise[];
   byId: Map<string, Exercise>;
   meta: Meta | null;
+  basis: UhrBasis | null;
 }
 
 function Bars({ days }: { days: ReturnType<typeof lastDays> }) {
@@ -110,7 +113,7 @@ function Table({ rows }: { rows: ReturnType<typeof breakdown> }) {
   );
 }
 
-export function Progress({ exercises, byId, meta }: Props) {
+export function Progress({ exercises, byId, meta, basis }: Props) {
   const state = useAppState();
   const now = new Date();
   // Abhängig vom Verlauf selbst, nicht nur seiner Länge: Ein Abgleich mit Zurücksetzen oder eine Wiederherstellung kann
@@ -166,6 +169,8 @@ export function Progress({ exercises, byId, meta }: Props) {
           </dl>
         )}
       </div>
+
+      <ClockCard basis={basis} />
 
       {tries.length > 0 && (
         <div class="card">

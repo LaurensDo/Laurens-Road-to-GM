@@ -2,6 +2,7 @@ import { counts } from '../lib/queue';
 import { count, dayKey, n0, n1, pct } from '../lib/format';
 import { KingMark } from './Mark';
 import { applyUpdate, useUpdateReady } from '../lib/updater';
+import { GamesCard } from './Games';
 import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
@@ -11,11 +12,12 @@ import type { Exercise, Meta } from '../lib/types';
 interface Props {
   exercises: Exercise[];
   meta: Meta | null;
+  regel: string;
   onStart: () => void;
   onOpenSettings: () => void;
 }
 
-export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
+export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props) {
   const state = useAppState();
   const now = new Date();
   const c = counts(exercises, state, now);
@@ -122,12 +124,13 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
         )}
       </div>
 
-      <div class="card focus">
-        <h2>Dein Fokus laut Diagnose</h2>
+      <GamesCard regel={regel} />
+
+      <details class="card howto-card">
+        <summary>
+          <h2>Dein Fokus laut Diagnose</h2>
+        </summary>
         <ul class="plain">
-          <li>
-            <b>Regel:</b> Über 10 Sekunden nachgedacht und kein Schach, kein Schlag, keine Drohung? Zieh deinen besten Kandidaten.
-          </li>
           <li>
             <b>Uhr:</b> in 3+0 bei Zug 20 mindestens 2:00, bei Zug 30 mindestens 1:20 auf der Uhr.
             {b && (
@@ -149,7 +152,7 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
             Grundlage: {n0(meta.games)} Blitz-Partien, {n0(meta.counts.exercises)} Übungen aus deinen eigenen Fehlern.
           </p>
         )}
-      </div>
+      </details>
     </section>
   );
 }

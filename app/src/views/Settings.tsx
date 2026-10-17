@@ -10,6 +10,7 @@ import { saveActive } from '../lib/sets';
 import { diagText } from '../lib/diag';
 import { count, n0 } from '../lib/format';
 import { counts } from '../lib/queue';
+import { fetchGamesNow, resetGames, useGamesStatus } from '../lib/gamesStore';
 import { usageReportText } from '../lib/report';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
@@ -34,6 +35,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
   const [reportText, setReportText] = useState('');
   const [reportMsg, setReportMsg] = useState<string | null>(null);
   const synced = useSyncStatus().state !== 'off';
+  const gamesSt = useGamesStatus();
 
   const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
@@ -270,6 +272,43 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           />
           <p class="muted small">Gilt nur für dieses Gerät. Tippen überspringt das Startbild.</p>
         </div>
+      </div>
+
+      <div class="card">
+        <h2>Deine Partien</h2>
+        <p class="muted">
+          Die App holt deine Partien von chess.com und lichess (öffentliche Schnittstellen, kein Passwort) und wertet die Uhr aus: wie viel Zeit du bis Zug 30
+          verbrauchst. Nur Zeiten, Züge und Ergebnis, keine Namen von Gegnern. Gilt nur für dieses Gerät.
+        </p>
+        <div class="field">
+          <label>Beim Öffnen holen</label>
+          <Segmented
+            label="Partien holen"
+            value={prefs.games ? 'an' : 'aus'}
+            options={[
+              { value: 'an', label: 'Automatisch' },
+              { value: 'aus', label: 'Aus' },
+            ]}
+            onChange={(v) => setPrefs({ games: v === 'an' })}
+          />
+        </div>
+        <div class="field">
+          <label for="acc-cc">chess.com, Benutzername</label>
+          <input id="acc-cc" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck={false} value={prefs.chesscom} onChange={(e) => setPrefs({ chesscom: (e.target as HTMLInputElement).value })} />
+        </div>
+        <div class="field">
+          <label for="acc-li">lichess, Benutzername</label>
+          <input id="acc-li" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck={false} value={prefs.lichess} onChange={(e) => setPrefs({ lichess: (e.target as HTMLInputElement).value })} />
+        </div>
+        <div class="actions row">
+          <button class="btn secondary" disabled={gamesSt.state === 'loading'} onClick={() => void fetchGamesNow(true)}>
+            Jetzt holen
+          </button>
+          <button class="btn secondary" disabled={gamesSt.state === 'loading'} onClick={() => void resetGames()}>
+            Alles neu holen
+          </button>
+        </div>
+        {gamesSt.state === 'error' && <p class="notice bad">{gamesSt.message}</p>}
       </div>
 
       <div class="card">

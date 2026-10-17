@@ -1,5 +1,6 @@
 // Aufruf: bash tools/e2e-update.sh
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { mockGames } from './mock-games.mjs';
 import { execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 
@@ -14,6 +15,7 @@ const rebuild = () => { execSync(`npx vite build --outDir ${DIST} --emptyOutDir`
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+await mockGames(ctx);
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));

@@ -11,7 +11,7 @@ export function startMockGithub(port = 4180, { token = 'ghp_mock', repo = 'me/sy
     'Access-Control-Allow-Headers': 'authorization,content-type,x-github-api-version,accept',
     'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
   };
-  // Wie GitHub: Lesende Antworten darf der Browser 60 s cachen. Die App muss das umgehen (fetch mit cache: 'no-store').
+  // Wie GitHub: Lesende Antworten darf der Browser 60 s cachen. Die App muss das umgehen (die App hängt dafür einen wechselnden Parameter an die Adresse).
   const caching = { 'Cache-Control': 'private, max-age=60, s-maxage=60', Vary: 'Accept, Authorization' };
   const send = (res, status, body, type = 'application/json') => {
     res.writeHead(status, { ...cors, ...(res.req.method === 'GET' ? caching : {}), 'Content-Type': type });
