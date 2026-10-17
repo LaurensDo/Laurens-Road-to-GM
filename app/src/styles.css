@@ -329,9 +329,12 @@ cg-board square.check { background: radial-gradient(ellipse at center, rgba(231,
 .hero-prog .mono { font-size: 0.82rem; color: var(--hero-muted); }
 .hero .bar { background: rgba(255, 255, 255, 0.16); }
 .hero .bar > i { background: #9fe0c8; }
-.hero-facts { grid-template-columns: repeat(3, 1fr); }
-.hero-facts dt { color: var(--hero-muted); }
-.hero-facts dd { color: var(--hero-ink); font-size: 1.35rem; }
+.hero-facts-small { display: flex; gap: 22px; margin: 0; }
+.hero-facts-small > div { display: flex; gap: 6px; align-items: baseline; }
+.hero-facts-small dt { color: var(--hero-muted); font-size: 0.82rem; }
+.hero-facts-small dd { margin: 0; color: var(--hero-ink); font-size: 0.95rem; }
+.update-note { appearance: none; border: 1px solid var(--rule); border-radius: 14px; background: var(--accent-soft); color: var(--ink); font: 500 0.95rem var(--font-body); padding: 10px 14px; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer; width: 100%; }
+.update-mark { width: 26px; height: 32px; object-fit: contain; flex: none; }
 .btn.light { background: var(--hero-ink); color: var(--hero-a); }
 .hero-note { font-size: 0.85rem; }
 .hero .sync-hint.bad { color: #ffb3a6; }

@@ -1,5 +1,6 @@
-import { canonical, fromRemote, mergeStates, toRemote, type RemoteState } from './merge';
+import { canonical, fromRemote, mergeStates, readerNeeded, toRemote, type RemoteState } from './merge';
 import { emptyState, type AppState } from './types';
+import { APP_VERSION, READER_LEVEL, compareVersions } from './version';
 
 /**
  * Abgleich über eine Datei in einem privaten GitHub-Repository (Contents-API).
@@ -16,7 +17,7 @@ export interface SyncConfig {
 export const DEFAULT_PATH = 'road-to-gm/state.json';
 const API: string = (import.meta.env?.VITE_SYNC_API as string | undefined) ?? 'https://api.github.com';
 
-export type SyncErrorKind = 'auth' | 'access' | 'notfound' | 'public' | 'network' | 'format' | 'conflict' | 'other';
+export type SyncErrorKind = 'auth' | 'access' | 'notfound' | 'public' | 'network' | 'format' | 'newer' | 'conflict' | 'other';
 
 export class SyncError extends Error {
   kind: SyncErrorKind;
@@ -110,6 +111,9 @@ export async function fetchRemote(ctx: Ctx, cfg: SyncConfig): Promise<RemoteFile
   } catch {
     throw new SyncError('format', 'Die Sync-Datei im Repository ist nicht lesbar. Sie wird nicht überschrieben.');
   }
+  if (readerNeeded(parsed) > READER_LEVEL) {
+    throw new SyncError('newer', 'Die Sync-Datei stammt von einer neueren Version der App. Öffne die App neu, bis sie sich aktualisiert hat. Die Datei bleibt unberührt.');
+  }
   const state = fromRemote(parsed);
   if (!state) throw new SyncError('format', 'Die Sync-Datei hat ein unbekanntes Format. Sie wird nicht überschrieben.');
   return { remote: state, sha: meta.sha };
@@ -139,6 +143,13 @@ export interface SyncIO {
   setState: (s: AppState) => void;
 }
 
+/** Eigenes Gerät mit der App-Version in die Geräteliste eintragen. Schreibt nur bei neuer Version oder nach einem Tag, damit nicht jeder Abgleich die Datei ändert. */
+export function touchDevice(s: AppState, name: string, now: number): AppState {
+  const cur = s.devices[name];
+  if (cur && compareVersions(cur.v, APP_VERSION) === 0 && now - cur.ts < 24 * 3600 * 1000) return s;
+  return { ...s, devices: { ...s.devices, [name]: { v: APP_VERSION, ts: now } } };
+}
+
 export interface SyncOutcome {
   pushed: boolean;
   at: number;
@@ -151,7 +162,7 @@ export interface SyncOutcome {
 export async function syncOnce(ctx: Ctx, cfg: SyncConfig, io: SyncIO, now: () => number = Date.now): Promise<SyncOutcome> {
   for (let attempt = 0; attempt < 4; attempt++) {
     const { remote, sha } = await fetchRemote(ctx, cfg);
-    const merged = mergeStates(io.getState(), remote ?? emptyState());
+    const merged = touchDevice(mergeStates(io.getState(), remote ?? emptyState()), cfg.device, now());
     io.setState(merged);
     const body = toRemote(merged);
     if (remote && canonical(body) === canonical(toRemote(remote))) return { pushed: false, at: now() };

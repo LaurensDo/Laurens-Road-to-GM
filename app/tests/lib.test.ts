@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { gradeFor, judge } from '../src/lib/judge';
 import { destsOf, isPromotion, positionOf, sanOfMove, walkVariation } from '../src/lib/chess';
 import { applyReview, dueDate, newRecord } from '../src/lib/srs';
-import { counts, newQuotaLeft, pickNext } from '../src/lib/queue';
+import { counts, pickNext } from '../src/lib/queue';
 import { emptyState, type Exercise } from '../src/lib/types';
 import { explain } from '../src/lib/explain';
-import { lastDays, streak } from '../src/lib/stats';
+import { lastDays, trainingDays } from '../src/lib/stats';
 import { dateLabel, inWords } from '../src/lib/format';
 
 const ex = (over: Partial<Exercise> = {}): Exercise => ({
@@ -164,8 +164,9 @@ describe('Warteschlange', () => {
     const s = emptyState();
     s.settings.newPerDay = 1;
     s.bonus = { day: '2026-10-15', n: 5 };
-    expect(newQuotaLeft(s, t)).toBe(6);
-    expect(newQuotaLeft(s, new Date('2026-10-16T09:00:00'))).toBe(1);
+    const many = Array.from({ length: 20 }, (_, i) => ex({ id: `q${i}` }));
+    expect(counts(many, s, t).newAvailable).toBe(6);
+    expect(counts(many, s, new Date('2026-10-16T09:00:00')).newAvailable).toBe(1);
   });
   it('ausgeblendete Aufgaben kommen nie vor', () => {
     const s = emptyState();
@@ -189,12 +190,11 @@ describe('Erklärung und Statistik', () => {
     expect(lines).toContain('120 s');
     expect(lines).toContain('40 %');
   });
-  it('Serie zählt zusammenhängende Tage', () => {
+  it('Trainingstage im Monat und Tagesleiste', () => {
     const now = new Date('2026-10-15T12:00:00');
     const mk = (d: string) => ({ id: 'a', ts: new Date(d).getTime(), grade: 3 as const, verdict: 'best' as const, ms: 1000, dur: 5000 });
-    expect(streak([mk('2026-10-15T08:00:00'), mk('2026-10-14T08:00:00'), mk('2026-10-13T08:00:00'), mk('2026-10-11T08:00:00')], now)).toBe(3);
-    expect(streak([mk('2026-10-14T08:00:00')], now)).toBe(1);
-    expect(streak([], now)).toBe(0);
+    expect(trainingDays([mk('2026-10-15T08:00:00'), mk('2026-10-15T09:00:00'), mk('2026-10-14T08:00:00'), mk('2026-10-02T08:00:00'), mk('2026-09-30T08:00:00')], now)).toBe(3);
+    expect(trainingDays([], now)).toBe(0);
     expect(lastDays([mk('2026-10-15T08:00:00')], 3, now).map((d) => d.n)).toEqual([0, 0, 1]);
   });
   it('Zeitumstellung: kein Tag doppelt oder ausgelassen', () => {
@@ -206,8 +206,8 @@ describe('Erklärung und Statistik', () => {
       const keys = lastDays([], 14, lateEvening).map((d) => d.key);
       expect(new Set(keys).size).toBe(14);
       expect([keys[0], keys[13]]).toEqual(['2026-10-13', '2026-10-26']);
-      expect(streak([mk('2026-10-26T20:00:00'), mk('2026-10-25T12:00:00')], lateEvening)).toBe(2);
-      expect(streak([mk('2026-03-30T00:10:00'), mk('2026-03-29T12:00:00')], new Date('2026-03-30T00:30:00'))).toBe(2);
+      // am 25.10. (Ende der Sommerzeit) hat der Tag 25 Stunden: Eintrag um 00:30 und um 23:30 zählen als ein Tag
+      expect(trainingDays([mk('2026-10-25T00:30:00'), mk('2026-10-25T23:30:00'), mk('2026-10-26T20:00:00')], lateEvening)).toBe(2);
     } finally {
       if (tz === undefined) delete process.env.TZ;
       else process.env.TZ = tz;

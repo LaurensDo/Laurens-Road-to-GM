@@ -24,6 +24,9 @@ import chess
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 OUT = ROOT / "app" / "public" / "data"
+HOLDOUT = Path(__file__).resolve().parent / "holdout_ids.json"
+# Datenstand: erhöhen, wenn sich Bewertungen oder Lösungen ändern (steht an jeder Antwort in der App, um sie später einzuordnen)
+DATA_VERSION = 1
 
 MIN_LOSS = 15.0      # Prozentpunkte, tiefe Suche
 MIN_BEST_WP = 15.0   # bester Zug muss noch eine Chance haben
@@ -88,6 +91,7 @@ def main():
     report = json.loads((DATA / "report.json").read_text())
 
     games = load_moves()
+    holdout = set(json.loads(HOLDOUT.read_text())) if HOLDOUT.exists() else set()
     exercises, dropped = [], {"kein_fehler": 0, "verloren": 0, "ohne_lösung": 0}
     no_prev = 0
     for line in (DATA / "solutions.jsonl").open():
@@ -131,12 +135,13 @@ def main():
             "src": platform_of(p["url"]),
             "maia": {"me": p.get("p_best_me"), "up": p.get("p_best_up"), "cls": p.get("maia_class")},
             **({"prev": prev} if prev else {}),
+            **({"hold": True} if ex_id(s["key"]) in holdout else {}),
         })
     exercises.sort(key=lambda e: -e["loss"])
 
     OUT.mkdir(parents=True, exist_ok=True)
     gen = report["generated"]
-    (OUT / "exercises.json").write_text(json.dumps({"version": 1, "generated": gen, "exercises": exercises},
+    (OUT / "exercises.json").write_text(json.dumps({"version": DATA_VERSION, "generated": gen, "exercises": exercises},
                                                    ensure_ascii=False, separators=(",", ":")))
 
     bm, bo = report["benchmark"]["me"], report["benchmark"]["opp"]
@@ -166,7 +171,10 @@ def main():
     }
     (OUT / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     size = (OUT / "exercises.json").stat().st_size
-    print(f"{len(exercises)} Übungen ({size // 1024} KB), verworfen: {dropped}, ohne letzten Zug: {no_prev}")
+    held = sum(1 for e in exercises if e.get("hold"))
+    print(f"{len(exercises)} Übungen ({size // 1024} KB), davon {held} im Prüfsatz, verworfen: {dropped}, ohne letzten Zug: {no_prev}")
+    if held != len(holdout):
+        print(f"Achtung: {len(holdout)} IDs in holdout_ids.json, aber {held} gefunden")
 
 
 if __name__ == "__main__":

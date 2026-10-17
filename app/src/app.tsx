@@ -1,9 +1,10 @@
 import type { ComponentChildren } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { loadData, type Loaded } from './lib/data';
 import { loadState, useAppState } from './lib/store';
 import { usePrefs } from './lib/device';
 import { initSync } from './lib/syncRunner';
+import { startUpdater } from './lib/updater';
 import { installAudioUnlock, play } from './lib/sound';
 import { Progress } from './views/Progress';
 import { Splash } from './views/Splash';
@@ -30,8 +31,12 @@ export function App() {
   const [stateReady, setStateReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   const prefs = usePrefs();
+  // Neu laden ist nur auf Heute und Fortschritt unbedenklich, nie in einem Satz und nicht in den Einstellungen (Token, Sicherung)
+  const reloadSafe = useRef(true);
+  reloadSafe.current = !training && (tab === 'today' || tab === 'progress');
 
   useEffect(() => {
+    startUpdater(() => reloadSafe.current);
     void loadState().then(() => {
       initSync();
       setStateReady(true);
@@ -89,7 +94,7 @@ export function App() {
   } else if (training) {
     content = (
       <main>
-        <Trainer exercises={data.exercises} byId={data.byId} onExit={() => setTraining(false)} />
+        <Trainer exercises={data.exercises} byId={data.byId} dataVersion={data.dataVersion} onExit={() => setTraining(false)} />
       </main>
     );
   } else {
@@ -98,7 +103,7 @@ export function App() {
         <main>
           {tab === 'today' && <Today exercises={data.exercises} meta={data.meta} onStart={() => setTraining(true)} onOpenSettings={() => setTab('settings')} />}
           {tab === 'progress' && <Progress exercises={data.exercises} byId={data.byId} meta={data.meta} />}
-          {tab === 'settings' && <Settings exercises={data.exercises} generated={data.generated} />}
+          {tab === 'settings' && <Settings exercises={data.exercises} generated={data.generated} holdout={data.holdout} byId={data.byId} dataVersion={data.dataVersion} />}
         </main>
         <nav class="tabbar" aria-label="Hauptnavigation">
           {(Object.keys(ICONS) as Tab[]).map((t) => (

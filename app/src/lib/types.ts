@@ -28,9 +28,12 @@ export interface Exercise {
   maia: { me: number | null; up: number | null; cls: string | null };
   /** Letzter Zug des Gegners vor der Stellung: Brett davor (nur Figurenstellung), Zug als UCI und SAN */
   prev?: { board: string; uci: string; san: string };
+  /** Prüfsatz: kommt nie im Training vor, nur im Monats-Check (analysis/pick_holdout.py) */
+  hold?: boolean;
 }
 
 export interface ExerciseFile {
+  /** Datenstand: steigt, wenn sich Bewertungen oder Lösungen ändern. Steht als dv an jeder Antwort. */
   version: number;
   generated: string;
   exercises: Exercise[];
@@ -62,6 +65,21 @@ export interface ReviewEntry {
   san?: string;
   /** Aufgabensatz, zu dem die Antwort gehört (id) und dessen geplante Größe. Fehlt bei Einzelaufgaben. */
   set?: { id: string; n: number };
+  /**
+   * Art der Antwort. Fehlt = normale Aufgabe aus dem Fehler-Trainer. Andere Arten (kommen in späteren Versionen) bleiben im
+   * Verlauf erhalten, gehen aber nicht in den Wiederholungsplan ein.
+   */
+  kind?: string;
+  /** damals geltendes Zeitlimit in Sekunden (0 = aus), damit sich alte Antworten später richtig einordnen lassen */
+  lim?: number;
+  /** Datenstand der Übungen bei der Antwort (ExerciseFile.version) */
+  dv?: number;
+}
+
+/** Welche App-Version ein Gerät zuletzt gemeldet hat (steht in der Sync-Datei) */
+export interface DeviceInfo {
+  v: string;
+  ts: number;
 }
 
 /** Karte im Wiederholungsplan (ts-fsrs-Karte als JSON) */
@@ -117,6 +135,10 @@ export interface AppState {
    * Festlegung, so kann eine Sicherung ein Zurücksetzen auch auf dem anderen Gerät rückgängig machen.
    */
   epochTs: number;
+  /** Geräte, die sich mit dieser Sync-Datei abgleichen, mit ihrer App-Version */
+  devices: Record<string, DeviceInfo>;
+  /** Unbekannte Felder aus der Sync-Datei einer neueren Version: werden mitgeführt und wieder geschrieben, nie verworfen */
+  ext: Record<string, unknown>;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -140,5 +162,7 @@ export function emptyState(): AppState {
     hidden: {},
     epoch: 0,
     epochTs: 0,
+    devices: {},
+    ext: {},
   };
 }

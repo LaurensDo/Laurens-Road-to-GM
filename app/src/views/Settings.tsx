@@ -9,14 +9,19 @@ import { useSyncStatus } from '../lib/syncRunner';
 import { saveActive } from '../lib/sets';
 import { diagText } from '../lib/diag';
 import { count, n0 } from '../lib/format';
+import { counts } from '../lib/queue';
+import { usageReportText } from '../lib/report';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
 interface Props {
   exercises: Exercise[];
   generated: string;
+  holdout: Exercise[];
+  byId: Map<string, Exercise>;
+  dataVersion: number;
 }
 
-export function Settings({ exercises, generated }: Props) {
+export function Settings({ exercises, generated, holdout, byId, dataVersion }: Props) {
   const state = useAppState();
   const s = state.settings;
   const [msg, setMsg] = useState<string | null>(null);
@@ -26,6 +31,8 @@ export function Settings({ exercises, generated }: Props) {
   const prefs = usePrefs();
   const [diag, setDiag] = useState('');
   const [diagCopied, setDiagCopied] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [reportMsg, setReportMsg] = useState<string | null>(null);
   const synced = useSyncStatus().state !== 'off';
 
   const set = (patch: Partial<typeof s>) => update((st) => ({ ...st, settings: { ...st.settings, ...patch }, settingsTs: Date.now() }));
@@ -57,6 +64,26 @@ export function Settings({ exercises, generated }: Props) {
       setText(json);
       setShowText(true);
       setMsg('Markiere den Text und kopiere ihn in eine Notiz.');
+    }
+  };
+
+  const doReport = async () => {
+    const text = usageReportText(state, {
+      now: new Date(),
+      appVersion: __APP_VERSION__,
+      build: __BUILD__,
+      dataVersion,
+      holdoutIds: holdout.map((e) => e.id),
+      byId,
+      queue: counts(exercises, state, new Date()),
+    });
+    try {
+      await navigator.clipboard.writeText(text);
+      setReportMsg('Auswertung kopiert. Füge sie in den Chat mit Claude ein. Sie enthält nur Zahlen, keine Partien.');
+      setReportText('');
+    } catch {
+      setReportText(text);
+      setReportMsg('Markiere den Text und kopiere ihn in den Chat mit Claude.');
     }
   };
 
@@ -287,6 +314,23 @@ export function Settings({ exercises, generated }: Props) {
       </div>
 
       <div class="card">
+        <h2>Auswertung für Claude</h2>
+        <p class="muted">
+          Kopiert Zahlen zur Nutzung (Trainingstage, Minuten, Sätze, Dauerbrenner), ohne Partien und Namen. Damit entscheiden wir im Chat,
+          was als Nächstes gebaut wird. Zum Beispiel alle zwei Wochen.
+        </p>
+        <button class="btn secondary" onClick={doReport}>
+          Auswertung kopieren
+        </button>
+        {reportText && <textarea rows={8} readOnly value={reportText} aria-label="Auswertung" onFocus={(e) => (e.target as HTMLTextAreaElement).select()} />}
+        {reportMsg && (
+          <p class="notice" role="status">
+            {reportMsg}
+          </p>
+        )}
+      </div>
+
+      <div class="card">
         <h2>Zurücksetzen</h2>
         {!confirmReset ? (
           <button class="btn danger" onClick={() => setConfirmReset(true)}>
@@ -341,9 +385,9 @@ export function Settings({ exercises, generated }: Props) {
       </details>
 
       <p class="muted small center">
-        {n0(exercises.length)} Übungen · Datenstand {new Date(generated).toLocaleDateString('de-DE')}
+        {n0(exercises.length)} Übungen im Training, {n0(holdout.length)} zurückgehalten für den Check · Datenstand {new Date(generated).toLocaleDateString('de-DE')}
         <br />
-        Road to GM · Version 1.1 · Stand {new Date(__BUILD__).toLocaleString('de-DE', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        Road to GM · Version {__APP_VERSION__} · Stand {new Date(__BUILD__).toLocaleString('de-DE', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}
       </p>
     </section>
   );

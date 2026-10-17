@@ -165,10 +165,13 @@ describe('Abgleich über GitHub (Fake)', () => {
     const B = device(emptyState());
     const r2 = await syncOnce(gh, cfg('ipad'), B.io);
     expect(B.get().log.map((e) => e.id)).toEqual(['x', 'y']);
-    expect(r2.pushed).toBe(false);
+    // das zweite Gerät trägt sich mit seiner App-Version in die Geräteliste ein, das ist die einzige Änderung
+    expect(r2.pushed).toBe(true);
+    expect(Object.keys(B.get().devices).sort()).toEqual(['ipad', 'iphone']);
 
-    const r3 = await syncOnce(gh, cfg('iphone'), A.io);
+    const r3 = await syncOnce(gh, cfg('iphone'), A.io, () => 2);
     expect(r3.pushed).toBe(false);
+    expect((await syncOnce(gh, cfg('ipad'), B.io)).pushed).toBe(false);
   });
 
   it('beide Geräte trainieren getrennt und gleichen danach ab: gleicher Stand auf beiden', async () => {

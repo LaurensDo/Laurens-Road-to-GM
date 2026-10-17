@@ -23,6 +23,8 @@ import { SetBar, SetResult } from './SetResult';
 interface Props {
   exercises: Exercise[];
   byId: Map<string, Exercise>;
+  /** Datenstand der Übungen, steht als dv an jeder Antwort */
+  dataVersion: number;
   onExit: () => void;
 }
 
@@ -70,7 +72,7 @@ function shape(orig: SquareName, dest: SquareName, brush: string): DrawShape {
   return { orig: orig as Key, dest: dest as Key, brush };
 }
 
-export function Trainer({ exercises, byId, onExit }: Props) {
+export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const state = useAppState();
   const settings = state.settings;
 
@@ -371,6 +373,8 @@ export function Trainer({ exercises, byId, onExit }: Props) {
       ms,
       // schon hier begrenzen: Beim Abgleich gewinnt die längere Dauer, eine spätere Begrenzung käme sonst nie an
       dur: Math.min(ms, MAX_DUR_MS),
+      lim: getState().settings.timeLimit,
+      dv: dataVersion,
       san: san ?? undefined,
       ...(act ? { set: { id: act.id, n: act.size } } : {}),
     };
@@ -542,7 +546,9 @@ export function Trainer({ exercises, byId, onExit }: Props) {
           <p class="muted">
             {c.total === 0
               ? 'Ändere den Filter in den Einstellungen.'
-              : `Heute ${count(t.n, 'Aufgabe', 'Aufgaben')}${t.rate !== null ? `, ${pct(t.rate)} richtig` : ''}. Neue Aufgaben kommen morgen, fällige Wiederholungen früher.`}
+              : `Heute ${count(t.n, 'Aufgabe', 'Aufgaben')}${t.rate !== null ? `, ${pct(t.rate)} richtig` : ''}. ${
+                  c.backlogDays > 0 ? 'Der Rest der Wiederholungen kommt an den nächsten Tagen dran.' : 'Neue Aufgaben kommen morgen, fällige Wiederholungen früher.'
+                }`}
           </p>
           {c.total > 0 && c.newTotal > 0 && (
             <button

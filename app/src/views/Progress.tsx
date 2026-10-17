@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks';
 import { count, dayKey, dayLabel, n0, n1, pct } from '../lib/format';
-import { breakdown, cardCounts, correct, lastDays, streak, today, windowStats } from '../lib/stats';
+import { breakdown, cardCounts, correct, lastDays, today, trainingDays, windowStats } from '../lib/stats';
 import { listSets, rateOf } from '../lib/sets';
 import { useAppState } from '../lib/store';
 import type { Exercise, Meta } from '../lib/types';
@@ -137,8 +137,8 @@ export function Progress({ exercises, byId, meta }: Props) {
               <dd class="mono">{pct((100 * right) / total)}</dd>
             </div>
             <div>
-              <dt>Serie</dt>
-              <dd class="mono">{count(streak(state.log, now), 'Tag', 'Tage')}</dd>
+              <dt>Trainingstage im {now.toLocaleDateString('de-DE', { month: 'long' })}</dt>
+              <dd class="mono">{n0(trainingDays(state.log, now))}</dd>
             </div>
             <div>
               <dt>Heute</dt>

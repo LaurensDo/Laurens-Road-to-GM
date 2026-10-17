@@ -34,6 +34,11 @@ export function applyReview(rec: CardRecord | undefined, grade: Grade, now: Date
   };
 }
 
+/** Wie sicher sitzt die Karte jetzt (0 bis 1)? Nach FSRS-Gedächtnismodell, für die Reihenfolge nach einer Pause. */
+export function retrievability(rec: CardRecord, now: Date): number {
+  return scheduler.get_retrievability(cardOf(rec), now, false);
+}
+
 export function dueDate(rec: CardRecord): Date {
   return cardOf(rec).due;
 }

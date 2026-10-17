@@ -46,16 +46,10 @@ export function today(log: ReviewEntry[], now: Date) {
   };
 }
 
-/** Anzahl aufeinanderfolgender Tage mit mindestens einer Aufgabe. Zählt ab gestern, wenn heute noch nichts war. */
-export function streak(log: ReviewEntry[], now: Date): number {
-  const days = new Set(log.map((e) => dayKey(e.ts)));
-  let n = 0;
-  let back = days.has(dayKeyBefore(now, 0)) ? 0 : 1;
-  while (days.has(dayKeyBefore(now, back))) {
-    n++;
-    back++;
-  }
-  return n;
+/** An wie vielen verschiedenen Tagen des Monats von `now` wurde trainiert? Bewusst keine Serie: ausgelassene Tage zählen nicht gegen dich. */
+export function trainingDays(log: ReviewEntry[], now: Date): number {
+  const month = dayKey(now.getTime()).slice(0, 7);
+  return new Set(log.map((e) => dayKey(e.ts)).filter((k) => k.startsWith(month))).size;
 }
 
 export function cardCounts(state: AppState, exercises: Exercise[]) {

@@ -84,6 +84,7 @@ export function diagText(): string {
   const now = snap();
   const nav = navigator as Navigator & { standalone?: boolean };
   const lines = [
+    `App: Version ${__APP_VERSION__}, Build ${__BUILD__}`,
     `Fenster jetzt: ${now.w}×${now.h}, sichtbar ${now.vw}×${now.vh}, Zoom ${now.scale}`,
     `Bildschirm: ${screen.width}×${screen.height}, Pixeldichte ${window.devicePixelRatio}, ${screen.orientation?.type ?? 'Ausrichtung unbekannt'}`,
     `Sicherheitsränder: ${insets()}`,

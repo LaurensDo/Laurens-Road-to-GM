@@ -1,6 +1,7 @@
 import { applyReview } from './srs';
-import { emptyState, type AppState, type CardRecord, type HiddenEntry, type ReviewEntry, type Settings } from './types';
+import { emptyState, type AppState, type CardRecord, type DeviceInfo, type HiddenEntry, type ReviewEntry, type Settings } from './types';
 import { normalize } from './normalize';
+import { READER_LEVEL } from './version';
 
 /**
  * Abgleich zwischen Geräten.
@@ -12,10 +13,13 @@ import { normalize } from './normalize';
 
 const entryKey = (e: ReviewEntry) => `${e.id}|${e.ts}`;
 
+/** Zählt die Antwort für den Wiederholungsplan? Nur normale Aufgaben aus dem Fehler-Trainer, spätere Arten werden nur mitgeführt. */
+export const countsForSchedule = (e: ReviewEntry) => e.kind === undefined || e.kind === 'fehler';
+
 /** Wiederholungsplan aus dem Verlauf neu aufbauen (Verlauf muss nach Zeit sortiert sein). */
 export function replay(log: ReviewEntry[]): Record<string, CardRecord> {
   const cards: Record<string, CardRecord> = {};
-  for (const e of log) cards[e.id] = applyReview(cards[e.id], e.grade, new Date(e.ts));
+  for (const e of log) if (countsForSchedule(e)) cards[e.id] = applyReview(cards[e.id], e.grade, new Date(e.ts));
   return cards;
 }
 
@@ -56,6 +60,22 @@ function mergeEpoch(a: AppState, b: AppState): { epoch: number; epochTs: number 
   return { epoch: Math.max(a.epoch, b.epoch), epochTs: a.epochTs };
 }
 
+/** Je Gerät gewinnt der jüngere Eintrag. */
+function mergeDevices(a: Record<string, DeviceInfo>, b: Record<string, DeviceInfo>): Record<string, DeviceInfo> {
+  const out = { ...a };
+  for (const [name, d] of Object.entries(b)) if (!out[name] || d.ts > out[name].ts) out[name] = d;
+  return out;
+}
+
+/** Unbekannte Felder: alle behalten. Bei demselben Schlüssel gewinnt deterministisch die größere Schreibweise. */
+function mergeExt(a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) {
+    if (!(k in out) || JSON.stringify(v) > JSON.stringify(out[k])) out[k] = v;
+  }
+  return out;
+}
+
 export function mergeStates(a: AppState, b: AppState): AppState {
   const { epoch, epochTs } = mergeEpoch(a, b);
   const log = mergeLogs(a.log, b.log, epoch);
@@ -70,13 +90,18 @@ export function mergeStates(a: AppState, b: AppState): AppState {
     hidden: mergeHidden(a.hidden, b.hidden),
     epoch,
     epochTs,
+    devices: mergeDevices(a.devices, b.devices),
+    ext: mergeExt(a.ext, b.ext),
   };
 }
 
 /** Was in die Sync-Datei geschrieben wird. Der Wiederholungsplan fehlt bewusst, er wird aus dem Verlauf berechnet. */
 export interface RemoteState {
   app: 'road-to-gm';
+  /** bleibt 1, weil App-Versionen bis 1.1 genau das verlangen */
   schema: 1;
+  /** Erst Geräte mit mindestens dieser Lese-Stufe (version.ts) dürfen die Datei lesen und schreiben */
+  minReader: number;
   epoch: number;
   /** fehlt in Dateien älterer Versionen, dann gilt die Epoche selbst */
   epochTs: number;
@@ -85,21 +110,49 @@ export interface RemoteState {
   settings: Settings;
   settingsTs: number;
   bonus?: { day: string; n: number };
+  devices: Record<string, DeviceInfo>;
+  /** weitere Felder späterer Versionen kommen hier oben auf dieselbe Ebene und werden unverändert weitergereicht */
+  [key: string]: unknown;
 }
 
 export function toRemote(s: AppState): RemoteState {
   const log = mergeLogs(s.log, [], s.epoch);
-  return { app: 'road-to-gm', schema: 1, epoch: s.epoch, epochTs: s.epochTs, log, hidden: s.hidden, settings: s.settings, settingsTs: s.settingsTs, bonus: s.bonus };
+  return {
+    ...s.ext,
+    app: 'road-to-gm',
+    schema: 1,
+    minReader: READER_LEVEL,
+    epoch: s.epoch,
+    epochTs: s.epochTs,
+    log,
+    hidden: s.hidden,
+    settings: s.settings,
+    settingsTs: s.settingsTs,
+    bonus: s.bonus,
+    devices: s.devices,
+  };
 }
 
-/** Prüft die Form einer gelesenen Sync-Datei und baut daraus einen Stand. null = unbrauchbar. */
+const KNOWN_KEYS = new Set(['app', 'schema', 'minReader', 'epoch', 'epochTs', 'log', 'hidden', 'settings', 'settingsTs', 'bonus', 'devices']);
+
+/** Welche Lese-Stufe braucht diese Datei? Dateien ohne Angabe stammen aus Versionen vor 1.2 (Stufe 1). */
+export function readerNeeded(raw: unknown): number {
+  const m = raw && typeof raw === 'object' ? (raw as { minReader?: unknown }).minReader : undefined;
+  return typeof m === 'number' && Number.isFinite(m) ? m : 1;
+}
+
+/** Prüft die Form einer gelesenen Sync-Datei und baut daraus einen Stand. null = unbrauchbar (oder braucht eine neuere App). */
 export function fromRemote(raw: unknown): AppState | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as Partial<RemoteState>;
-  if (r.app !== 'road-to-gm' || r.schema !== 1 || !Array.isArray(r.log)) return null;
-  const ok = r.log.every((e) => e && typeof e.id === 'string' && typeof e.ts === 'number' && (e.grade === 1 || e.grade === 2 || e.grade === 3));
+  if (r.app !== 'road-to-gm' || typeof r.schema !== 'number' || !Array.isArray(r.log)) return null;
+  if (readerNeeded(raw) > READER_LEVEL) return null;
+  const ok = r.log.every(
+    (e) => e && typeof e.id === 'string' && typeof e.ts === 'number' && (e.grade === 1 || e.grade === 2 || e.grade === 3 || !countsForSchedule(e)),
+  );
   if (!ok) return null;
-  const base = normalize({ ...r, cards: {} });
+  const ext = Object.fromEntries(Object.entries(r).filter(([k]) => !KNOWN_KEYS.has(k)));
+  const base = normalize({ ...r, cards: {}, ext });
   const log = mergeLogs(base.log, [], base.epoch).map((e) => ({ ...e, dur: typeof e.dur === 'number' ? e.dur : e.ms ?? 0, ms: typeof e.ms === 'number' ? e.ms : 0 }));
   return { ...base, log, cards: replay(log) };
 }
@@ -107,7 +160,10 @@ export function fromRemote(raw: unknown): AppState | null {
 /** Feste Schreibweise für Vergleiche: gleiche Daten ergeben denselben Text. */
 export function canonical(r: RemoteState): string {
   const hidden = Object.fromEntries(Object.entries(r.hidden).sort(([x], [y]) => (x < y ? -1 : 1)));
-  return JSON.stringify({ ...r, hidden, bonus: r.bonus ?? null });
+  const devices = Object.fromEntries(Object.entries(r.devices).sort(([x], [y]) => (x < y ? -1 : 1)));
+  // feste Reihenfolge der Felder auf oberster Ebene, auch bei unbekannten: gleiche Daten ergeben denselben Text
+  const all: Record<string, unknown> = { ...r, hidden, devices, bonus: r.bonus ?? null };
+  return JSON.stringify(Object.fromEntries(Object.entries(all).sort(([x], [y]) => (x < y ? -1 : 1))));
 }
 
 export { emptyState };

@@ -3,10 +3,21 @@ import type { Exercise, ExerciseFile, Meta } from './types';
 const base = import.meta.env.BASE_URL;
 
 export interface Loaded {
+  /** Übungen fürs Training (ohne Prüfsatz) */
   exercises: Exercise[];
+  /** alle Übungen inklusive Prüfsatz, damit sich auch Antworten auf Prüfstellungen noch zuordnen lassen */
   byId: Map<string, Exercise>;
+  /** Prüfsatz: kommt nie im Training vor */
+  holdout: Exercise[];
   meta: Meta | null;
   generated: string;
+  /** Datenstand (exercises.json: version), steht als dv an jeder Antwort */
+  dataVersion: number;
+}
+
+/** Trennt den Prüfsatz vom Trainingsvorrat. */
+export function splitHoldout(all: Exercise[]): { train: Exercise[]; holdout: Exercise[] } {
+  return { train: all.filter((e) => !e.hold), holdout: all.filter((e) => e.hold) };
 }
 
 export async function loadData(): Promise<Loaded> {
@@ -21,5 +32,6 @@ export async function loadData(): Promise<Loaded> {
     // Kennzahlen aus der Diagnose sind optional
   }
   const byId = new Map(file.exercises.map((e) => [e.id, e]));
-  return { exercises: file.exercises, byId, meta, generated: file.generated };
+  const { train, holdout } = splitHoldout(file.exercises);
+  return { exercises: train, byId, holdout, meta, generated: file.generated, dataVersion: file.version };
 }

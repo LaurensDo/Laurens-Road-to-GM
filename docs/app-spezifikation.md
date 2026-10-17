@@ -138,8 +138,20 @@ Feinschliff am bestehenden Umfang, vor Phase 2:
 
 Auf den Geräten bestätigt: Abgleich, Töne, Layouts. Offen aus 1.1: Auf dem iPad quer verrutscht das Startbild beim Öffnen kurz (Ursache noch offen, die Anzeige-Info in den Einstellungen misst es).
 
+## 9b. Version 1.2 (umgesetzt)
+
+Fundament für die Phase 2 aus dem [Roadmap-Entwurf](roadmap-entwurf.md), von dem sich später nichts nachholen lässt:
+
+- **Update-Weg:** Die App bemerkt neue Versionen selbst (`version.json`) und lädt sie auf Heute und Fortschritt, nie in einem Satz. Nach einem Satz erscheint ein Hinweis zum Antippen.
+- **Tolerantes Dateiformat:** `minReader`, mitgeführte unbekannte Felder, Geräteliste mit App-Versionen, `lim` und `dv` an jeder Antwort, `kind` für spätere Antwortarten. Version 1.1 kann die Datei weiter lesen.
+- **Prüfsatz:** 60 Übungen nur für einen späteren Monats-Check, nie im Training.
+- **Wiedereinstieg:** nach Pausen zuerst die sichersten Karten, Rückstand auf 30 Wiederholungen pro Tag begrenzt, dazu 3 neue.
+- **Heute:** Fokus-Karte korrigiert (Regel „nicht grübeln“ statt „tauschen und vereinfachen“), Kennzahlen klein unter dem Knopf.
+- **Fortschritt:** Trainingstage im Monat statt Serie.
+- **Auswertung für Claude:** Knopf in den Einstellungen, nur Zahlen zur Nutzung.
+
 ## 10. Reihenfolge
 
-1. **Version 1 (gebaut) und 1.1 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1 und 1.2 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

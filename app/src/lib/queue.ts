@@ -1,4 +1,5 @@
-import { State, dueDate, cardState } from './srs';
+import { State, cardState, dueDate, retrievability } from './srs';
+import { countsForSchedule } from './merge';
 import { dayKey } from './format';
 import type { AppState, Exercise, Filters } from './types';
 
@@ -10,25 +11,31 @@ export function matchesFilters(ex: Exercise, f: Filters): boolean {
 }
 
 export interface QueueCounts {
-  due: number; // jetzt fällig
+  due: number; // heute dran: fällige Wiederholungen (im Rückstand gedeckelt) plus Lernschritte, die gerade fällig sind
   learning: number; // in den nächsten Minuten fällig (Lernschritte)
   newAvailable: number; // heute noch neu verfügbar
   newTotal: number; // noch nie gesehen (im Filter)
   total: number; // Übungen im Filter
+  /** Wiederholungen, die wegen des Tagesdeckels erst an den nächsten Tagen drankommen */
+  waiting: number;
+  /** über so viele Tage (heute eingerechnet) verteilt sich der Rückstand, 0 = kein Rückstand */
+  backlogDays: number;
 }
 
 const LEARN_AHEAD_MS = 20 * 60 * 1000;
 
+/** Nach einer Pause kommen nie alle Fälligen auf einmal: höchstens so viele Wiederholungen pro Tag. */
+export const DUE_CAP = 30;
+/** Im Rückstand kommen trotzdem so viele neue Aufgaben pro Tag dazu (statt des normalen Kontingents). */
+export const BACKLOG_NEW = 3;
+/** Ab so vielen Tagen Pause beginnt der erste Satz mit den sichersten fälligen Karten. */
+export const COMEBACK_DAYS = 4;
+/** So viele sichere Karten zum Wiedereinstieg. */
+export const COMEBACK_CARDS = 5;
+
 export function newIntroducedToday(state: AppState, now: Date): number {
   const today = dayKey(now.getTime());
   return Object.values(state.cards).filter((c) => dayKey(c.firstSeen) === today).length;
-}
-
-/** Wie viele neue Aufgaben heute noch freigegeben sind (Tageskontingent plus Bonus). */
-export function newQuotaLeft(state: AppState, now: Date): number {
-  const today = dayKey(now.getTime());
-  const bonus = state.bonus && state.bonus.day === today ? state.bonus.n : 0;
-  return Math.max(0, state.settings.newPerDay + bonus - newIntroducedToday(state, now));
 }
 
 export function isHidden(state: AppState, id: string): boolean {
@@ -43,23 +50,92 @@ export function poolOf(exercises: Exercise[], state: AppState): Exercise[] {
   return exercises.filter((e) => !isHidden(state, e.id) && matchesFilters(e, state.settings.filters));
 }
 
-export function counts(exercises: Exercise[], state: AppState, now: Date): QueueCounts {
-  const pool = poolOf(exercises, state);
-  let due = 0;
-  let learning = 0;
-  let newTotal = 0;
+/** Wie viele verschiedene ältere Karten wurden heute schon wiederholt? */
+export function reviewedToday(state: AppState, now: Date): number {
+  const today = dayKey(now.getTime());
+  const ids = new Set<string>();
+  for (const e of state.log) {
+    if (!countsForSchedule(e) || dayKey(e.ts) !== today) continue;
+    const rec = state.cards[e.id];
+    if (rec && dayKey(rec.firstSeen) !== today) ids.add(e.id);
+  }
+  return ids.size;
+}
+
+/** Ganze Kalendertage seit der letzten Antwort vor heute. null, wenn es davor keine gab. */
+export function daysAway(state: AppState, now: Date): number | null {
+  const today = dayKey(now.getTime());
+  let last = -Infinity;
+  for (const e of state.log) if (dayKey(e.ts) !== today && e.ts > last) last = e.ts;
+  if (last === -Infinity) return null;
+  const midnight = (t: number) => {
+    const d = new Date(t);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  };
+  return Math.round((midnight(now.getTime()) - midnight(last)) / 86400000);
+}
+
+interface Scan {
+  /** fällig und im Review-Zustand: das sind die Wiederholungen, die der Deckel betrifft */
+  dueReview: { ex: Exercise; d: number }[];
+  /** fällig im Lernschritt (nach einem Fehler): immer erlaubt */
+  dueLearn: { ex: Exercise; d: number }[];
+  /** in den nächsten Minuten fällig im Lernschritt */
+  ahead: { ex: Exercise; d: number }[];
+  fresh: Exercise[];
+  /** ab hier ist der Rückstand gedeckelt */
+  backlog: boolean;
+  /** Wiederholungen, die heute noch drankommen dürfen (Infinity ohne Rückstand) */
+  reviewLeft: number;
+  newQuota: number;
+}
+
+function scan(pool: Exercise[], state: AppState, now: Date): Scan {
+  const t = now.getTime();
+  const dueReview: Scan['dueReview'] = [];
+  const dueLearn: Scan['dueLearn'] = [];
+  const ahead: Scan['ahead'] = [];
+  const fresh: Exercise[] = [];
   for (const ex of pool) {
     const rec = state.cards[ex.id];
     if (!rec) {
-      newTotal++;
+      fresh.push(ex);
       continue;
     }
     const d = dueDate(rec).getTime();
-    if (d <= now.getTime()) due++;
-    else if (d <= now.getTime() + LEARN_AHEAD_MS && cardState(rec) !== State.Review) learning++;
+    const review = cardState(rec) === State.Review;
+    if (d <= t) (review ? dueReview : dueLearn).push({ ex, d });
+    else if (d <= t + LEARN_AHEAD_MS && !review) ahead.push({ ex, d });
   }
-  const quota = newQuotaLeft(state, now);
-  return { due, learning, newAvailable: Math.min(quota, newTotal), newTotal, total: pool.length };
+  const byDue = (a: { d: number }, b: { d: number }) => a.d - b.d;
+  dueReview.sort(byDue);
+  dueLearn.sort(byDue);
+  ahead.sort(byDue);
+  // Rückstand: Fällige heute plus die heute schon erledigten überschreiten den Tagesdeckel
+  const done = reviewedToday(state, now);
+  const backlog = dueReview.length + done > DUE_CAP;
+  const reviewLeft = backlog ? Math.max(0, DUE_CAP - done) : Infinity;
+  const today = dayKey(now.getTime());
+  const bonus = state.bonus && state.bonus.day === today ? state.bonus.n : 0;
+  const base = backlog ? Math.min(state.settings.newPerDay, BACKLOG_NEW) : state.settings.newPerDay;
+  const newQuota = Math.max(0, base + bonus - newIntroducedToday(state, now));
+  return { dueReview, dueLearn, ahead, fresh, backlog, reviewLeft, newQuota };
+}
+
+export function counts(exercises: Exercise[], state: AppState, now: Date): QueueCounts {
+  const pool = poolOf(exercises, state);
+  const sc = scan(pool, state, now);
+  const reviews = Math.min(sc.dueReview.length, sc.reviewLeft);
+  const waiting = sc.dueReview.length - reviews;
+  return {
+    due: reviews + sc.dueLearn.length,
+    learning: sc.ahead.length,
+    newAvailable: Math.min(sc.newQuota, sc.fresh.length),
+    newTotal: sc.fresh.length,
+    total: pool.length,
+    waiting,
+    backlogDays: waiting > 0 ? Math.ceil(sc.dueReview.length / DUE_CAP) : 0,
+  };
 }
 
 export type PickKind = 'due' | 'learning' | 'new';
@@ -67,6 +143,8 @@ export type PickKind = 'due' | 'learning' | 'new';
 /**
  * Nächste Aufgabe: zuerst Fälliges, dann Neues im Tageskontingent. Lernschritte der nächsten Minuten werden nur
  * vorgezogen, wenn sonst nichts mehr da ist. So kommt ein Fehler nach etwa einer Minute und einigen anderen Aufgaben wieder.
+ * Nach einer Pause von mindestens COMEBACK_DAYS Tagen beginnt der Tag mit den sichersten fälligen Karten, und im Rückstand
+ * gilt der Tagesdeckel DUE_CAP.
  */
 export function pickNext(
   exercises: Exercise[],
@@ -77,38 +155,29 @@ export function pickNext(
   exclude?: ReadonlySet<string>,
 ): { ex: Exercise; kind: PickKind } | null {
   const pool = poolOf(exercises, state).filter((e) => !exclude?.has(e.id));
-  const t = now.getTime();
-
-  const dueList: { ex: Exercise; d: number }[] = [];
-  const learnList: { ex: Exercise; d: number }[] = [];
-  const fresh: Exercise[] = [];
-  for (const ex of pool) {
-    const rec = state.cards[ex.id];
-    if (!rec) {
-      fresh.push(ex);
-      continue;
-    }
-    const d = dueDate(rec).getTime();
-    if (d <= t) dueList.push({ ex, d });
-    else if (d <= t + LEARN_AHEAD_MS && cardState(rec) !== State.Review) learnList.push({ ex, d });
-  }
-
-  const byDue = (a: { d: number }, b: { d: number }) => a.d - b.d;
-  dueList.sort(byDue);
-  learnList.sort(byDue);
+  const sc = scan(pool, state, now);
 
   const notLast = <T extends { ex: Exercise }>(xs: T[]) => xs.find((x) => x.ex.id !== last?.id) ?? xs[0];
 
-  if (dueList.length) return { ex: notLast(dueList).ex, kind: 'due' };
+  // Learnschritte nach einem Fehler zuerst, dann Wiederholungen (gedeckelt)
+  if (sc.dueLearn.length) return { ex: notLast(sc.dueLearn).ex, kind: 'due' };
+  if (sc.dueReview.length && sc.reviewLeft > 0) {
+    const away = daysAway(state, now);
+    const answeredToday = state.log.filter((e) => dayKey(e.ts) === dayKey(now.getTime())).length;
+    if (away !== null && away >= COMEBACK_DAYS && answeredToday < COMEBACK_CARDS) {
+      const sure = [...sc.dueReview].sort((a, b) => retrievability(state.cards[b.ex.id], now) - retrievability(state.cards[a.ex.id], now));
+      return { ex: notLast(sure).ex, kind: 'due' };
+    }
+    return { ex: notLast(sc.dueReview).ex, kind: 'due' };
+  }
 
-  const quota = newQuotaLeft(state, now);
-  if (quota > 0 && fresh.length) {
+  if (sc.newQuota > 0 && sc.fresh.length) {
     // leicht durchmischen: unter den nächsten Kandidaten eine andere Fehlerart als zuletzt
-    const window = fresh.slice(0, 8);
+    const window = sc.fresh.slice(0, 8);
     const pick = window.find((e) => e.cat !== last?.cat) ?? window[0];
     return { ex: pick, kind: 'new' };
   }
   // Nichts mehr fällig und nichts Neues: Lernschritte der nächsten Minuten vorziehen, damit die Sitzung sauber endet
-  if (learnList.length) return { ex: notLast(learnList).ex, kind: 'learning' };
+  if (sc.ahead.length) return { ex: notLast(sc.ahead).ex, kind: 'learning' };
   return null;
 }

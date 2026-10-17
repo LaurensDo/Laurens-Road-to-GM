@@ -4,6 +4,14 @@ Stand: 17.10.2026 · Status: Entwurf zur Abstimmung, noch nichts davon gebaut.
 
 Entstanden aus sechs unabhängigen Blickwinkeln (Lernwissenschaft, Motivation und Gewohnheit, Blitz-Trainer, Wirkungsmessung, Produkt und UX im Code, Spieldesign) mit 55 Ideen, gebündelt zu 29 Kandidaten, bewertet von vier Juroren (Spielstärke, Spaß und Regelmäßigkeit, Machbarkeit, Skeptiker) und danach auf Lücken geprüft. Die Kernzahlen wurden gegen die Partiedaten nachgerechnet. Die Entscheidungen am Ende trifft Laurens.
 
+## Entscheidungen vom 17.10.2026
+
+- Vorrangig verbessert werden soll **3+0** (chess.com). Bullet wird mit geholt und getrennt ausgewertet, ist aber nicht das Ziel.
+- Der Prüfsatz (60 Übungen) wird zurückgehalten. Umgesetzt in 1.2.
+- „Serie“ unter Fortschritt entfällt, stattdessen „Trainingstage im Monat“. Umgesetzt in 1.2.
+- Reihenfolge wie vorgeschlagen: erst Fundament (1.2), dann faires Urteil, dann die Uhr-Schleife, danach Big Dog auf der Ergebnisseite.
+- Partien werden automatisch beim Öffnen geholt.
+
 ## Kernthese
 
 Der größte Hebel ist die Uhr, und zwar vor der Zeitnot, nicht in ihr. In 3+0 denkt er in Zug 15 bis 35 pro Partie 2,16-mal 10 s oder länger nach, seine Gegner 1,46-mal (letzte 300 Partien). Das passiert meist in Stellungen mit mehreren gleich guten Zügen. Dadurch gerät er 2,3-mal so oft in Zeitnot, patzt dort pro Zug aber kaum öfter (unter 10 s 4,7 gegenüber 4,5 pro 100 Züge). Dasselbe Muster zeigt sein Bullet, das er seit März weit häufiger spielt als 3+0: 1.113 von 1.493 Niederlagen in 1+0 kamen auf Zeit, vor Zug 20 liegt er 2,9 s hinter den Gegnern. Die App sieht keine dieser Partien und trainiert nur das Gegenteil, nämlich den versteckten Zug zu suchen. Deshalb kommt zuerst ein Fundament, das sich später nicht nachholen lässt: faires Urteil, Prüfsatz, Update-Weg. Danach die Schleife zu den echten Partien beider Formate, und erst dann die fehlende Entscheidung „Ist hier überhaupt etwas los?“. Die Uhr bringt grob 30 Elo. Darüber hinaus muss er besser spielen als seine Gegner, deshalb bleiben die Übungen der Klasse „Nächste Stufe“ eine feste zweite Spur. Der Spaß bleibt, wo er heute entsteht: faire Urteile, Big Dog an den richtigen Momenten und nie ein Berg fälliger Karten.

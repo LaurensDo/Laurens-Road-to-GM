@@ -4,9 +4,9 @@ Persönlicher Schach-Trainer als installierbare Web-App (PWA) für iPhone und iP
 offline nutzbar, kein Konto und kein eigener Server. Fortschritt liegt auf dem Gerät und gleicht sich
 optional über eine Datei in einem privaten GitHub-Repository zwischen den Geräten ab.
 
-Stand: Version 1.1 (Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer, letzter
+Stand: Version 1.2 (Update-Weg, tolerantes Dateiformat, Prüfsatz, Wiedereinstieg nach Pausen, Auswertung für Claude; davor 1.1: Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer, letzter
 Gegnerzug vor der Aufgabe, Startbild mit Big-Dog-Sprüchen, Marke Big Dog; dazu alles aus Version 1: Heute, Fehler-Trainer mit
-Wiederholung, Fortschritt, Einstellungen, Sicherung, Abgleich). Version 1 ist als Tag `v1.0` festgehalten.
+Wiederholung, Fortschritt, Einstellungen, Sicherung, Abgleich). Version 1 ist als Tag `v1.0` festgehalten. Die Planung dazu steht in `docs/roadmap-entwurf.md`.
 Geplant laut `docs/app-spezifikation.md`: Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill (Phase 2), Eröffnungs-Lecks,
 Partie-Review, automatischer Import (Version 2).
 
@@ -18,7 +18,8 @@ Partie-Review, automatischer Import (Version 2).
   `merge.ts` (Zusammenführen zweier Stände), `sync.ts` (GitHub-Contents-API), `syncRunner.ts` (Auslöser, Status),
   `sets.ts` (Aufgabensätze: laufender Satz, Auswertung und Einordnung), `sound.ts` (Töne, im Browser erzeugt),
   `device.ts` (Einstellungen nur für dieses Gerät, z. B. Ton), `quotes.ts` (Sprüche fürs Startbild),
-  `viewport.ts` und `diag.ts` (Startbild auf dem iPad, Anzeige-Info).
+  `viewport.ts` und `diag.ts` (Startbild auf dem iPad, Anzeige-Info), `updater.ts` (neue Version erkennen und laden),
+  `version.ts` (App-Version, Lese-Stufe des Dateiformats), `report.ts` (Auswertung für Claude).
 - `src/views/` Oberflächen: `Splash`, `Today`, `Trainer`, `SetResult`, `Progress`, `Settings`, `SoundCard`, `SyncCard`,
   dazu `Segmented` (Umschalter) und `Mark` (Big-Dog-Zeichen).
 - `public/data/exercises.json` und `meta.json`: Übungen und Diagnose-Werte, erzeugt von `analysis/build_exercises.py`.
@@ -42,9 +43,44 @@ Ende-zu-Ende-Tests (Chromium über Playwright):
 npx vite preview --port 4173 --strictPort &
 node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Geräteformate
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
+bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.2: Update-Weg, Dateiformat, Prüfsatz, Wiedereinstieg
+
+**Update-Weg** (`src/lib/updater.ts`). Eine installierte Web-App auf iOS bleibt tagelang im Speicher, der Service Worker holt eine neue
+Version zwar im Hintergrund, die Seite läuft aber mit dem alten Code weiter. Deshalb liest die App beim Öffnen und bei der Rückkehr in
+den Vordergrund `version.json` (wird beim Build erzeugt, ist bewusst nicht im Offline-Speicher und wird mit `cache: 'no-store'` gelesen).
+Ist der Build dort neuer als der laufende, stößt sie den Service Worker an (`registration.update()`), wartet, bis er aktiv ist, und lädt
+neu, aber nur auf Heute und Fortschritt. In einem Satz oder in den Einstellungen lädt sie nicht neu: Nach dem Satz erscheint auf Heute
+der Hinweis „Neue Version da. Tippen zum Laden.“ Schutz vor Endlosschleifen: Für denselben Build wird pro Sitzung nur einmal neu geladen.
+Neue Übungsdaten kommen auf demselben Weg. Die Versionsnummer steht in `package.json`, der Build-Zeitpunkt in den Einstellungen und in
+der Anzeige-Info.
+
+**Dateiformat** (`merge.ts`, `version.ts`). Die Sync-Datei trägt `minReader` (Lese-Stufe). Geräte mit niedrigerer Stufe lassen die Datei
+unberührt (Meldung „neuere Version“), statt Felder zu verlieren. `schema` bleibt 1, weil Version 1.1 genau das prüft. Unbekannte Felder
+oben in der Datei werden mitgeführt und wieder geschrieben (`ext`), `devices` meldet je Gerät die App-Version (höchstens einmal am Tag
+geändert). Jede Antwort speichert zusätzlich `lim` (damals geltendes Zeitlimit) und `dv` (Datenstand der Übungen), optional `kind`
+(Antwortart; andere Arten als die normale Aufgabe bleiben im Verlauf, gehen aber nicht in den Wiederholungsplan). Neue Datenarten werden
+erst geschrieben, wenn alle Geräte in `devices` mindestens 1.2 melden. Reserviert: `snap` (Schnappschuss der Karten für eine spätere
+Kompaktierung). Gemessen (Node, 20.000 Antworten, etwa ein Jahr intensiver Nutzung): `replay()` rund 0,4 s, Datei rund 2 MB. Kompaktieren
+lohnt ab etwa 10.000 Antworten oder wenn das Zusammenführen auf dem iPhone merklich dauert.
+
+**Prüfsatz** (`analysis/pick_holdout.py`, `analysis/holdout_ids.json`). 60 Übungen sind in `exercises.json` mit `hold: true` markiert und
+erscheinen nie im Training (`data.ts` trennt sie ab). Sie sind nach Fehlerart, Phase und Maia-Klasse geschichtet aus der ganzen Datei
+gezogen (ab Platz 150, weil vorn schon geübt wurde). Zweck: später ein Monats-Check mit unbekannten Stellungen, der Können statt
+Erinnerung misst. Die Liste wächst nur, `build_exercises.py` wendet sie an. Welche davon schon gesehen wurden, steht in der Auswertung.
+
+**Wiedereinstieg** (`queue.ts`). Nach einer Pause von mindestens 4 Tagen beginnt der Tag mit den 5 fälligen Karten, die am sichersten
+sitzen (FSRS-Abrufwahrscheinlichkeit). Im Rückstand (mehr als 30 Fällige) kommen höchstens 30 Wiederholungen pro Tag und nur 3 neue
+Aufgaben; Heute sagt, über wie viele Tage sich der Rückstand verteilt. Lernschritte nach einem Fehler sind davon nicht betroffen.
+Die Serie ist weg, unter Fortschritt stehen die Trainingstage im Monat.
+
+**Auswertung für Claude** (`report.ts`, Einstellungen). Kopiert Zahlen zur Nutzung (Trainingstage je Woche, Minuten je Tag, Sätze und ob
+danach ein weiterer folgte, Pausen und Rückkehr, Dauerbrenner, gesehene Prüfstellungen, App-Versionen der Geräte), ohne Partien und Namen.
+Sie erscheint nirgends als Ziel oder Anzeige in der App.
 
 ## Aufgabensätze (Version 1.1)
 

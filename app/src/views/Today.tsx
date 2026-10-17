@@ -1,6 +1,7 @@
 import { counts } from '../lib/queue';
 import { count, dayKey, n0, n1, pct } from '../lib/format';
 import { KingMark } from './Mark';
+import { applyUpdate, useUpdateReady } from '../lib/updater';
 import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
@@ -28,9 +29,18 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
   const activeDone = active ? state.log.filter((e) => e.set?.id === active.id).length : 0;
   const resumable = !!active && activeDone > 0 && activeDone < active.size;
   const todaySets = listSets(state.log).filter((r) => dayKey(r.startTs) === dayKey(now.getTime()));
+  const updateReady = useUpdateReady();
 
   return (
     <section class="screen">
+      {updateReady && (
+        <button class="update-note" onClick={applyUpdate}>
+          <KingMark class="update-mark" />
+          <span>
+            <b>Neue Version da.</b> Tippen zum Laden.
+          </span>
+        </button>
+      )}
       <header class="hero">
         <div class="hero-bg" aria-hidden="true" />
         <KingMark class="hero-mark" />
@@ -45,7 +55,10 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
               {n1(t.minutes)} von {n0(goal)} Min
             </span>
           </div>
-          <dl class="facts hero-facts">
+          <button class="btn light" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
+            {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
+          </button>
+          <dl class="hero-facts-small" aria-label="Heute im Vorrat">
             <div>
               <dt>Fällig</dt>
               <dd class="mono">{n0(c.due)}</dd>
@@ -59,9 +72,11 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
               <dd class="mono">{n0(c.newAvailable)}</dd>
             </div>
           </dl>
-          <button class="btn light" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
-            {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
-          </button>
+          {c.backlogDays > 0 && (
+            <p class="hero-note">
+              Nach der Pause warten viele Wiederholungen. Sie verteilen sich über {n0(c.backlogDays)} Tage, heute kommen nur die sichersten dran.
+            </p>
+          )}
           {filtered && (
             <p class="hero-note">
               Es gilt ein Filter ({count(c.total, 'Aufgabe', 'Aufgaben')}).{' '}
@@ -111,6 +126,9 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
         <h2>Dein Fokus laut Diagnose</h2>
         <ul class="plain">
           <li>
+            <b>Regel:</b> Über 10 Sekunden nachgedacht und kein Schach, kein Schlag, keine Drohung? Zieh deinen besten Kandidaten.
+          </li>
+          <li>
             <b>Uhr:</b> in 3+0 bei Zug 20 mindestens 2:00, bei Zug 30 mindestens 1:20 auf der Uhr.
             {b && (
               <span class="muted">
@@ -120,10 +138,10 @@ export function Today({ exercises, meta, onStart, onOpenSettings }: Props) {
             )}
           </li>
           <li>
-            <b>Gewinnstellungen:</b> klar gewonnene Stellungen schnell verwerten, tauschen und vereinfachen.
+            <b>Klar gewonnen:</b> Der erste sichere Zug reicht, nicht grübeln.
           </li>
           <li>
-            <b>Taktik:</b> vor jedem Zug prüfen, ob eine Figur hängt oder eine Gabel droht.
+            <b>Nach jedem Gegnerzug:</b> ein Blick, was er angreift.
           </li>
         </ul>
         {meta && (
