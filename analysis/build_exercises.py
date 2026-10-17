@@ -223,7 +223,8 @@ def main():
             "src": platform_of(p["url"]),
             "maia": maia,
             **({"more": [[m["san"], m["wp"]] for m in am["more"]]} if am else {}),
-            **({"threat": rf["threat"]} if rf and rf.get("threat") else {}),
+            # Drohung nur, wenn der Zug etwas Greifbares tut (Schlagen, Schach, Matt): Stille Züge als "Drohung" wären Rauschen
+            **({"threat": rf["threat"]} if rf and rf.get("threat") and re.search(r"[x+#]", rf["threat"]["san"]) else {}),
             **({"refs": [[r["san"], r["pv"]] for r in rf["refs"]]} if rf and rf.get("refs") else {}),
             **({"missed": [m for m in p.get("missed_motifs", []) if m not in GENERIC]} if p.get("missed_motifs") else {}),
             **({"prev": prev} if prev else {}),
