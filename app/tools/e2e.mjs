@@ -246,6 +246,11 @@ await page.waitForSelector('.hero');
 await page.locator('nav').getByText('Fortschritt').click();
 await page.waitForSelector('text=Letzte 14 Tage');
 ok(await page.locator('text=Aufgabensätze').count() === 1, 'Fortschritt zeigt die Sätze');
+{
+  const card = (await page.locator('.card', { has: page.locator('h2', { hasText: 'Erster Versuch an neuen Aufgaben' }) }).textContent()).replace(/\s+/g, ' ');
+  ok(/Erste Aussage nach 20 neuen Aufgaben, bisher \d+/.test(card), `Fortschritt: Erstversuch-Karte nennt, wann die erste Aussage kommt (${card.slice(0, 90)})`);
+  ok(/Trainingstage im/.test(await page.locator('main').textContent()), 'Fortschritt: Trainingstage im Monat statt Serie');
+}
 await page.screenshot({ path: `${OUT}/6-fortschritt.png`, fullPage: true });
 await page.locator('nav').getByText('Einstellungen').click();
 await page.waitForSelector('text=Sicherung');

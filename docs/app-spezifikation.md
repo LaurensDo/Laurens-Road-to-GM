@@ -150,8 +150,19 @@ Fundament für die Phase 2 aus dem [Roadmap-Entwurf](roadmap-entwurf.md), von de
 - **Fortschritt:** Trainingstage im Monat statt Serie.
 - **Auswertung für Claude:** Knopf in den Einstellungen, nur Zahlen zur Nutzung.
 
+## 9c. Version 1.3 (umgesetzt)
+
+Schritt 2 aus dem [Roadmap-Entwurf](roadmap-entwurf.md): ein Urteil, dem man vertrauen kann.
+
+- **Faires Urteil:** Stockfish hat für jede Übung alle legalen Züge bewertet. In 208 der 1.200 Übungen gab es insgesamt 1.240 weitere gute Züge außerhalb der fünf gespeicherten, die bis dahin als falsch galten. Jetzt zählen sie als richtig, und die Ergebnisanzeige nennt Gewinnchance und Abstand zum besten Zug.
+- **Ehrlicher Richtwert:** „Spieler deiner Stärke finden hier einen richtigen Zug in etwa X %“ rechnet mit der ganzen Maia-Verteilung statt nur dem einen besten Zug. Im Mittel 63 % statt 52 %. Sätze und die neue Karte „Erster Versuch an neuen Aufgaben“ vergleichen damit.
+- **Widerlegung und Drohung:** Nach einem falschen Zug führt das Brett vor, wie der Gegner ihn bestraft. Bei übersehenen Drohungen zeigt ein blasser Pfeil, was der Gegner vorhatte.
+- **Motive:** Unterscheidung zwischen „Der Gegner droht“, „Der Gegner nutzt aus“ und „In der besten Fortsetzung steckt“.
+- **Reihenfolge neuer Übungen:** nach Priorität statt nach altem Verlust, mit Mischregeln je zehn Aufgaben.
+- **Bewusst anders als im Entwurf:** Alte Antworten werden nicht nachträglich umgewertet (der Wiederholungsplan muss auf beiden Geräten gleich ausfallen). Das Herauslösen der Brett-Komponente aus dem Trainer folgt, wenn sie ein zweiter Modus braucht (Ergebnisseite und ruhige Stellungen), nicht auf Vorrat.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1 und 1.2 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2 und 1.3 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.
