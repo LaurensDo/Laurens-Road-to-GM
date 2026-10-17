@@ -1,6 +1,6 @@
 # Road to GM – App-Spezifikation (Entwurf)
 
-Stand: 16.10.2026 · Status: Version 1 und 1.1 umgesetzt und auf iPhone und iPad im Einsatz, Phase 2 offen. Abschnitte 1 bis 8 beschreiben das Zielbild, umgesetzt ist, was in 9a und 10 steht.
+Stand: 16.10.2026 · Status: Version 1 und 1.1 umgesetzt und auf iPhone und iPad im Einsatz, Phase 2 offen. Abschnitte 1 bis 8 beschreiben das Zielbild, umgesetzt ist, was in 9a und 10 steht. Der Entwurf für die Zeit nach 1.1 steht in [roadmap-entwurf.md](roadmap-entwurf.md).
 
 ## 1. Was die App ist
 
