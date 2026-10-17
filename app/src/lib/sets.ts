@@ -1,5 +1,6 @@
 import { correct, slowCorrect } from './stats';
 import { n0, n1 } from './format';
+import { expectedOf } from './skill';
 import type { Exercise, ReviewEntry } from './types';
 
 /**
@@ -109,6 +110,8 @@ export interface SummaryOptions {
   limit: number;
   /** Quoten (Prozent) der letzten abgeschlossenen Sätze davor, neueste zuletzt */
   previous: number[];
+  /** Zählen gleichwertige Züge als richtig? Bestimmt, welcher Richtwert gilt. */
+  tolerance: boolean;
 }
 
 /** Fehler, die schneller als so viele Millisekunden kamen, gelten als vorschnell */
@@ -151,7 +154,10 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   const rate = n ? (100 * right) / n : 0;
   const avgMs = n ? entries.reduce((a, e) => a + e.ms, 0) / n : 0;
 
-  const withMaia = entries.map((e) => byId.get(e.id)?.maia.me).filter((x): x is number => typeof x === 'number');
+  const withMaia = entries.map((e) => {
+    const ex = byId.get(e.id);
+    return ex ? expectedOf(ex, opt.tolerance) : null;
+  }).filter((x): x is number => typeof x === 'number');
   const expected = n > 0 && withMaia.length >= Math.ceil(n * 0.6) ? (100 * withMaia.reduce((a, x) => a + x, 0)) / withMaia.length : null;
 
   let tier: Tier;

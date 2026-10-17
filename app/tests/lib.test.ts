@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gradeFor, judge } from '../src/lib/judge';
+import { COVER_WP, equalMoves, gradeFor, judge, wpOf } from '../src/lib/judge';
 import { destsOf, isPromotion, positionOf, sanOfMove, walkVariation } from '../src/lib/chess';
 import { applyReview, dueDate, newRecord } from '../src/lib/srs';
 import { counts, pickNext } from '../src/lib/queue';
@@ -35,7 +35,7 @@ const ex = (over: Partial<Exercise> = {}): Exercise => ({
 
 describe('judge', () => {
   it('bester Zug ist richtig', () => {
-    expect(judge(ex(), 'Nf3', true)).toMatchObject({ verdict: 'best', correct: true, rank: 0 });
+    expect(judge(ex(), 'Nf3', true)).toMatchObject({ verdict: 'best', correct: true, wp: 55 });
   });
   it('gleichwertiger Zug (bis 10 Punkte) zählt nur mit Toleranz', () => {
     expect(judge(ex(), 'Bc4', true)).toMatchObject({ verdict: 'equal', correct: true });
@@ -46,7 +46,24 @@ describe('judge', () => {
   });
   it('schwacher oder unbekannter Zug ist falsch', () => {
     expect(judge(ex(), 'f4', true)).toMatchObject({ verdict: 'wrong', correct: false });
-    expect(judge(ex(), 'a3', true)).toMatchObject({ verdict: 'wrong', lossWp: null, rank: null });
+    expect(judge(ex(), 'a3', true)).toMatchObject({ verdict: 'wrong', lossWp: null, wp: null });
+  });
+  it('weitere bewertete Züge außerhalb der Top 5 zählen mit (faires Urteil)', () => {
+    const e = ex({ more: [['Be2', 52], ['Nc3', 47], ['g3', 38], ['h3', 20]] });
+    expect(wpOf(e, 'Be2')).toBe(52);
+    expect(judge(e, 'Be2', true)).toMatchObject({ verdict: 'equal', correct: true, wp: 52 });
+    expect(judge(e, 'Be2', false)).toMatchObject({ verdict: 'playable', correct: false });
+    expect(judge(e, 'Nc3', true)).toMatchObject({ verdict: 'equal', correct: true });
+    expect(judge(e, 'g3', true)).toMatchObject({ verdict: 'playable', correct: false });
+    expect(judge(e, 'h3', true)).toMatchObject({ verdict: 'wrong', lossWp: 35 });
+    // was nirgends steht, liegt weit zurück
+    expect(judge(e, 'a3', true)).toMatchObject({ verdict: 'wrong', lossWp: null, wp: null });
+    expect(COVER_WP).toBeGreaterThanOrEqual(25);
+  });
+  it('gleichwertige Züge: Top 5 und weitere, nach Einstellung', () => {
+    const e = ex({ more: [['Be2', 52], ['Nc3', 47], ['g3', 38]] });
+    expect(equalMoves(e, true).map((m) => m.san)).toEqual(['Be2', 'Bc4', 'Nc3']);
+    expect(equalMoves(e, false)).toEqual([]);
   });
   it('zwei Mattzüge sind gleich gut', () => {
     const mate = ex({ lines: [{ san: 'Qxf7#', uci: 'd1f7', wp: 100, cp: 9999, pv: [] }, { san: 'Qh5#', uci: 'd1h5', wp: 100, cp: 9998, pv: [] }] });
@@ -186,9 +203,20 @@ describe('Erklärung und Statistik', () => {
   it('Erklärung nennt Fehlerart, Motiv, Uhr und Maia', () => {
     const lines = explain(ex()).join(' ');
     expect(lines).toContain('Figur eingestellt');
-    expect(lines).toContain('Gabel');
+    expect(lines).toContain('Der Gegner nutzt aus: Gabel');
     expect(lines).toContain('120 s');
-    expect(lines).toContain('40 %');
+    expect(lines).toContain('den besten Zug in etwa 40 %');
+  });
+  it('Motive: Matt-Drohung und übersehene Gewinnmotive getrennt', () => {
+    expect(explain(ex({ cat: 'Matt übersehen', motifs: ['Matt in 2'] })).join(' ')).toContain('Der Gegner droht: Matt in 2.');
+    const missed = explain(ex({ cat: 'Gegnerfehler nicht bestraft', motifs: [], missed: ['Hängende Figur'] })).join(' ');
+    expect(missed).toContain('In der besten Fortsetzung steckt: Hängende Figur.');
+    expect(missed).not.toContain('Der Gegner nutzt aus');
+  });
+  it('Richtwert nach Einstellung, wenn die Daten ihn kennen', () => {
+    const e = ex({ maia: { me: 0.4, up: 0.6, cls: 'Leichtsinn', ok: 0.62, ok0: 0.41 } });
+    expect(explain(e, true).join(' ')).toContain('einen richtigen Zug in etwa 62 %');
+    expect(explain(e, false).join(' ')).toContain('einen richtigen Zug in etwa 41 %');
   });
   it('Trainingstage im Monat und Tagesleiste', () => {
     const now = new Date('2026-10-15T12:00:00');

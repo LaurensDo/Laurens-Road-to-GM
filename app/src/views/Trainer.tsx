@@ -9,7 +9,7 @@ import type { Role, SquareName } from 'chessops/types';
 import { destsOf, isCapture, isPromotion, lastSquares, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
 import { explain, lastMoveLabel, sideName } from '../lib/explain';
 import { count, dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
-import { gradeFor, isCorrect, judge, SAME_WP, TOLERANCE_WP, type Judgement } from '../lib/judge';
+import { COVER_WP, equalMoves, gradeFor, isCorrect, judge, type Judgement } from '../lib/judge';
 import { counts, pickNext, type PickKind } from '../lib/queue';
 import { getPrefs } from '../lib/device';
 import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type ActiveSet, type SetSummary } from '../lib/sets';
@@ -66,7 +66,20 @@ const VERDICT_TEXT: Record<Verdict, string> = {
   gaveup: 'Lösung angezeigt',
 };
 
+/** Fehlerarten, bei denen eine Drohung des Gegners übersehen wurde (dort zeigt die App sie als Pfeil) */
+const THREAT_CATS = new Set(['Figur eingestellt', 'Gegnerische Taktik übersehen', 'Matt übersehen']);
+
 const KIND_TEXT: Record<PickKind, string> = { due: 'Wiederholung', learning: 'Lernschritt', new: 'Neu' };
+
+/** Zeile zum eigenen Zug: Gewinnchance und Abstand zum besten, bei unbekannten Zügen ehrlich "deutlich schlechter". */
+function yourMoveText(j: Judgement | null, complete: boolean): string {
+  if (!j) return '';
+  if (j.wp !== null && j.lossWp !== null) {
+    const pts = Math.round(j.lossWp);
+    return ` · ${n0(j.wp)} % Gewinnchance${pts >= 1 ? `, ${count(pts, 'Punkt', 'Punkte')} weniger als der beste` : ''}`;
+  }
+  return complete ? ` · deutlich schlechter (mehr als ${COVER_WP} Punkte weniger als der beste)` : ' · nicht unter den fünf besten Zügen';
+}
 
 function shape(orig: SquareName, dest: SquareName, brush: string): DrawShape {
   return { orig: orig as Key, dest: dest as Key, brush };
@@ -87,7 +100,11 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const [summary, setSummary] = useState<Finished | null>(null);
   const [confirmExit, setConfirmExit] = useState(false);
   const [live, setLive] = useState(false);
+  /** läuft gerade die Widerlegung des eigenen Zuges auf dem Brett? */
+  const [animating, setAnimating] = useState(false);
 
+  const animTimers = useRef<number[]>([]);
+  const animatingRef = useRef(false);
   const boardEl = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
   const shownAt = useRef(0);
@@ -158,7 +175,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     const previous = listSets(st.log)
       .filter((r) => r.id !== act.id && r.entries.length >= r.planned)
       .map(rateOf);
-    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, previous });
+    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, previous, tolerance: st.settings.tolerance });
     const moreAvailable = !!pickNext(exercises, st, new Date());
     destroyBoard();
     saveActive(null);
@@ -223,7 +240,10 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       startSet();
     }
     loadNext();
-    return () => destroyBoard();
+    return () => {
+      animTimers.current.forEach((t) => window.clearTimeout(t));
+      destroyBoard();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -354,6 +374,48 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     cg.current?.set({ movable: { color: undefined, dests: new Map() } as never, draggable: { enabled: false } });
   };
 
+  /** Brett zurück in die Ausgangsstellung mit den Pfeilen (nach der Widerlegung oder wenn sie übersprungen wird) */
+  const settleBoard = () => {
+    const e = curRef.current;
+    if (!e) return;
+    cg.current?.set({ fen: e.fen, lastMove: shownLast(e), drawable: { autoShapes: resultShapes.current } } as never);
+  };
+
+  const cancelAnim = (settle = true) => {
+    animTimers.current.forEach((t) => window.clearTimeout(t));
+    animTimers.current = [];
+    if (animatingRef.current) {
+      animatingRef.current = false;
+      setAnimating(false);
+      if (settle) settleBoard();
+    }
+  };
+
+  /** Zeigt nach einem falschen Zug, wie der Gegner ihn bestraft: seine Antwort und die nächsten Züge, dann zurück zur Aufgabe. */
+  const startRefutation = (e: Exercise, san: string, pv: string[]) => {
+    const steps = walkVariation(e.fen, [san, ...pv.slice(0, 3)]);
+    if (steps.length < 3) {
+      settleBoard();
+      return;
+    }
+    animatingRef.current = true;
+    setAnimating(true);
+    cg.current?.set({ drawable: { autoShapes: [] } } as never);
+    let t = 1000; // erst den eigenen Zug stehen lassen
+    for (let i = 2; i < steps.length; i++) {
+      const st = steps[i];
+      const tok = [san, ...pv][i - 1] ?? '';
+      animTimers.current.push(
+        window.setTimeout(() => {
+          cg.current?.set({ fen: st.fen, lastMove: st.lastMove as never } as never);
+          play(tok.includes('x') ? 'capture' : 'move');
+        }, t),
+      );
+      t += 800;
+    }
+    animTimers.current.push(window.setTimeout(() => cancelAnim(true), t + 700));
+  };
+
   const shownLast = (e: Exercise | null) => (e && getState().settings.showLast ? lastSquares(e) : undefined) as never;
 
   const showShapes = (shapes: DrawShape[], resetFen?: string) => {
@@ -404,10 +466,20 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     const [bf, bt] = uciSquares(best.uci);
     if (j.verdict !== 'best') shapes.push(shape(bf, bt, 'green'));
     if (!j.correct) shapes.push(shape(orig, dest, j.verdict === 'playable' ? 'yellow' : 'red'));
+    // Was der Gegner gedroht hat, nur nach einem falschen Zug und nur bei Fehlern, die eine Drohung übersehen
+    if (!j.correct && ex.threat && THREAT_CATS.has(ex.cat)) {
+      const [tf, tt] = uciSquares(ex.threat.uci);
+      shapes.push(shape(tf, tt, 'paleRed'));
+    }
     record(ex, j.verdict, grade, ms, san, j);
     play(j.correct ? (grade === 2 ? 'slow' : 'correct') : 'wrong');
+    const ref = j.verdict === 'wrong' ? ex.refs?.find((r) => r[0] === san) : undefined;
     if (j.correct) showShapes(shapes);
-    else showShapes(shapes, ex.fen);
+    else if (ref) {
+      // erst die Widerlegung vorführen, danach erscheinen die Pfeile
+      resultShapes.current = shapes;
+      startRefutation(ex, san, ref[1]);
+    } else showShapes(shapes, ex.fen);
   };
 
   const onUserMove = (orig: SquareName, dest: SquareName) => {
@@ -455,6 +527,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   };
 
   const next = () => {
+    cancelAnim(false);
     commitDur();
     loadNext();
   };
@@ -466,6 +539,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   };
 
   const requestExit = () => {
+    cancelAnim(false);
     commitDur();
     if (summary || finished || !activeRef.current) {
       if (finished) saveActive(null);
@@ -512,7 +586,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
 
   const ex = current?.ex ?? null;
   const limit = settings.timeLimit;
-  const explanation = ex ? explain(ex) : [];
+  const explanation = ex ? explain(ex, settings.tolerance) : [];
   const over = limit > 0 && elapsed > limit * 1000;
   const barPct = limit > 0 ? Math.min(100, (elapsed / (limit * 1000)) * 100) : 0;
 
@@ -576,10 +650,14 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
 
   const best = ex.lines[0];
   // "gleichwertig" wie in der Wertung: mit Toleranz bis TOLERANCE_WP, bei "Nur der beste" nur praktisch gleich gute Züge
-  const alts = ex.lines.slice(1).filter((l) => best.wp - l.wp <= (settings.tolerance ? TOLERANCE_WP : SAME_WP));
+  const alts = equalMoves(ex, settings.tolerance);
   const correctNow = result && isCorrect(result.verdict);
   const slow = result && correctNow && result.grade === 2;
   const lastOfSet = answered >= setSize;
+  const refPv = result && result.verdict === 'wrong' ? ex.refs?.find((r) => r[0] === result.san)?.[1] : undefined;
+  const refLine = refPv?.slice(0, 3).join(' ');
+  const threatLine = result && !correctNow && result.verdict !== 'gaveup' && ex.threat && THREAT_CATS.has(ex.cat) ? ex.threat.san : null;
+  const sameAsGame = !!result && !correctNow && result.verdict !== 'gaveup' && result.san === ex.played.san;
   const taskNo = Math.min(setSize, phase === 'ask' ? answered + 1 : answered);
 
   return (
@@ -607,8 +685,9 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
         )}
       </div>
 
-      <div class="board-wrap" data-live={live ? '1' : '0'}>
+      <div class="board-wrap" data-live={live ? '1' : '0'} data-ex={ex.id}>
         <div ref={boardEl} class="board" role="img" aria-label={`Schachstellung, ${sideName(ex.turn)} am Zug`} />
+        {animating && <div class="skip-anim" onClick={() => cancelAnim(true)} aria-hidden="true" />}
         {promo && (
           <div class="promo" role="dialog" aria-label="Umwandlung wählen">
             {PROMOTION_ROLES.map((p) => (
@@ -652,9 +731,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
           {result.san && (
             <p>
               Dein Zug: <b class="mono">{result.san}</b>
-              {result.judgement && result.judgement.lossWp !== null
-                ? ` · ${n0(ex.lines[result.judgement.rank ?? 0].wp)} % Gewinnchance`
-                : ' · nicht unter den fünf besten Zügen'}
+              {yourMoveText(result.judgement, ex.more !== undefined)}
             </p>
           )}
           <p>
@@ -662,10 +739,22 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
             {alts.length > 0 && (
               <span class="muted">
                 {' '}
-                · gleichwertig: {alts.map((a) => a.san).join(', ')}
+                · gleichwertig: {alts.slice(0, 5).map((a) => a.san).join(', ')}
+                {alts.length > 5 ? ' …' : ''}
               </span>
             )}
           </p>
+          {refLine && (
+            <p>
+              Nach <b class="mono">{result.san}</b> folgt <span class="mono">{refLine}</span>.
+            </p>
+          )}
+          {threatLine && (
+            <p>
+              Der Gegner drohte: <b class="mono">{threatLine}</b> (blasser Pfeil).
+            </p>
+          )}
+          {sameAsGame && <p class="muted">Derselbe Zug wie in der Partie. Dieser Reflex ist es, den du hier umlernst.</p>}
           <p class="muted">
             In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Prozentpunkte weniger
             als der beste Zug).
@@ -709,7 +798,13 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
             </div>
           ) : (
             <div class="actions row">
-              <button class="btn secondary" onClick={() => setPv({ line: 0, step: 0 })}>
+              <button
+                class="btn secondary"
+                onClick={() => {
+                  cancelAnim(false);
+                  setPv({ line: 0, step: 0 });
+                }}
+              >
                 Variante ansehen
               </button>
               <a class="btn secondary" href={ex.url} target="_blank" rel="noopener noreferrer">

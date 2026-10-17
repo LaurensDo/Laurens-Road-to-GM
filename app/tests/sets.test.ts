@@ -53,7 +53,7 @@ describe('summarize', () => {
 
   it('starker Satz: viel richtig, im Zeitlimit', () => {
     const es = ['a', 'b', 'c', 'd', 'e'].map((id, i) => entry(id, 'best', 4000, 1000 + i));
-    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [], tolerance: true });
     expect(s.tier).toBe('strong');
     expect(s.right).toBe(5);
     expect(s.inTime).toBe(5);
@@ -65,7 +65,7 @@ describe('summarize', () => {
 
   it('richtig, aber nach dem Limit: Tempo-Hinweis, kein starker Satz bei wenig Tempo', () => {
     const es = ['a', 'b', 'c', 'd', 'e'].map((id, i) => entry(id, 'best', 12000, 1000 + i));
-    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [], tolerance: true });
     expect(s.slowRight).toBe(5);
     expect(s.tier).toBe('solid');
     expect(s.lines.join(' ')).toContain('nach dem Limit');
@@ -80,7 +80,7 @@ describe('summarize', () => {
       entry('d', 'best', 5000, 4),
       entry('e', 'best', 5000, 5),
     ];
-    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [], tolerance: true });
     expect(s.quickWrong).toBe(2);
     expect(s.tip).toContain('bis zwei');
     expect(s.lines.join(' ')).toContain('vorschnelles Ziehen');
@@ -88,7 +88,7 @@ describe('summarize', () => {
 
   it('Aufgeben zählt nicht als vorschnell', () => {
     const es = [entry('a', 'gaveup', 500, 1), entry('b', 'gaveup', 600, 2), entry('c', 'best', 5000, 3)];
-    const s = summarize(es, 3, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 3, byId, { limit: 10, previous: [], tolerance: true });
     expect(s.quickWrong).toBe(0);
     expect(s.gaveUp).toBe(2);
   });
@@ -101,7 +101,7 @@ describe('summarize', () => {
       entry('d', 'wrong', 6000, 4),
       entry('e', 'best', 4000, 5),
     ];
-    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [], tolerance: true });
     // größte Gruppe mit mindestens 80 %: "Figur eingestellt" umfasst a, b und e
     expect(s.strong).toMatchObject({ label: 'Figur eingestellt', right: 3, n: 3 });
     expect(s.weak).toMatchObject({ right: 0, n: 2 });
@@ -110,13 +110,13 @@ describe('summarize', () => {
 
   it('Stufen nach Quote', () => {
     const mk = (right: number) => Array.from({ length: 10 }, (_, i) => entry('a', i < right ? 'best' : 'wrong', 4000, i + 1));
-    const t = (r: number) => summarize(mk(r), 10, byId, { limit: 10, previous: [] }).tier;
+    const t = (r: number) => summarize(mk(r), 10, byId, { limit: 10, previous: [], tolerance: true }).tier;
     expect([t(9), t(7), t(5), t(2)]).toEqual(['strong', 'solid', 'mixed', 'hard']);
   });
 
   it('Vergleich mit den letzten Sätzen und Hinweis bei kurzem Satz', () => {
     const es = [entry('a', 'best', 4000, 1), entry('b', 'best', 4000, 2)];
-    const s = summarize(es, 5, byId, { limit: 10, previous: [40, 50, 60] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [40, 50, 60], tolerance: true });
     expect(s.complete).toBe(false);
     expect(s.lines.join(' ')).toContain('letzten 3 Sätze');
     expect(s.lines.join(' ')).toContain('besser');
@@ -125,13 +125,13 @@ describe('summarize', () => {
 
   it('ohne Maia-Werte keine Erwartung', () => {
     const noMaia = byIdOf([ex('a', { maia: { me: null, up: null, cls: null } })]);
-    const s = summarize([entry('a', 'best', 4000, 1)], 1, noMaia, { limit: 10, previous: [] });
+    const s = summarize([entry('a', 'best', 4000, 1)], 1, noMaia, { limit: 10, previous: [], tolerance: true });
     expect(s.expected).toBeNull();
     expect(s.lines[0]).not.toContain('Richtwert');
   });
 
   it('Zeitlimit aus: kein Tempo-Urteil', () => {
-    const s = summarize([entry('a', 'best', 40000, 1, undefined, 0)], 1, byId, { limit: 0, previous: [] });
+    const s = summarize([entry('a', 'best', 40000, 1, undefined, 0)], 1, byId, { limit: 0, previous: [], tolerance: true });
     expect(s.slowRight).toBe(0);
     expect(s.lines[1]).toContain('Im Schnitt');
   });
@@ -139,7 +139,7 @@ describe('summarize', () => {
   it('Zeitlimit später geändert: zählt, was beim Antworten galt', () => {
     // mit 20 s Limit beantwortet (in der Zeit), danach auf 10 s gestellt
     const es = ['a', 'b', 'c', 'd', 'e'].map((id, i) => entry(id, 'best', 12000, 1000 + i, undefined, 20));
-    const s = summarize(es, 5, byId, { limit: 10, previous: [] });
+    const s = summarize(es, 5, byId, { limit: 10, previous: [], tolerance: true });
     expect(s.slowRight).toBe(0);
     expect(s.inTime).toBe(5);
     expect(s.tier).toBe('strong');

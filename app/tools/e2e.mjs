@@ -10,6 +10,8 @@ const BASE = 'http://localhost:4173/Laurens-Road-to-GM/';
 const OUT = process.argv[2] ?? '/tmp/e2e';
 mkdirSync(OUT, { recursive: true });
 const data = JSON.parse(readFileSync(new URL('../public/data/exercises.json', import.meta.url)));
+// Prüfstellungen (hold) kommen nie im Training vor
+data.exercises = data.exercises.filter((e) => !e.hold);
 const ex = data.exercises[0];
 
 const log = [];

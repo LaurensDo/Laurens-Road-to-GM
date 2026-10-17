@@ -9,17 +9,37 @@ const CAT_TEXT: Record<string, string> = {
   'Positioneller Fehler': 'In der Partie war das hier ein positioneller Fehler, der viel Gewinnchance gekostet hat.',
 };
 
+const MATE = /^Matt in \d+$|^Grundreihenmatt$/;
+
+/**
+ * Motive richtig zuordnen: `motifs` beschreiben, was der Gegner nach deinem Fehler ausnutzt (die Widerlegung), `missed` das, was in
+ * der besten Fortsetzung zu holen war. Ohne diese Unterscheidung stand bei "Matt übersehen" nur "Matt in 1", und man wusste nicht,
+ * ob man selbst mattsetzen konnte oder gematt wurde.
+ */
+export function motifLines(ex: Exercise): string[] {
+  const out: string[] = [];
+  const mates = ex.motifs.filter((m) => MATE.test(m));
+  const tactics = ex.motifs.filter((m) => !MATE.test(m));
+  if (mates.length) out.push(`Der Gegner droht: ${mates[0]}.`);
+  if (tactics.length) out.push(`Der Gegner nutzt aus: ${tactics.slice(0, 3).join(', ')}.`);
+  if (!ex.motifs.length && ex.missed?.length) out.push(`In der besten Fortsetzung steckt: ${ex.missed.slice(0, 3).join(', ')}.`);
+  return out;
+}
+
 /** Kurze, feste Erklärung zu einer Übung aus den gespeicherten Fakten. */
-export function explain(ex: Exercise): string[] {
+export function explain(ex: Exercise, tolerance = true): string[] {
   const out: string[] = [];
   out.push(CAT_TEXT[ex.cat] ?? 'In der Partie war das hier ein Fehler.');
-  if (ex.motifs.length) out.push(`Motiv: ${ex.motifs.slice(0, 3).join(', ')}.`);
+  out.push(...motifLines(ex));
   const time =
     ex.spent === null
       ? `In der Partie hattest du noch ${n0(ex.clock)} s auf der Uhr.`
       : `In der Partie hattest du noch ${n0(ex.clock)} s auf der Uhr und hast ${seconds(ex.spent * 1000)} gebraucht.`;
   out.push(ex.spent !== null && ex.spent < 2 ? `${time} Der Zug kam sehr schnell.` : time);
-  if (ex.maia.me !== null) {
+  const ok = tolerance ? ex.maia.ok : ex.maia.ok0;
+  if (typeof ok === 'number') {
+    out.push(`Spieler deiner Stärke finden hier einen richtigen Zug in etwa ${pct(ok * 100)} der Fälle.`);
+  } else if (ex.maia.me !== null) {
     out.push(`Spieler deiner Stärke finden den besten Zug in etwa ${pct(ex.maia.me * 100)} der Fälle.`);
   }
   return out;

@@ -4,7 +4,7 @@ Persönlicher Schach-Trainer als installierbare Web-App (PWA) für iPhone und iP
 offline nutzbar, kein Konto und kein eigener Server. Fortschritt liegt auf dem Gerät und gleicht sich
 optional über eine Datei in einem privaten GitHub-Repository zwischen den Geräten ab.
 
-Stand: Version 1.2 (Update-Weg, tolerantes Dateiformat, Prüfsatz, Wiedereinstieg nach Pausen, Auswertung für Claude; davor 1.1: Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer, letzter
+Stand: Version 1.3 (faires Urteil über alle Züge, ehrlicher Richtwert, Erstversuch-Quote, Widerlegung nach Fehlern; davor 1.2: Update-Weg, tolerantes Dateiformat, Prüfsatz, Wiedereinstieg nach Pausen, Auswertung für Claude; davor 1.1: Aufgabensätze mit Ergebnis und Einordnung, Töne, Layouts für iPhone und iPad hoch und quer, letzter
 Gegnerzug vor der Aufgabe, Startbild mit Big-Dog-Sprüchen, Marke Big Dog; dazu alles aus Version 1: Heute, Fehler-Trainer mit
 Wiederholung, Fortschritt, Einstellungen, Sicherung, Abgleich). Version 1 ist als Tag `v1.0` festgehalten. Die Planung dazu steht in `docs/roadmap-entwurf.md`.
 Geplant laut `docs/app-spezifikation.md`: Taktik-Sprint, Stockfish-Prüfer, Gewinn-Drill (Phase 2), Eröffnungs-Lecks,
@@ -44,9 +44,44 @@ npx vite preview --port 4173 --strictPort &
 node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Geräteformate
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
+node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echten Übungsdaten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.3: faires Urteil, ehrlicher Richtwert, Widerlegung
+
+**Faires Urteil** (`analysis/all_moves.py`, `judge.ts`). Bis 1.2 kannte jede Übung nur die fünf besten Züge. In 240 von 1.200 Übungen
+lagen alle fünf innerhalb von 10 Punkten: Jeder andere gute Zug wurde als „falsch“ gewertet und kam nach einer Minute wieder. Jetzt
+bewertet Stockfish für jede Übung alle legalen Züge (zuerst schnell, nahe an der Grenze „10 Punkte hinter dem besten“ genauer; Übungen,
+in denen schon der fünfte Zug weit zurückliegt, entfallen, weil alle anderen sicher schlechter sind). Gespeichert sind alle Züge bis 40
+Punkte hinter dem besten (`more`, SAN und Gewinnchance). Was in keiner Liste steht, liegt mindestens `COVER_WP` (30) Punkte zurück und
+gilt als falsch. Die Ergebnisanzeige nennt zum eigenen Zug Gewinnchance und Abstand („Auch gut: …“, „3 Punkte weniger als der beste“).
+Alte Antworten behalten ihr damaliges Urteil (Absicht: Der Wiederholungsplan wird aus dem Verlauf berechnet und muss auf beiden Geräten
+gleich ausfallen; nachträgliches Umwerten mit Daten, die ein Gerät noch nicht hat, würde sie auseinanderlaufen lassen).
+
+**Richtwert** (`analysis/maia_ok.py`, `skill.ts`). Der Maia-Richtwert zählte bisher nur den einen besten Zug und schmeichelte damit jeder
+Quote. Jetzt speichert die Datei die ganze Maia-Verteilung und rechnet daraus `maia.ok`: die Wahrscheinlichkeit, dass ein Spieler deiner
+Stärke einen Zug findet, den die App als richtig wertet (`ok0` für „Nur der beste“). Die Einordnung der Sätze und die neue Karte
+„Erster Versuch an neuen Aufgaben“ unter Fortschritt vergleichen damit. Die Karte zählt nur den ersten Versuch je Aufgabe (spätere
+messen auch Erinnerung), nimmt ein Fenster der letzten 50, zeigt den normalen Bereich (95 %, aus den Wahrscheinlichkeiten der einzelnen
+Stellungen) und urteilt erst ab 20 Aufgaben mit drei Wörtern: über dem Richtwert, im normalen Bereich, unter dem Richtwert. Nie rot.
+
+**Widerlegung und Drohung** (`analysis/refutations.py`). Nach einem falschen Zug führt das Brett vor, wie der Gegner ihn bestraft (seine
+Antwort und die folgenden zwei Züge, Tippen überspringt), danach erscheinen die Pfeile. Bei Fehlern, die eine Drohung übersehen
+(Figur eingestellt, Taktik übersehen, Matt übersehen), zeigt ein blasser Pfeil, was der Gegner gedroht hat (Nullzug-Analyse, nur bei
+echter Drohung). Widerlegungen gibt es für den Partiezug und die bis zu zwei wahrscheinlichsten Fehlzüge laut Maia; für jeden anderen
+falschen Zug zeigt die App weiter nur die Gewinnchance. Der Hinweis „Derselbe Zug wie in der Partie“ erscheint, wenn man den Fehler aus
+der Partie wiederholt.
+
+**Motive** (`explain.ts`). Motive wurden vorher nicht unterschieden: „Matt in 1“ konnte heißen, dass man selbst mattsetzen konnte oder
+gematt wurde. Jetzt: „Der Gegner droht: Matt in 2“, „Der Gegner nutzt aus: Gabel“ und, wo es nichts auszunutzen gab („Gegnerfehler nicht
+bestraft“), „In der besten Fortsetzung steckt: Hängende Figur“ (`missed` aus dem Diagnose-Lauf).
+
+**Reihenfolge neuer Übungen** (`order_by_priority`). Die Datei ist nicht mehr nach dem Verlust von früher sortiert (vorn lagen die
+gröbsten Fehler, hinten feinere Stellungsfehler). Vorn liegen jüngere Partien, Leichtsinn, hängende Figur und Gabel, Mittelspiel von
+Zug 15 bis 35. Zeitnot-Stellungen bekommen keinen Bonus. In jedem Block von zehn: höchstens ein „Gegnerfehler nicht bestraft“, höchstens zwei
+„Positioneller Fehler“ ohne Motiv, mindestens drei der Maia-Klasse „Nächste Stufe“. Datenstand 2 (`dv: 2`).
 
 ## Version 1.2: Update-Weg, Dateiformat, Prüfsatz, Wiedereinstieg
 

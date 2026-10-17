@@ -40,6 +40,16 @@ python analysis/build_exercises.py         # -> app/public/data/exercises.json u
 und der beste Zug noch mindestens 15 % Gewinnchance hat. Übungs-ID = Hash aus Partie und Stellung, damit der Fortschritt
 bei neuen Daten erhalten bleibt.
 
+Danach, für das faire Urteil und die Ergebnisanzeige (Datenstand 2, jeweils fortsetzbar, ein bis zwei Stunden):
+
+```bash
+python analysis/all_moves.py --workers 3    # alle legalen Züge bewerten -> data/all_moves.jsonl
+OMP_NUM_THREADS=1 python analysis/maia_ok.py # Maia-Verteilung je Übung -> data/maia_dist.jsonl (ein Thread: sonst bremsen sich Torch und Stockfish)
+python analysis/refutations.py --workers 3  # Drohung (Nullzug) und Widerlegungen -> data/refutations.jsonl
+python analysis/pick_holdout.py             # Prüfsatz ergänzen (nur wenn er wachsen soll)
+python analysis/build_exercises.py          # alles zusammenführen, Reihenfolge nach Priorität
+```
+
 Weitere Skripte: `ratings.py` (Umrechnung chess.com → lichess-Skala, damit Maia und Explorer die richtige Stärke
 bekommen), `explorer.py` (lichess-Eröffnungsdatenbank, braucht `LICHESS_TOKEN` als Umgebungsvariable), `export_pgn.py`
 (Fehlerstudien für lichess), `restore_data.sh` (holt `data/` aus dem Branch `data-backup`).

@@ -25,9 +25,30 @@ export interface Exercise {
   date: string;
   url: string;
   src: string;
-  maia: { me: number | null; up: number | null; cls: string | null };
+  maia: {
+    /** Wahrscheinlichkeit, dass ein Spieler deiner Stärke genau den besten Zug spielt */
+    me: number | null;
+    up: number | null;
+    cls: string | null;
+    /** Wahrscheinlichkeit, dass er einen als richtig gewerteten Zug spielt: ok mit gleichwertigen Zügen (bis 10 Punkte), ok0 nur der beste */
+    ok?: number;
+    ok0?: number;
+    /** wie ok, für einen Spieler 300 Elo stärker */
+    okUp?: number;
+  };
+  /** Was der Gegner droht, wenn man nichts tut (Nullzug), nur bei echter Drohung. SAN gilt in der Stellung nach einem Nullzug. */
+  threat?: { uci: string; san: string; gain: number };
+  /** Widerlegungen falscher Züge: [Zug als SAN, die folgenden Halbzüge als SAN], für den Partiezug und wahrscheinliche Fehlzüge */
+  refs?: [string, string[]][];
+  /** Motive der besten Fortsetzung (was in der Stellung zu gewinnen war), bei "Gegnerfehler nicht bestraft" und anderen */
+  missed?: string[];
   /** Letzter Zug des Gegners vor der Stellung: Brett davor (nur Figurenstellung), Zug als UCI und SAN */
   prev?: { board: string; uci: string; san: string };
+  /**
+   * Weitere bewertete Züge außerhalb der fünf besten (SAN, Gewinnchance): alle, die höchstens 40 Punkte hinter dem besten liegen.
+   * Fehlt das Feld (ältere Daten), kennt die App nur `lines`. Mit dem Feld gilt: Was nirgends steht, liegt mindestens COVER_WP zurück.
+   */
+  more?: [string, number][];
   /** Prüfsatz: kommt nie im Training vor, nur im Monats-Check (analysis/pick_holdout.py) */
   hold?: boolean;
 }

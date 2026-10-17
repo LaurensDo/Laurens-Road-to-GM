@@ -2,6 +2,7 @@ import { useMemo } from 'preact/hooks';
 import { count, dayKey, dayLabel, n0, n1, pct } from '../lib/format';
 import { breakdown, cardCounts, correct, lastDays, today, trainingDays, windowStats } from '../lib/stats';
 import { listSets, rateOf } from '../lib/sets';
+import { MIN_TRIES, SKILL_TEXT, firstTries, skillStat, type SkillStat } from '../lib/skill';
 import { useAppState } from '../lib/store';
 import type { Exercise, Meta } from '../lib/types';
 
@@ -67,6 +68,20 @@ function SetBars({ rates }: { rates: number[] }) {
   );
 }
 
+function SkillRow({ label, s }: { label?: string; s: SkillStat }) {
+  return (
+    <div class="skill-row">
+      <div class="verdict-row">
+        <span class="mono skill-rate">{pct(s.rate)}</span>
+        <span class={`chip ${s.word === 'over' ? 'good' : s.word === 'under' ? 'warn' : ''}`}>{SKILL_TEXT[s.word]}</span>
+      </div>
+      <p class="muted small">
+        {label ? `${label}: ` : ''}letzte {n0(s.n)} neue Aufgaben. Richtwert für Spieler deiner Stärke {pct(s.expected)}, normaler Bereich {n0(s.lo)} bis {n0(s.hi)} %.
+      </p>
+    </div>
+  );
+}
+
 function Table({ rows }: { rows: ReturnType<typeof breakdown> }) {
   if (!rows.length) return <p class="muted">Noch keine Daten.</p>;
   return (
@@ -112,6 +127,10 @@ export function Progress({ exercises, byId, meta }: Props) {
   const byMotif = useMemo(() => breakdown(state.log, byId, 'motif'), [state.log, byId]);
   const b = meta?.baseline;
   const runs = useMemo(() => listSets(state.log).filter((r) => r.entries.length >= Math.min(r.planned, 3)), [state.log]);
+  const tries = useMemo(() => firstTries(state.log, byId, state.settings.tolerance), [state.log, byId, state.settings.tolerance]);
+  const skill = skillStat(tries);
+  const skillNext = skillStat(tries.filter((t) => t.cls === 'Nächste Stufe'), 50, 15);
+  const skillEasy = skillStat(tries.filter((t) => t.cls === 'Leichtsinn'), 50, 15);
   const lastRuns = runs.slice(-10);
   const lastRates = lastRuns.map(rateOf);
 
@@ -147,6 +166,24 @@ export function Progress({ exercises, byId, meta }: Props) {
           </dl>
         )}
       </div>
+
+      {tries.length > 0 && (
+        <div class="card">
+          <h2>Erster Versuch an neuen Aufgaben</h2>
+          {skill ? (
+            <>
+              <SkillRow s={skill} />
+              {skillEasy && <SkillRow label="Leichtsinn" s={skillEasy} />}
+              {skillNext && <SkillRow label="Nächste Stufe" s={skillNext} />}
+              <p class="muted small">
+                Nur der erste Versuch misst Können, spätere Versuche messen auch Erinnerung. Ein Fenster von {n0(skill.n)} Aufgaben schwankt von allein, deshalb gibt es den normalen Bereich dazu.
+              </p>
+            </>
+          ) : (
+            <p class="muted">Erste Aussage nach {n0(MIN_TRIES)} neuen Aufgaben, bisher {n0(tries.length)}.</p>
+          )}
+        </div>
+      )}
 
       {runs.length > 0 && (
         <div class="card">

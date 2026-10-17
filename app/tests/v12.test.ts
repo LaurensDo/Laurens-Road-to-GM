@@ -5,6 +5,7 @@ import { BACKLOG_NEW, COMEBACK_CARDS, COMEBACK_DAYS, counts, DUE_CAP, daysAway, 
 import { usageReport } from '../src/lib/report';
 import { applyReview, retrievability } from '../src/lib/srs';
 import { isNewer } from '../src/lib/updater';
+import { expectedOf, firstTries, skillStat } from '../src/lib/skill';
 import { compareVersions, READER_LEVEL } from '../src/lib/version';
 import { emptyState, type AppState, type Exercise, type Grade, type ReviewEntry } from '../src/lib/types';
 
@@ -246,5 +247,40 @@ describe('Auswertung für Claude', () => {
     expect(r.dauerbrenner).toEqual([{ id: 'b', fehlversuche: 3, antworten: 1, art: 'Matt übersehen' }]);
     expect(r.pausen).toEqual([{ tage: 5, trainingstageInDenErsten3Tagen: 1 }]);
     expect(JSON.stringify(r)).not.toMatch(/opp_name|https?:/);
+  });
+});
+
+describe('Erstversuch-Quote', () => {
+  const e = (id: string, ok: number, cls = 'Leichtsinn') => ex(id, { maia: { me: 0.3, up: 0.5, cls, ok, ok0: ok - 0.1 } });
+  const exs = Array.from({ length: 60 }, (_, i) => e('s' + i, 0.5));
+  const byId = new Map(exs.map((x) => [x.id, x]));
+  const log = (okFrom: number) => exs.map((x, i) => entry(x.id, 1000 + i, i < okFrom ? 3 : 1));
+
+  it('nur der erste Versuch zählt, spätere nicht', () => {
+    const l = [entry('s0', 1000, 1), entry('s0', 2000, 3), entry('s1', 3000, 3)];
+    const t = firstTries(l, byId, true);
+    expect(t.map((x) => [x.id, x.ok])).toEqual([['s0', false], ['s1', true]]);
+  });
+  it('erst ab 20 Versuchen ein Urteil', () => {
+    expect(skillStat(firstTries(log(10).slice(0, 19), byId, true))).toBeNull();
+    expect(skillStat(firstTries(log(10).slice(0, 20), byId, true))).not.toBeNull();
+  });
+  it('Richtwert und normaler Bereich: Schwankung um den Richtwert ist "im Bereich", Ausreißer nicht', () => {
+    const mid = skillStat(firstTries(log(30), byId, true))!; // 30 von 60 = 50 %, Richtwert 50 %
+    expect(mid.word).toBe('inside');
+    expect(mid.expected).toBeCloseTo(50, 5);
+    expect(mid.lo).toBeLessThan(50);
+    expect(mid.hi).toBeGreaterThan(50);
+    expect(skillStat(firstTries(log(55), byId, true))!.word).toBe('over');
+    expect(skillStat(firstTries(log(5), byId, true))!.word).toBe('under');
+  });
+  it('die Einstellung wählt den Richtwert (ok oder ok0)', () => {
+    const t = skillStat(firstTries(log(30), byId, false))!;
+    expect(t.expected).toBeCloseTo(40, 5);
+  });
+  it('ohne Richtwert in den Daten fällt er auf p_best zurück, ganz ohne bleibt es leer', () => {
+    const old = ex('o', { maia: { me: 0.25, up: null, cls: null } });
+    expect(expectedOf(old, true)).toBe(0.25);
+    expect(expectedOf(ex('n', { maia: { me: null, up: null, cls: null } }), true)).toBeNull();
   });
 });

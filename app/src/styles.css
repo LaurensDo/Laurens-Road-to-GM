@@ -151,6 +151,7 @@ b { font-weight: 600; }
 }
 /* Die Felder sind in beiden Themen hell genug für dunkle Schrift: helle Koordinaten wären im dunklen Thema auf hellen Feldern kaum lesbar */
 .cg-wrap coords { color: #17201d; opacity: 0.55; font-weight: 600; }
+.skip-anim { position: absolute; inset: 0; z-index: 4; cursor: pointer; }
 .promo { position: absolute; inset: 0; background: var(--bg); background: color-mix(in srgb, var(--bg) 82%, transparent); display: grid; align-content: center; gap: 8px; padding: 24px; border-radius: 6px; z-index: 5; }
 .timer { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
 .timer .mono { font-size: 0.85rem; color: var(--ink-2); }
@@ -252,6 +253,8 @@ input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
 .tasklist .mark.bad { color: var(--bad); }
 .tasklist a { color: var(--accent); }
 .sets-today { margin-bottom: 4px; }
+.skill-row { display: grid; gap: 4px; }
+.skill-rate { font-size: 1.8rem; font-weight: 600; line-height: 1.1; }
 .sfx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
 .sfx-grid .btn { min-height: 44px; font-size: 0.9rem; }
 
