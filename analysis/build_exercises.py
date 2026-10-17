@@ -163,20 +163,27 @@ def order_by_priority(exercises):
     return out
 
 
+STALE = {"n": 0}  # Bewertungen je Halbzug, die nicht mehr zu den Linien passen
+
+
 def line_out(i, l, pe):
     """Linie mit Gewinnchance nach jedem Halbzug (ev), wenn sie in analysis/ply_evals.py bewertet wurde: Halbzug 1 ist die Gewinnchance der Linie."""
     out = {"san": l["san"], "uci": l["uci"], "wp": l["wp"], "cp": l["cp"], "pv": pv_list(l["pv"])}
     vals = pe["lines"].get(str(i))
-    if vals is not None:
+    if vals is not None and len(vals) == len(out["pv"]) - 1:
         out["ev"] = [l["wp"]] + vals
+    elif vals is not None:
+        STALE["n"] += 1  # Länge passt nicht: die Linien haben sich seit ply_evals.py geändert
     return out
 
 
 def ref_out(r, pe):
     """Widerlegung [Zug, Folgezüge, Gewinnchance nach jedem Halbzug]: Halbzug 1 ist 100 minus die Gewinnchance des Gegners nach dem Zug."""
     vals = pe["refs"].get(r["san"])
-    if vals is not None and r.get("oppWp") is not None:
+    if vals is not None and r.get("oppWp") is not None and len(vals) == len(r["pv"]):
         return [r["san"], r["pv"], [round(100 - r["oppWp"], 1)] + vals]
+    if vals is not None:
+        STALE["n"] += 1
     return [r["san"], r["pv"]]
 
 
@@ -284,6 +291,8 @@ def main():
     (OUT / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     size = (OUT / "exercises.json").stat().st_size
     held = sum(1 for e in exercises if e.get("hold"))
+    if STALE["n"]:
+        print(f"Achtung: {STALE['n']} Bewertungen je Halbzug passen nicht mehr zu den Linien. data/ply_evals.jsonl löschen und analysis/ply_evals.py neu laufen lassen.")
     print(f"{len(exercises)} Übungen ({size // 1024} KB), davon {held} im Prüfsatz, verworfen: {dropped}, ohne letzten Zug: {no_prev}")
     if held != len(holdout):
         print(f"Achtung: {len(holdout)} IDs in holdout_ids.json, aber {held} gefunden")

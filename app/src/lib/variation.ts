@@ -35,6 +35,13 @@ export function buildVariations(ex: Exercise, ownSan: string | null, tolerance: 
     const own = l.san === ownSan;
     const game = l.san === ex.played.san;
     if (!best && !equal && !own && !game) return;
+    // Ein falscher Zug mit gespeicherter Widerlegung (kommt auch dann vor, wenn er unter den fünf besten Linien steht): Es gilt die
+    // Widerlegung. Sie wird nach dem Zug vorgeführt und im Text genannt, und nur sie hat Bewertungen je Halbzug.
+    const ref = !best && !equal ? ex.refs?.find((r) => r[0] === l.san) : undefined;
+    if (ref) {
+      out.push({ key: `l${i}`, san: l.san, moves: [l.san, ...ref[1]], wp: l.wp, ev: ref[2]?.length ? ref[2] : null, best, equal, own, game });
+      return;
+    }
     out.push({ key: `l${i}`, san: l.san, moves: l.pv.length ? l.pv : [l.san], wp: l.wp, ev: l.ev?.length ? l.ev : null, best, equal, own, game });
   });
   for (const [san, pv, ev] of ex.refs ?? []) {

@@ -20,14 +20,21 @@ const usable = file.exercises.filter((e) => {
 });
 if (usable.length < 4) { console.log(`FAIL zu wenige Übungen mit Bewertungen (${usable.length})`); process.exit(1); }
 const picked = usable.slice(0, 8);
-const byId = new Map(picked.map((e) => [e.id, e]));
+// Übungen, bei denen der Partiezug falsch ist, aber unter den fünf besten Linien steht (dort hat die Linie keine Bewertungen, die Widerlegung schon)
+const inLines = file.exercises.filter((e) => {
+  const ref = (e.refs ?? []).find((r) => r[0] === e.played.san);
+  const l = e.lines.findIndex((x) => x.san === e.played.san);
+  return ref && ref[2]?.length >= 3 && l > 0 && e.lines[0].wp - e.lines[l].wp > 10 && !e.hold;
+});
+const byId = new Map([...picked, ...inLines.slice(0, 3)].map((e) => [e.id, e]));
 const body = JSON.stringify({ ...file, exercises: picked });
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
-async function session({ evalbar, viewport = { width: 390, height: 844 } } = {}) {
+async function session({ evalbar, viewport = { width: 390, height: 844 }, only } = {}) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, hasTouch: false, serviceWorkers: 'block' });
   await ctx.addInitScript((p) => localStorage.setItem('road-to-gm-device-v1', JSON.stringify(p)), { splash: false, sound: false, games: false, ...(evalbar ? { evalbar } : {}) });
-  await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body }));
+  const served = only ? JSON.stringify({ ...file, exercises: only }) : body;
+  await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: served }));
   await mockGames(ctx);
   const page = await ctx.newPage();
   const errors = [];
@@ -160,6 +167,28 @@ const readLog = (page) =>
   ok(first && first.pv > 0 && first.pv <= first.dur, `A: Zeit in der Variante wird mitgezählt (pv ${first?.pv} ms von dur ${first?.dur} ms)`);
   ok(errors.length === 0, `A: Keine Fehler ${errors.length ? JSON.stringify(errors.slice(0, 2)) : ''}`);
   await ctx.close();
+}
+
+// ---- E: Partiezug steht unter den fünf besten Linien, ist aber falsch: Balken folgt trotzdem der Widerlegung
+if (inLines.length) {
+  const { ctx, page } = await session({ only: inLines.slice(0, 3) });
+  const e = await currentEx(page);
+  const ref = e.refs.find((r) => r[0] === e.played.san);
+  await playMove(page, e, e.played.san);
+  await page.waitForSelector('.skip-anim', { state: 'detached', timeout: 9000 });
+  await page.getByRole('button', { name: 'Variante ansehen', exact: true }).click();
+  await page.waitForSelector('.varbar');
+  await page.locator('.var-chip', { hasText: 'dein Zug' }).click();
+  const labels = await page.locator('.var-moves .pv-move').allTextContents();
+  ok(labels.length === 1 + ref[1].length, `E: Zugliste ist die Widerlegung (${labels.join(' ')})`);
+  await page.click('[aria-label="Ein Zug vor"]');
+  await page.click('[aria-label="Ein Zug vor"]');
+  await settled(page);
+  const v = await barPct(page);
+  ok(Math.abs(v - ref[2][1]) <= 0.6, `E: Balken folgt den Werten der Widerlegung (${ref[2][1]} %, jetzt ${v} %), nicht einer flachen Linie`);
+  await ctx.close();
+} else {
+  ok(false, 'E: keine Übung mit falschem Partiezug unter den fünf besten Linien und Bewertungen gefunden');
 }
 
 // ---- B: "Auch in der Aufgabe"

@@ -65,6 +65,20 @@ describe('buildVariations', () => {
     expect(tagsOf(v[1])).toBe('gleichwertig, dein Zug');
   });
 
+  it('nimmt für einen falschen Zug unter den fünf besten Linien die gespeicherte Widerlegung samt Bewertungen', () => {
+    const e = ex({
+      played: { san: 'h3', uci: 'h2h3', wp: 30, cp: 0 },
+      refs: [['h3', ['Nxe4', 'dxe4', 'Qxd1'], [30, 12, 14, 8]]],
+    });
+    const v = buildVariations(e, 'h3', true).find((x) => x.san === 'h3')!;
+    expect(v.moves).toEqual(['h3', 'Nxe4', 'dxe4', 'Qxd1']);
+    expect(v.ev).toEqual([30, 12, 14, 8]);
+    expect(v.own && v.game).toBe(true);
+    expect(evAt(e, v, 2)).toBe(12);
+    // gleichwertige Linien behalten ihre eigene, tiefere Variante
+    expect(buildVariations(e, null, true).find((x) => x.san === 'Na4')!.moves).toHaveLength(4);
+  });
+
   it('übersteht Übungen ohne Widerlegungen', () => {
     const v = buildVariations(ex({ refs: undefined }), 'Qh5', true);
     expect(v.map((x) => x.san)).toEqual(['Bg5', 'Na4', 'Be3']);

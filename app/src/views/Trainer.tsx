@@ -631,7 +631,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const stepRef = useRef(stepTo);
   stepRef.current = stepTo;
   const pvOpenRef = useRef(false);
-  pvOpenRef.current = !!pv;
+  pvOpenRef.current = !!pv && !confirmExit; // hinter dem Beenden-Dialog nicht weiterblättern
   const pvStepRef = useRef(0);
   pvStepRef.current = pv?.step ?? 0;
 

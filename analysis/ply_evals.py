@@ -74,7 +74,8 @@ def solve(e):
         vals = walk(e["fen"], line["pv"], 2)
         if vals is not None:
             out["lines"][str(i)] = vals
-    for san, pv in e.get("refs", []):
+    for ref in e.get("refs", []):
+        san, pv = ref[0], ref[1]  # ab Datenstand mit Bewertungen steht als drittes Element ev
         if not pv:
             continue
         vals = walk(e["fen"], [san] + pv, 2)
