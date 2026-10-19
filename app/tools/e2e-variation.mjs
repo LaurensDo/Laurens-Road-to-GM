@@ -52,6 +52,7 @@ const barPct = async (page) => {
 };
 const settled = (page) => page.waitForTimeout(450); // Übergang des Balkens
 async function playMove(page, e, san) {
+  await page.waitForTimeout(350); // die neue Stellung wird 260 ms lang animiert
   const pos = await page.evaluate(() => 0);
   void pos;
   const { Chess } = await import('chessops/chess');

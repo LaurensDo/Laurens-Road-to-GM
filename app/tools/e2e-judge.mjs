@@ -34,6 +34,7 @@ const squares = (e, san) => {
   return { from: makeSquare(mv.from), to: makeSquare(mv.to) };
 };
 async function play(e, san) {
+  await page.waitForTimeout(350); // chessground animiert die neue Stellung 260 ms lang, in dieser Zeit sind die Zielfelder noch nicht da
   const { from, to } = squares(e, san);
   const box = await page.locator('.board cg-board').boundingBox();
   const pt = (sq) => {
@@ -65,7 +66,7 @@ for (let i = 0; i < 20 && !(doneA && doneB && doneB2); i++) {
   const id = await page.getAttribute('.board-wrap', 'data-ex');
   const e = byId.get(id);
   const best = e.lines[0];
-  const fair = (e.more ?? []).find(([san, wp]) => best.wp - wp > 0.5 && best.wp - wp <= 10 && !e.lines.some((l) => l.san === san));
+  const fair = e.win ? undefined : (e.more ?? []).find(([san, wp]) => best.wp - wp > 0.5 && best.wp - wp <= 10 && !e.lines.some((l) => l.san === san));
   const refPlayed = (e.refs ?? []).find(([san]) => san === e.played.san);
   const wrong = best.wp - e.played.wp > 25;
   if (!doneA && fair) {

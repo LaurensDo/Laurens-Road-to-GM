@@ -22,11 +22,11 @@
   "blunders_middlegame_opp": 3.29
  },
  "counts": {
-  "exercises": 1200,
+  "exercises": 1468,
   "by_phase": {
-   "Eröffnung": 215,
-   "Mittelspiel": 649,
-   "Endspiel": 336
+   "Eröffnung": 216,
+   "Mittelspiel": 797,
+   "Endspiel": 455
   }
  }
 }

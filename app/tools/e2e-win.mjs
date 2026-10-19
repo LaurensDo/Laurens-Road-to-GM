@@ -38,6 +38,7 @@ async function session(exercises) {
   return { ctx, page, errors };
 }
 async function playMove(page, e, san) {
+  await page.waitForTimeout(350); // die neue Stellung wird 260 ms lang animiert
   const p = Chess.fromSetup(parseFen(e.fen).unwrap()).unwrap();
   const mv = parseSan(p, san);
   const from = makeSquare(mv.from), to = makeSquare(mv.to);

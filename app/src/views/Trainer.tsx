@@ -76,6 +76,12 @@ const KIND_TEXT: Record<PickKind, string> = { due: 'Wiederholung', learning: 'Le
 /** Zeitlimit für diese Aufgabe: "Sicher gewinnen" hat seine kurze Zielzeit, sonst gilt die Einstellung. */
 const limitOf = (ex: Exercise | null | undefined): number => ex?.win?.limit ?? getState().settings.timeLimit;
 
+/**
+ * Chessground merkt sich die Lage des Bretts und aktualisiert sie nur beim Scrollen und bei Größenänderung des Bretts selbst. Rutscht das Brett
+ * durch eine zweizeilige Kopfzeile (viele Tags) um ein paar Pixel, träfe ein Tipp sonst das Nachbarfeld. Ein Scroll-Ereignis setzt die Lage zurück.
+ */
+const refreshBoardBounds = () => document.dispatchEvent(new Event('scroll'));
+
 /** Zeile zum eigenen Zug: Gewinnchance und Abstand zum besten, bei unbekannten Zügen ehrlich "deutlich schlechter". */
 function yourMoveText(j: Judgement | null, complete: boolean, win?: Exercise['win']): string {
   if (!j) return '';
@@ -115,6 +121,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const animTimers = useRef<number[]>([]);
   const animatingRef = useRef(false);
   const boardEl = useRef<HTMLDivElement>(null);
+  const sectionEl = useRef<HTMLElement>(null);
   const cg = useRef<Api | null>(null);
   const shownAt = useRef(0);
   const shownWall = useRef(0);
@@ -308,6 +315,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   useEffect(() => {
     const ex = current?.ex;
     if (!ex || !boardEl.current) return;
+    // Eine neue Aufgabe beginnt oben: Nach einem langen Ergebnistext stand die Seite sonst noch weiter unten, und das Brett rutschte beim Laden
+    window.scrollTo(0, 0);
     const pos = positionOf(ex.fen);
     const color = ex.turn === 'w' ? 'white' : 'black';
     const last = getState().settings.showLast ? ex.prev : undefined;
@@ -342,6 +351,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     setLive(false);
     const goLive = () => {
       cg.current?.set({ ...unlocked, fen: ex.fen } as never);
+      refreshBoardBounds();
       shownAt.current = performance.now();
       shownWall.current = Date.now();
       setLive(true);
@@ -365,6 +375,15 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
+
+  // Verschiebt sich das Brett (Kopfzeile mit mehr oder weniger Zeilen, Ergebnistext), muss Chessground seine Lage neu lesen
+  useEffect(() => {
+    const el = sectionEl.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => refreshBoardBounds());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [current?.ex.id]);
 
   // Zeitanzeige und Uhr-Töne: Die Zeit läuft erst, wenn das Brett freigegeben ist
   useEffect(() => {
@@ -745,7 +764,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   const barWp = pv ? evAt(ex, activeVar, pv.step) : animBar !== null ? animBar : ex.lines[0].wp;
 
   return (
-    <section class={`screen trainer${pv ? ' varopen' : ''}`}>
+    <section ref={sectionEl} class={`screen trainer${pv ? ' varopen' : ''}`}>
       <header class="topbar">
         <button class="link" onClick={requestExit} aria-label="Training beenden">
           ← Beenden
