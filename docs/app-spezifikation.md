@@ -181,8 +181,17 @@ Einschub „Varianten“ aus dem [Roadmap-Entwurf](roadmap-entwurf.md), auf Wuns
 - **Bewusst nicht:** Live-Stockfish im Browser und freies Ausprobieren von Zügen mit Bewertung (7 bis 10 MB, iOS nur single-threaded, Zahlen würden von den gespeicherten abweichen). Freies Ausprobieren ohne Bewertung wäre ohne Motor möglich, wurde aber nicht beauftragt.
 - **Zeit in Varianten:** zählt zur Trainingszeit, wird aber getrennt als `pv` erfasst und in der Auswertung genannt.
 
+## 9f. Version 1.6 (umgesetzt)
+
+Auf Wunsch von Laurens nach dem Gebrauch im Alltag.
+
+- **Fehler später:** Eine falsche Aufgabe kommt frühestens nach zehn Minuten wieder (vorher eine, bei Rückfällen fünf). Begründung: Direkt danach wiederholt man nur, was noch im Kurzzeitgedächtnis ist.
+- **Ein Ziel:** Das Tagesziel in Minuten bestimmt, wie viele neue Aufgaben freigegeben werden. „Neue pro Tag“ ist nur noch die Obergrenze.
+- **Vorläufiges Urteil:** Uhr-Karte ab 20 Partien, am Bereich der Monatswerte gemessen und als vorläufig gekennzeichnet.
+- **lichess-Korrektur (1.5.1/1.5.2):** Partien mit Zeitverlust oder Aufgabe wurden bis dahin verworfen.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2, 1.3, 1.4 und 1.5 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5 und 1.6 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

@@ -55,7 +55,7 @@ await page.locator('nav').getByText('Fortschritt').click();
 const clock = page.locator('.card', { has: page.locator('h2', { hasText: 'Uhr in deinen Partien' }) });
 const ct = (await clock.textContent()).replace(/\s+/g, ' ');
 ok(/3\+0 seit dem 15\.10\.: 3 Partien, davon 3 mit Uhr vor Zug 30/.test(ct), `Uhr-Karte zählt die Partien (${ct.slice(0, 110)})`);
-ok(/Noch 117 bis zur ersten Aussage/.test(ct), 'Noch 117 bis zur ersten Aussage');
+ok(/Noch 17 bis zum vorläufigen Urteil, 117 bis zur gesicherten Aussage/.test(ct), 'Noch 17 bis zum vorläufigen Urteil, 117 bis zur gesicherten Aussage');
 ok(/Basis 74 s/.test(ct) && /Basis −11,3 s/.test(ct), 'Werte stehen neben der eingefrorenen Basis');
 ok(!/besser als vorher|schlechter als vorher|im normalen Bereich/.test(ct), 'Vor der Mindestmenge kein Urteil');
 ok(/Bullet \(lichess 1\+0\)/.test(ct) && /Noch 599 bis zur ersten Aussage/.test(ct), 'Bullet getrennt, mit eigener Mindestmenge');
@@ -115,5 +115,22 @@ const sinceParam = urls.length ? Number(new URL(urls[0]).searchParams.get('since
 ok(sinceParam === Date.parse('2026-10-15T00:00:00Z'), `Bestand aus 1.5.0: lichess wird ab dem Stichtag neu geholt (since=${sinceParam})`);
 
 ok(errors.filter((e) => !/ERR_INTERNET_DISCONNECTED|Failed to load resource/.test(e)).length === 0, `Keine unerwarteten Fehler ${JSON.stringify(errors.slice(0, 3))}`);
+// Ab 20 Partien: vorläufiges Urteil, gemessen an den Monatswerten
+{
+  const many = Array.from({ length: 22 }, (_, i) => chesscomGame({ id: 2000 + i, end: Date.parse('2026-10-16T10:00:00Z') + i * 3600000, color: i % 2 ? 'b' : 'w', spentMine: () => 3 }));
+  const c2 = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await c2.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false })));
+  await mockGames(c2, { chesscom: many });
+  const p2 = await c2.newPage();
+  await p2.goto(BASE, { waitUntil: 'networkidle' });
+  await p2.locator('nav').getByText('Fortschritt').click();
+  const card = p2.locator('.card', { has: p2.locator('h2', { hasText: 'Uhr in deinen Partien' }) });
+  await card.locator('.verdicts').waitFor({ timeout: 8000 });
+  const t = (await card.textContent()).replace(/\s+/g, ' ');
+  ok(/Vorläufig: Die Urteile messen sich am Bereich deiner Monatswerte\. Noch 98 bis zur gesicherten Aussage/.test(t), `Ab 20 Partien steht "Vorläufig" (${t.slice(30, 150)})`);
+  ok((await card.locator('.verdicts .chip').count()) === 3, 'Ab 20 Partien gibt es drei vorläufige Urteile');
+  await p2.screenshot({ path: `${OUT}/4-vorlaeufig.png`, fullPage: true });
+  await c2.close();
+}
 await browser.close();
 console.log(results.join('\n'));

@@ -1,7 +1,7 @@
 {
   "name": "road-to-gm",
   "private": true,
-  "version": "1.5.2",
+  "version": "1.6.0",
   "type": "module",
   "description": "Road to GM: persönlicher Schach-Trainer (PWA)",
   "scripts": {

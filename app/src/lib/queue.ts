@@ -33,6 +33,26 @@ export const COMEBACK_DAYS = 4;
 /** So viele sichere Karten zum Wiedereinstieg. */
 export const COMEBACK_CARDS = 5;
 
+/** Mindestens so viele neue Aufgaben am Tag, auch wenn die Wiederholungen das Tagesziel schon füllen würden */
+export const MIN_NEW = 3;
+/** Annahme für die Zeit je Aufgabe, solange zu wenige Antworten vorliegen */
+export const DEFAULT_TASK_S = 30;
+
+/** Typische Zeit je Aufgabe in Sekunden (Median der letzten Antworten ohne die Zeit in Varianten), für die Planung des Tages. */
+export function taskSeconds(state: AppState, now: Date): number {
+  const cutoff = now.getTime() - 30 * 86400000;
+  const xs = state.log
+    .filter((e) => countsForSchedule(e) && e.ts >= cutoff)
+    .slice(-150)
+    .map((e) => Math.max(0, e.dur - (e.pv ?? 0)) / 1000)
+    .filter((x) => x > 0);
+  if (xs.length < 20) return DEFAULT_TASK_S;
+  xs.sort((a, b) => a - b);
+  const m = xs.length >> 1;
+  const med = xs.length % 2 ? xs[m] : (xs[m - 1] + xs[m]) / 2;
+  return Math.min(90, Math.max(8, med));
+}
+
 export function newIntroducedToday(state: AppState, now: Date): number {
   const today = dayKey(now.getTime());
   return Object.values(state.cards).filter((c) => dayKey(c.firstSeen) === today).length;
@@ -118,7 +138,11 @@ function scan(pool: Exercise[], state: AppState, now: Date): Scan {
   const today = dayKey(now.getTime());
   const bonus = state.bonus && state.bonus.day === today ? state.bonus.n : 0;
   const base = backlog ? Math.min(state.settings.newPerDay, BACKLOG_NEW) : state.settings.newPerDay;
-  const newQuota = Math.max(0, base + bonus - newIntroducedToday(state, now));
+  // Neue Aufgaben pro Tag sind eine Obergrenze: Was das Tagesziel in Minuten nach den Wiederholungen übrig lässt, ist der Rahmen
+  const committed = done + Math.min(dueReview.length, reviewLeft) + dueLearn.length;
+  const fit = Math.floor((state.settings.goalMinutes * 60) / taskSeconds(state, now)) - committed;
+  const cap = backlog ? base : Math.min(base, Math.max(MIN_NEW, fit));
+  const newQuota = Math.max(0, cap + bonus - newIntroducedToday(state, now));
   return { dueReview, dueLearn, ahead, fresh, backlog, reviewLeft, newQuota };
 }
 
@@ -142,7 +166,7 @@ export type PickKind = 'due' | 'learning' | 'new';
 
 /**
  * Nächste Aufgabe: zuerst Fälliges, dann Neues im Tageskontingent. Lernschritte der nächsten Minuten werden nur
- * vorgezogen, wenn sonst nichts mehr da ist. So kommt ein Fehler nach etwa einer Minute und einigen anderen Aufgaben wieder.
+ * vorgezogen, wenn sonst nichts mehr da ist. So kommt ein Fehler frühestens nach zehn Minuten wieder (srs.ts), meist im nächsten Satz oder am nächsten Tag.
  * Nach einer Pause von mindestens COMEBACK_DAYS Tagen beginnt der Tag mit den sichersten fälligen Karten, und im Rückstand
  * gilt der Tagesdeckel DUE_CAP.
  */

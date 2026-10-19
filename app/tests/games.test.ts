@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fenAfter, materialTrack, parseChessComArchive, parseChessComPgn, parseLichessNdjson, tcOf, type GameRec } from '../src/lib/games';
 import { budgetOf, metricsOf, sd, summarize } from '../src/lib/gameStats';
+import { compare, compareRange, missing, PRELIM_MIN } from '../src/lib/basis';
 
 // ---- Hilfen: eine Partie aus Zügen und Uhr bauen (ohne echte Partien, ohne Namen)
 const SHUFFLE = ['Nc3', 'Nc6', 'Nb1', 'Nb8']; // vier Halbzüge, ändern nichts am Material
@@ -206,5 +207,23 @@ describe('Uhr-Auswertung', () => {
     expect(summarize([]).own1629).toBeNull();
     expect(sd([1, 3])).toBeCloseTo(Math.SQRT2, 5);
     expect(sd([1])).toBeNull();
+  });
+});
+
+describe('Vorläufiges Urteil', () => {
+  it('misst am Bereich der Monatswerte, bei kleineren Werten als besser, wenn niedriger besser ist', () => {
+    const r = { lo: -23, hi: -6 };
+    expect(compareRange(-15, r, false)).toBe('inside');
+    expect(compareRange(-30, r, false)).toBe('worse'); // Vorsprung: höher ist besser
+    expect(compareRange(0, r, false)).toBe('better');
+    expect(compareRange(2.5, { lo: 1, hi: 3.5 }, true)).toBe('inside');
+    expect(compareRange(0.2, { lo: 1, hi: 3.5 }, true)).toBe('better'); // Denkpausen: weniger ist besser
+    expect(compareRange(5, { lo: 1, hi: 3.5 }, true)).toBe('worse');
+  });
+  it('kennt die Mindestmenge und zählt, was bis dahin fehlt', () => {
+    expect(PRELIM_MIN).toBe(20);
+    expect(missing(4, PRELIM_MIN)).toBe(16);
+    expect(missing(25, PRELIM_MIN)).toBe(0);
+    expect(compare(50, 120, { mean: 74, sd: 27 }, 206, true)).toBe('better');
   });
 });

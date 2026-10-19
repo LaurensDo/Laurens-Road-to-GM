@@ -166,7 +166,16 @@ describe('Warteschlange', () => {
     const s = emptyState();
     s.cards.a = applyReview(undefined, 1, t);
     expect(pickNext(exs, s, t)?.kind).toBe('new');
-    expect(pickNext(exs, s, new Date(t.getTime() + 2 * 60000))?.kind).toBe('due');
+    // Ein Fehler kommt nicht gleich wieder (Kurzzeitgedächtnis), sondern frühestens nach zehn Minuten
+    expect(pickNext(exs, s, new Date(t.getTime() + 2 * 60000))?.kind).toBe('new');
+    expect(pickNext(exs, s, new Date(t.getTime() + 11 * 60000))?.kind).toBe('due');
+  });
+  it('auch ein Rückfall bei einer älteren Karte kommt erst nach zehn Minuten', () => {
+    let rec = applyReview(undefined, 3, t);
+    const later = new Date(t.getTime() + 10 * 86400000);
+    rec = applyReview(rec, 1, later);
+    expect(dueDate(rec).getTime() - later.getTime()).toBeGreaterThanOrEqual(10 * 60000);
+    expect(dueDate(rec).getTime() - later.getTime()).toBeLessThan(30 * 60000);
   });
   it('richtig beim ersten Mal ist sofort gelernt und kommt erst nach Tagen wieder', () => {
     const rec = applyReview(undefined, 3, t);

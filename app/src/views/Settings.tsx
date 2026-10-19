@@ -190,13 +190,17 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           </p>
         </div>
         <div class="field">
-          <label>Neue Aufgaben pro Tag</label>
+          <label>Neue Aufgaben pro Tag, höchstens</label>
           <Segmented
-            label="Neue Aufgaben pro Tag"
+            label="Neue Aufgaben pro Tag, höchstens"
             value={s.newPerDay}
             options={[5, 10, 15, 25].map((v) => ({ value: v, label: String(v) }))}
             onChange={(v) => set({ newPerDay: v })}
           />
+          <p class="muted small">
+            Das Tagesziel in Minuten ist das eigentliche Ziel. Sind viele Wiederholungen fällig, gibt die App weniger neue Aufgaben frei, damit
+            beides in die Zeit passt (mindestens 3). Falsche Aufgaben kommen frühestens nach zehn Minuten wieder.
+          </p>
         </div>
         <div class="field">
           <label>Tagesziel</label>

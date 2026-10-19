@@ -6,9 +6,10 @@ const scheduler = fsrs(
     request_retention: 0.9,
     maximum_interval: 120,
     enable_fuzz: true,
-    // Richtig beim ersten Mal gilt sofort als gelernt. Falsch kommt nach etwa einer Minute wieder.
-    learning_steps: ['1m'],
-    relearning_steps: ['5m'],
+    // Richtig beim ersten Mal gilt sofort als gelernt. Falsch kommt frühestens nach zehn Minuten wieder, nicht im nächsten Satz:
+    // Nach einer Minute steht die Lösung noch im Kurzzeitgedächtnis, das Wiederholen übt dann nur das Merken, nicht das Finden.
+    learning_steps: ['10m'],
+    relearning_steps: ['10m'],
   }),
 );
 

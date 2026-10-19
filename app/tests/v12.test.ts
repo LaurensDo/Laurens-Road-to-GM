@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { splitHoldout } from '../src/lib/data';
 import { canonical, fromRemote, mergeStates, replay, toRemote } from '../src/lib/merge';
-import { BACKLOG_NEW, COMEBACK_CARDS, COMEBACK_DAYS, counts, DUE_CAP, daysAway, pickNext, reviewedToday } from '../src/lib/queue';
+import { BACKLOG_NEW, COMEBACK_CARDS, COMEBACK_DAYS, counts, DEFAULT_TASK_S, DUE_CAP, daysAway, MIN_NEW, pickNext, reviewedToday, taskSeconds } from '../src/lib/queue';
 import { usageReport } from '../src/lib/report';
 import { applyReview, retrievability } from '../src/lib/srs';
 import { isNewer } from '../src/lib/updater';
@@ -248,6 +248,42 @@ describe('Auswertung für Claude', () => {
     expect(r.dauerbrenner).toEqual([{ id: 'b', fehlversuche: 3, antworten: 1, art: 'Matt übersehen' }]);
     expect(r.pausen).toEqual([{ tage: 5, trainingstageInDenErsten3Tagen: 1 }]);
     expect(JSON.stringify(r)).not.toMatch(/opp_name|https?:/);
+  });
+});
+
+describe('Neue Aufgaben passen zum Tagesziel', () => {
+  const day = new Date('2026-10-19T10:00:00');
+  const many = Array.from({ length: 60 }, (_, i) => ex('n' + i));
+  const answered = (n: number, durMs: number): ReviewEntry[] =>
+    Array.from({ length: n }, (_, i) => ({ id: 'z' + i, ts: day.getTime() - 86400000 + i * 1000, grade: 3 as Grade, verdict: 'best' as const, ms: 2000, dur: durMs }));
+
+  it('nimmt ohne genug Antworten eine Standardzeit und danach den Median ohne die Zeit in Varianten', () => {
+    expect(taskSeconds(emptyState(), day)).toBe(DEFAULT_TASK_S);
+    const log = answered(30, 20000).map((e, i) => (i % 2 ? { ...e, dur: 50000, pv: 30000 } : e));
+    expect(taskSeconds({ ...emptyState(), log }, day)).toBe(20);
+  });
+
+  it('newPerDay ist eine Obergrenze: Ohne Rückstand bleibt alles beim Alten', () => {
+    const s = emptyState();
+    expect(counts(many, s, day).newAvailable).toBe(15);
+  });
+
+  it('gibt weniger neue frei, wenn Wiederholungen das Tagesziel füllen', () => {
+    // 10 Minuten Ziel, 30 s je Aufgabe = 20 Aufgaben, 18 davon schon als Wiederholung fällig
+    const s = emptyState();
+    s.settings.goalMinutes = 10;
+    const reviews = Array.from({ length: 18 }, (_, i) => ex('r' + i));
+    const past = new Date(day.getTime() - 5 * 86400000);
+    for (const r of reviews) s.cards[r.id] = { ...applyReview(applyReview(undefined, 3, past), 3, new Date(past.getTime() + 86400000)), firstSeen: past.getTime() };
+    const c = counts([...reviews, ...many], s, new Date(day.getTime() + 40 * 86400000));
+    expect(c.due).toBe(18);
+    expect(c.newAvailable).toBe(MIN_NEW);
+  });
+
+  it('lässt immer Platz für ein paar neue, und am Rückstandstag gilt der alte Deckel', () => {
+    const s = emptyState();
+    s.settings.goalMinutes = 1;
+    expect(counts(many, s, day).newAvailable).toBe(MIN_NEW);
   });
 });
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'preact/hooks';
 import { Chessground } from 'chessground';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.cburnett.css';
-import { compare, missing, WORD_TEXT, type BasisBlock, type UhrBasis, type Word } from '../lib/basis';
+import { compare, compareRange, missing, PRELIM_MIN, WORD_TEXT, type BasisBlock, type UhrBasis, type Word } from '../lib/basis';
 import { count, n0, n1, seconds } from '../lib/format';
 import { fenAfter, tcOf, type GameRec } from '../lib/games';
 import { fetchGamesNow, resetGames, useGames, useGamesStatus } from '../lib/gamesStore';
@@ -225,6 +225,7 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
   const min30 = basis?.minGames.chesscom30 ?? 120;
   const minB = basis?.minGames.lichess10 ?? 600;
   const ready = s.reach30 >= min30;
+  const prelim = !ready && s.reach30 >= PRELIM_MIN;
   const ms = useMemo(() => g30.map(metricsOf), [g30]);
 
   // laufender Durchschnitt der eigenen Zeit von Zug 16 bis 29 über die letzten 20 Partien
@@ -236,9 +237,15 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
     });
   }, [ms]);
 
-  const w1629 = ready && b && s.own1629 !== null ? compare(s.own1629, s.reach30, b.own1629, b.reach30, true) : null;
-  const wPause = ready && b && s.pauses !== null ? compare(s.pauses, s.reach30, { mean: b.pauses.mean, sd: b.pauses.sd }, b.reach30, true) : null;
-  const wLead = ready && b && s.lead30 !== null ? compare(s.lead30, s.reach30, b.lead30, b.reach30, false) : null;
+  // ab der Mindestmenge: Zufallsbereich der Stichproben; davor (ab PRELIM_MIN) vorläufig am Bereich der Monatswerte
+  const verdict = (v: number | null, base: Parameters<typeof compare>[2], range: { lo: number; hi: number } | undefined, lowerIsBetter: boolean): Word | null => {
+    if (v === null || !b) return null;
+    if (ready) return compare(v, s.reach30, base, b.reach30, lowerIsBetter);
+    return prelim && range ? compareRange(v, range, lowerIsBetter) : null;
+  };
+  const w1629 = verdict(s.own1629, b?.own1629 ?? { mean: null, sd: null }, basis?.monthly.own1629, true);
+  const wPause = verdict(s.pauses, b ? { mean: b.pauses.mean, sd: b.pauses.sd } : { mean: null, sd: null }, basis?.monthly.pauses, true);
+  const wLead = verdict(s.lead30, b?.lead30 ?? { mean: null, sd: null }, basis?.monthly.lead30, false);
   const brakeRate = s.fast ? (100 * s.fastBad) / s.fast : null;
   const brakeUp = brakeRate !== null && b?.brake.per100 != null && s.n >= 150 && brakeRate > b.brake.per100 * 1.5;
 
@@ -247,7 +254,11 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
       <h2>Uhr in deinen Partien</h2>
       <p class="muted">
         3+0 seit dem 15.10.: {count(s.n, 'Partie', 'Partien')}, davon {n0(s.reach30)} mit Uhr vor Zug 30.{' '}
-        {ready ? '' : `Noch ${n0(missing(s.reach30, min30))} bis zur ersten Aussage, bis dahin gelten die Werte nur als Anhaltspunkt.`}
+        {ready
+          ? ''
+          : prelim
+            ? `Vorläufig: Die Urteile messen sich am Bereich deiner Monatswerte. Noch ${n0(missing(s.reach30, min30))} bis zur gesicherten Aussage.`
+            : `Noch ${n0(missing(s.reach30, PRELIM_MIN))} bis zum vorläufigen Urteil, ${n0(missing(s.reach30, min30))} bis zur gesicherten Aussage.`}
       </p>
       {s.reach30 > 0 && b ? (
         <>
@@ -263,7 +274,7 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
             <Row label="Zug 20 im Budget (2:00)" now={s.budget20 !== null ? `${n0(s.budget20)} %` : '–'} base={b.budget20 !== null ? `${n0(b.budget20)} %` : undefined} />
             <Row label="Zug 30 im Budget (1:20)" now={s.budget30 !== null ? `${n0(s.budget30)} %` : '–'} base={b.budget30 !== null ? `${n0(b.budget30)} %` : undefined} />
           </dl>
-          {ready && (
+          {(ready || prelim) && (
             <p class="verdicts">
               <span>
                 Eigene Zeit: <WordChip w={w1629} />

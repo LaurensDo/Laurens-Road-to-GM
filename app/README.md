@@ -51,6 +51,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.6: Fehler später wiederholen, Tagesziel in Minuten, vorläufiges Urteil
+
+- **Falsche Aufgaben kommen frühestens nach zehn Minuten wieder** (`srs.ts`, Lern- und Wiederholungsschritt 10 Minuten statt 1 und 5). Vorher kam ein Fehler im nächsten Satz zurück, wenn die Lösung noch im Kurzzeitgedächtnis stand. Das übt das Merken, nicht das Finden. Jetzt liegt Zeit und mindestens ein Satz dazwischen, bei kurzen Sitzungen meist der nächste Tag. Der Wiederholungsplan wird aus dem Verlauf neu berechnet, bereits gespeicherte Antworten behalten ihre Noten.
+- **Ein Ziel: die Minuten** (`queue.ts`: `taskSeconds`, `MIN_NEW`). „Neue Aufgaben pro Tag“ ist jetzt eine Obergrenze. Die App schätzt aus deinen letzten Antworten (Median der Zeit je Aufgabe ohne die Zeit in Varianten, solange weniger als 20 vorliegen: 30 s), wie viele Aufgaben in dein Tagesziel passen, und gibt weniger neue frei, wenn Wiederholungen den Platz füllen (mindestens 3). Am Rückstandstag gilt wie bisher der Deckel.
+- **Uhr-Karte: vorläufiges Urteil ab 20 Partien** (`basis.ts`: `compareRange`, `PRELIM_MIN`). Davor stand nichts bis zur Mindestmenge von 120. Jetzt vergleicht die Karte schon ab 20 Partien mit dem Bereich deiner Monatswerte und sagt es dazu („Vorläufig …“). Ab 120 Partien gilt wie bisher der Zufallsbereich der Stichproben.
+
 ## Version 1.5.1/1.5.2: lichess-Partien vollständig
 
 lichess hängt bei Partien, die nicht mit einem Zug enden (Zeit, Aufgabe), die Uhr beim Ende als zusätzlichen Eintrag an `clocks`. 1.4 und 1.5
