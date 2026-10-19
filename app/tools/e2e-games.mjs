@@ -86,6 +86,34 @@ await page.waitForSelector('.hero');
 await page.waitForTimeout(800);
 ok(off2.chesscom === 0 && off2.lichess === 0, 'Bei "Aus" wird beim Öffnen nichts geholt');
 await page.screenshot({ path: `${OUT}/3-aus.png`, fullPage: true });
+// Bestand aus 1.5.0 (ohne Stand der Leselogik): lichess wird einmal ab dem Stichtag neu geholt, chess.com bleibt
+await ctx.unrouteAll({ behavior: 'ignoreErrors' });
+const urls = [];
+await ctx.route('https://lichess.org/api/**', (r) => { urls.push(r.request().url()); r.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/x-ndjson', body: L }); });
+await ctx.route('https://api.chess.com/**', (r) => r.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*' }, contentType: 'application/json', body: JSON.stringify({ games: [A, B, C] }) }));
+await page.evaluate(() => {
+  const p = JSON.parse(localStorage.getItem('road-to-gm-device-v1') || '{}');
+  localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ ...p, games: true }));
+});
+await page.evaluate((late) => new Promise((res) => {
+  const rq = indexedDB.open('keyval-store');
+  rq.onsuccess = () => {
+    const st = rq.result.transaction('keyval', 'readwrite').objectStore('keyval');
+    const g = st.get('road-to-gm-games-v1');
+    g.onsuccess = () => {
+      const v = g.result;
+      delete v.parser;
+      v.games.push({ ...v.games.find((x) => x.src === 'lichess'), id: 'li:spaet', end: late });
+      st.put(v, 'road-to-gm-games-v1').onsuccess = () => res();
+    };
+  };
+}), now - 60000);
+await page.reload({ waitUntil: 'networkidle' });
+await page.waitForSelector('.hero');
+await page.waitForTimeout(800);
+const sinceParam = urls.length ? Number(new URL(urls[0]).searchParams.get('since')) : null;
+ok(sinceParam === Date.parse('2026-10-15T00:00:00Z'), `Bestand aus 1.5.0: lichess wird ab dem Stichtag neu geholt (since=${sinceParam})`);
+
 ok(errors.filter((e) => !/ERR_INTERNET_DISCONNECTED|Failed to load resource/.test(e)).length === 0, `Keine unerwarteten Fehler ${JSON.stringify(errors.slice(0, 3))}`);
 await browser.close();
 console.log(results.join('\n'));

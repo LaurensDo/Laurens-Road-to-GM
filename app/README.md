@@ -51,11 +51,13 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
-## Version 1.5.1: lichess-Partien vollständig
+## Version 1.5.1/1.5.2: lichess-Partien vollständig
 
 lichess hängt bei Partien, die nicht mit einem Zug enden (Zeit, Aufgabe), die Uhr beim Ende als zusätzlichen Eintrag an `clocks`. 1.4 und 1.5
 haben diese Partien verworfen (Zahl der Uhren ≠ Zahl der Züge) und nur Mattpartien gezählt: vom 15. bis 19.10. 4 von 25 Bullet-Partien,
-ausgerechnet ohne die Zeitverluste. Jetzt wird der Eintrag abgeschnitten. Der Nachbau in `tools/mock-games.mjs` liefert ihn jetzt auch.
+ausgerechnet ohne die Zeitverluste. Jetzt wird der Eintrag abgeschnitten. Der Nachbau in `tools/mock-games.mjs` liefert ihn jetzt auch. Weil lichess schrittweise ab der letzten
+gespeicherten Partie geholt wird, kämen die verworfenen nie nach: 1.5.2 merkt sich den Stand der Leselogik (`parser`) und holt bei älterem
+Bestand die lichess-Partien einmal ab dem Stichtag neu, sofort beim Öffnen (außer das Holen ist ausgeschaltet).
 
 ## Version 1.5: Variantenansicht und Bewertungsbalken
 

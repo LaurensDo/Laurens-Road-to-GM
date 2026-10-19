@@ -15,12 +15,16 @@ const KEY = 'road-to-gm-games-v1';
 const MIN_GAP_MS = 10 * 60 * 1000;
 const TIMEOUT_MS = 20000;
 
+/** Stand der Leselogik. Steigt, wenn ältere Versionen Partien übersehen haben: Die betroffene Quelle wird dann einmal neu geholt. */
+const PARSER = 2; // 2: lichess-Partien mit zusätzlicher Uhr am Ende (Zeit, Aufgabe), bis 1.5.0 verworfen
+
 interface Stored {
   games: GameRec[];
   /** Zeitpunkt des letzten erfolgreichen Abrufs je Quelle */
   fetched: { chesscom?: number; lichess?: number };
   /** Monate (JJJJ-MM), die nach ihrem Ende vollständig geholt wurden und nicht mehr abgefragt werden */
   done: string[];
+  parser?: number;
 }
 
 export type GamesState = 'idle' | 'loading' | 'error' | 'offline';
@@ -140,7 +144,7 @@ export function mergeGames(have: GameRec[], incoming: GameRec[]): { games: GameR
 
 async function save() {
   try {
-    await set(KEY, data);
+    await set(KEY, { ...data, parser: PARSER });
   } catch {
     // Speicher voll oder gesperrt: bleibt im Speicher dieser Sitzung
   }
@@ -196,15 +200,22 @@ export async function fetchGamesNow(force = false): Promise<void> {
 export async function initGames(): Promise<void> {
   if (started) return;
   started = true;
+  let migrated = false;
   try {
     const stored = await get<Stored>(KEY);
     if (stored && Array.isArray(stored.games)) data = { games: stored.games.filter((g) => g.end >= SINCE), fetched: stored.fetched ?? {}, done: stored.done ?? [] };
+    // Bestand einer älteren Leselogik: lichess-Partien verwerfen, damit der nächste Abruf ab dem Stichtag alles neu holt
+    if (stored && (stored.parser ?? 1) < 2) {
+      data = { ...data, games: data.games.filter((g) => g.src !== 'lichess') };
+      migrated = true;
+    }
   } catch {
     // leerer Bestand
   }
   const lastAny = Math.max(data.fetched.chesscom ?? 0, data.fetched.lichess ?? 0);
   setStatus({ last: lastAny || null });
-  void fetchGamesNow();
+  // nach dem Verwerfen gleich neu holen, nicht erst nach zehn Minuten (außer das Holen ist ausgeschaltet)
+  void fetchGamesNow(migrated && getPrefs().games);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void fetchGamesNow();
   });
