@@ -156,11 +156,14 @@ describe('Warteschlange', () => {
     expect(next).toMatchObject({ kind: 'due' });
     expect(next?.ex.id).toBe('a');
   });
-  it('Lernschritt der nächsten Minuten wird vorgezogen, wenn sonst nichts fällig ist', () => {
+  it('Lernschritt wird erst kurz vor der Fälligkeit vorgezogen, nicht gleich nach dem Fehler', () => {
     const s = emptyState();
     s.settings.newPerDay = 0;
     s.cards.a = applyReview(undefined, 1, t);
-    expect(pickNext(exs, s, t)?.kind).toBe('learning');
+    expect(pickNext(exs, s, t)).toBeNull();
+    expect(pickNext(exs, s, new Date(t.getTime() + 5 * 60000))).toBeNull();
+    expect(pickNext(exs, s, new Date(t.getTime() + 9 * 60000))?.kind).toBe('learning');
+    expect(pickNext(exs, s, new Date(t.getTime() + 11 * 60000))?.kind).toBe('due');
   });
   it('Lernschritt wird nicht vorgezogen, solange neue Aufgaben verfügbar sind', () => {
     const s = emptyState();

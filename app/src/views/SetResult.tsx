@@ -60,7 +60,7 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
           </div>
           <div>
             <dt>Im Limit</dt>
-            <dd class="mono">{limit > 0 ? `${n0(s.inTime)}/${n0(s.n)}` : '–'}</dd>
+            <dd class="mono">{s.timed ? `${n0(s.inTime)}/${n0(s.n)}` : '–'}</dd>
           </div>
           <div>
             <dt>Ø Zeit</dt>

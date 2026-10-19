@@ -241,7 +241,7 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
   const verdict = (v: number | null, base: Parameters<typeof compare>[2], range: { lo: number; hi: number } | undefined, lowerIsBetter: boolean): Word | null => {
     if (v === null || !b) return null;
     if (ready) return compare(v, s.reach30, base, b.reach30, lowerIsBetter);
-    return prelim && range ? compareRange(v, range, lowerIsBetter) : null;
+    return prelim && range ? compareRange(v, range, lowerIsBetter, base.sd !== null ? (1.96 * base.sd) / Math.sqrt(s.reach30) : 0) : null;
   };
   const w1629 = verdict(s.own1629, b?.own1629 ?? { mean: null, sd: null }, basis?.monthly.own1629, true);
   const wPause = verdict(s.pauses, b ? { mean: b.pauses.mean, sd: b.pauses.sd } : { mean: null, sd: null }, basis?.monthly.pauses, true);
@@ -319,7 +319,7 @@ export function ClockCard({ basis }: { basis: UhrBasis | null }) {
         </div>
       )}
       <p class="muted small">
-        „Uhr vor Zug N“ ist die Restzeit nach deinem Zug N−1. Basis: deine letzten {n0(b?.n ?? 0)} Partien in 3+0 vor dem 15.10. Ein Urteil gibt es erst ab {n0(min30)} Partien, und der normale Bereich ist das, was der
+        „Uhr vor Zug N“ ist die Restzeit nach deinem Zug N−1. Basis: deine letzten {n0(b?.n ?? 0)} Partien in 3+0 vor dem 15.10. Ein vorläufiges Urteil gibt es ab {n0(PRELIM_MIN)} Partien, ein gesichertes ab {n0(min30)}, und der normale Bereich ist das, was der
         Zufall bei dieser Zahl von Partien erklärt.
       </p>
       <div class="g-foot">

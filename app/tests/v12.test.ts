@@ -280,6 +280,17 @@ describe('Neue Aufgaben passen zum Tagesziel', () => {
     expect(c.newAvailable).toBe(MIN_NEW);
   });
 
+  it('"5 weitere neue" wirkt auch dann, wenn die Obergrenze nach dem Freigeben kleiner wurde', () => {
+    // 15 neue sind schon gezeigt, das Tagesziel ist winzig (Obergrenze 3): Der Bonus zählt ab jetzt
+    const s = emptyState();
+    s.settings.goalMinutes = 1;
+    const nowT = new Date('2026-10-19T10:00:00');
+    for (let i = 0; i < 15; i++) s.cards['seen' + i] = { ...applyReview(undefined, 3, nowT), firstSeen: nowT.getTime() };
+    expect(counts(many, s, nowT).newAvailable).toBe(0);
+    s.bonus = { day: '2026-10-19', n: 5 };
+    expect(counts(many, s, nowT).newAvailable).toBe(5);
+  });
+
   it('lässt immer Platz für ein paar neue, und am Rückstandstag gilt der alte Deckel', () => {
     const s = emptyState();
     s.settings.goalMinutes = 1;

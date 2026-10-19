@@ -185,7 +185,7 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
               </p>
             </>
           ) : (
-            <p class="muted">Erste Aussage nach {n0(MIN_TRIES)} neuen Aufgaben, bisher {n0(tries.length)}.</p>
+            <p class="muted">Erste Aussage nach {n0(MIN_TRIES)} neuen Aufgaben, bisher {n0(tries.filter((t) => t.exp !== null).length)}.</p>
           )}
         </div>
       )}

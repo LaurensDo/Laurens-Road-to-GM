@@ -90,6 +90,8 @@ export interface SetSummary {
   complete: boolean;
   right: number;
   inTime: number;
+  /** gibt es ein Zeitlimit für diesen Satz (Einstellung oder "Sicher gewinnen" mit seiner Zielzeit)? */
+  timed: boolean;
   slowRight: number;
   quickWrong: number;
   gaveUp: number;
@@ -183,8 +185,15 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   }
   lines.push(first);
 
-  if (opt.limit > 0) {
-    let t = `${n0(inTime)} von ${n0(n)} richtig und innerhalb von ${n0(opt.limit)} s, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
+  // "Sicher gewinnen" hat eine eigene Zielzeit: Dann nennt der Text beide, sonst stünde bei diesen Aufgaben das falsche Limit
+  const winLimit = entries.map((e) => byId.get(e.id)?.win?.limit).find((x): x is number => x !== undefined);
+  const timed = opt.limit > 0 || winLimit !== undefined;
+  if (timed) {
+    const where =
+      winLimit === undefined
+        ? `innerhalb von ${n0(opt.limit)} s`
+        : `in der Zielzeit (${opt.limit > 0 ? `${n0(opt.limit)} s, ` : ''}bei klar gewonnenen Stellungen ${n0(winLimit)} s)`;
+    let t = `${n0(inTime)} von ${n0(n)} richtig und ${where}, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
     if (slowRight >= 2) t += ` ${n0(slowRight)} richtige Antworten kamen erst nach dem Limit. In der Partie fehlt dir diese Zeit später auf der Uhr.`;
     lines.push(t);
   } else {
@@ -227,6 +236,7 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
     complete: n >= planned,
     right,
     inTime,
+    timed,
     slowRight,
     quickWrong,
     gaveUp,

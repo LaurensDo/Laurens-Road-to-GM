@@ -196,7 +196,8 @@ def win_exercises(taken):
         best = r["lines"][0]
         played = r["played"]
         out.append({
-            "id": eid, "fen": r["fen"], "turn": r["turn"], "phase": r["phase"], "cat": "Sicher gewinnen", "motifs": [], "themes": [],
+            "id": eid, "fen": r["fen"], "turn": r["turn"], "phase": "Eröffnung" if r["phase"] != "Endspiel" and fullmove(r["fen"]) <= 12 else r["phase"],
+            "cat": "Sicher gewinnen", "motifs": [], "themes": [],
             "lines": [{"san": l["san"], "uci": l["uci"], "wp": l["wp"], "cp": l["cp"], "pv": l["pv"]} for l in r["lines"]],
             "played": {"san": played["san"], "uci": played["uci"], "wp": played["wp"], "cp": played["cp"]},
             "loss": round(max(0.0, best["wp"] - played["wp"]), 1),

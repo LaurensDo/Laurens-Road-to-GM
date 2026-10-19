@@ -55,9 +55,12 @@ export function compare(value: number, n: number, base: MeanSd, baseN: number, l
 /** Ab so vielen Partien (mit Uhr vor Zug 30) gibt es ein vorläufiges Urteil, gemessen am Bereich der Monatswerte statt am Zufallsbereich. */
 export const PRELIM_MIN = 20;
 
-/** Vorläufiges Urteil: Liegt der Wert im Bereich, den deine Monate abgedeckt haben, ist er normal, sonst besser oder schlechter. */
-export function compareRange(value: number, range: { lo: number; hi: number }, lowerIsBetter: boolean): Word {
-  if (value >= range.lo && value <= range.hi) return 'inside';
+/**
+ * Vorläufiges Urteil: Liegt der Wert im Bereich, den deine Monate abgedeckt haben, ist er normal, sonst besser oder schlechter. Der Mittelwert
+ * weniger Partien schwankt zusätzlich um den Zufall (`margin`, 1,96 Standardfehler), sonst fiele auch ein unveränderter Wert oft aus dem Bereich.
+ */
+export function compareRange(value: number, range: { lo: number; hi: number }, lowerIsBetter: boolean, margin = 0): Word {
+  if (value >= range.lo - margin && value <= range.hi + margin) return 'inside';
   return (value < range.lo) === lowerIsBetter ? 'better' : 'worse';
 }
 

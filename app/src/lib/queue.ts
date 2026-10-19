@@ -22,7 +22,11 @@ export interface QueueCounts {
   backlogDays: number;
 }
 
-const LEARN_AHEAD_MS = 20 * 60 * 1000;
+/**
+ * Lernschritte, die in so vielen Minuten fällig werden, zählen als "gleich" (Anzeige) und werden am Ende des Tages vorgezogen. Kürzer als die
+ * Wartezeit nach einem Fehler (srs.ts, 10 Minuten), sonst käme ein Fehler am Ende des Kontingents sofort wieder.
+ */
+const LEARN_AHEAD_MS = 2 * 60 * 1000;
 
 /** Nach einer Pause kommen nie alle Fälligen auf einmal: höchstens so viele Wiederholungen pro Tag. */
 export const DUE_CAP = 30;
@@ -144,8 +148,10 @@ function scan(pool: Exercise[], state: AppState, now: Date): Scan {
   // Neue Aufgaben pro Tag sind eine Obergrenze: Was das Tagesziel in Minuten nach den Wiederholungen übrig lässt, ist der Rahmen
   const committed = done + Math.min(dueReview.length, reviewLeft) + dueLearn.length;
   const fit = Math.floor((state.settings.goalMinutes * 60) / taskSeconds(state, now)) - committed;
-  const cap = backlog ? base : Math.min(base, Math.max(MIN_NEW, fit));
-  const newQuota = Math.max(0, cap + bonus - newIntroducedToday(state, now));
+  const introduced = newIntroducedToday(state, now);
+  // schon gezeigte neue Aufgaben nimmt die Obergrenze nicht zurück (sonst täte "5 weitere neue" nichts, wenn sie später kleiner wird)
+  const cap = Math.max(introduced, backlog ? base : Math.min(base, Math.max(MIN_NEW, fit)));
+  const newQuota = Math.max(0, cap + bonus - introduced);
   return { dueReview, dueLearn, ahead, fresh, backlog, reviewLeft, newQuota };
 }
 

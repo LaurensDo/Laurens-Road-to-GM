@@ -219,6 +219,10 @@ describe('Vorläufiges Urteil', () => {
     expect(compareRange(2.5, { lo: 1, hi: 3.5 }, true)).toBe('inside');
     expect(compareRange(0.2, { lo: 1, hi: 3.5 }, true)).toBe('better'); // Denkpausen: weniger ist besser
     expect(compareRange(5, { lo: 1, hi: 3.5 }, true)).toBe('worse');
+    // der Zufall weniger Partien verschiebt den Rand: knapp außerhalb zählt mit Spielraum noch als normal
+    expect(compareRange(-26, r, false)).toBe('worse');
+    expect(compareRange(-26, r, false, 5)).toBe('inside');
+    expect(compareRange(-35, r, false, 5)).toBe('worse');
   });
   it('kennt die Mindestmenge und zählt, was bis dahin fehlt', () => {
     expect(PRELIM_MIN).toBe(20);
