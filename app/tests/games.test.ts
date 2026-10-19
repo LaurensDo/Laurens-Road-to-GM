@@ -104,6 +104,11 @@ describe('lichess lesen', () => {
     expect(r.clk).toEqual([59.9, 59.8, 59, 58]);
     expect(tcOf(r)).toBe('1+0');
   });
+  it('nimmt Partien mit der zusätzlichen Uhr am Ende (Zeit, Aufgabe) wie lichess sie liefert', () => {
+    const [r] = parseLichessNdjson(g({ clocks: [6003, 6003, 5900, 5800, 0] }), 'Poquitonator');
+    expect(r.clk).toEqual([60.03, 60.03, 59, 58]);
+    expect(parseLichessNdjson(g({ status: 'resign', clocks: [6003, 6003, 5900, 5800, 5700] }), 'Poquitonator')).toHaveLength(1);
+  });
   it('lässt Abbrüche, Varianten, fremde Partien und kaputte Zeilen weg', () => {
     const text = [g({}), g({ status: 'aborted' }), g({ variant: 'chess960' }), g({ id: 'x2', players: { white: { user: { name: 'A' } }, black: { user: { name: 'B' } } } }), '{kaputt', ''].join('\n');
     expect(parseLichessNdjson(text, 'Poquitonator')).toHaveLength(1);

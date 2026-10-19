@@ -179,7 +179,8 @@ export function parseLichessNdjson(text: string, me: string): GameRec[] {
       timeLoss: g.status === 'outoftime' && !!g.winner && g.winner !== myColor,
       timeWin: g.status === 'outoftime' && g.winner === myColor,
       sans,
-      clk: g.clocks.map((c) => c / 100),
+      // Endet die Partie nicht mit einem Zug (Zeit, Aufgabe), hängt lichess die Uhr beim Ende als zusätzlichen Eintrag an
+      clk: g.clocks.slice(0, sans.length).map((c) => c / 100),
     });
     if (rec) out.push(rec);
   }

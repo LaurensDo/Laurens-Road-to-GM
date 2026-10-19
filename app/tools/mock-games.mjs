@@ -36,11 +36,12 @@ export function chesscomGame({ id, end, color = 'w', mine = 'win', theirs = 'res
   return { url: `https://www.chess.com/game/live/${id}`, uuid: `u${id}`, pgn, time_control: tc, end_time: Math.floor(end / 1000), rules: 'chess', time_class: 'blitz', white: color === 'w' ? me : opp, black: color === 'w' ? opp : me };
 }
 
+// wie bei lichess: Endet die Partie nicht mit einem Zug, steht am Ende eine zusätzliche Uhr (hier 0)
 export function lichessGame({ id, end, color = 'w', winner = 'white', status = 'outoftime', n = 30, spentMine, spentOpp }) {
   const { sans, clk } = gameLine(n, spentMine, spentOpp, color, 60, 0);
   const me = { user: { name: 'Poquitonator' } };
   const opp = { user: { name: 'Gegner' } };
-  return JSON.stringify({ id, variant: 'standard', speed: 'bullet', status, winner, lastMoveAt: end, moves: sans.join(' '), clocks: clk.map((c) => Math.round(c * 100)), clock: { initial: 60, increment: 0 }, players: color === 'w' ? { white: me, black: opp } : { white: opp, black: me } });
+  return JSON.stringify({ id, variant: 'standard', speed: 'bullet', status, winner, lastMoveAt: end, moves: sans.join(' '), clocks: [...clk.map((c) => Math.round(c * 100)), ...(status === 'mate' ? [] : [0])], clock: { initial: 60, increment: 0 }, players: color === 'w' ? { white: me, black: opp } : { white: opp, black: me } });
 }
 
 /**

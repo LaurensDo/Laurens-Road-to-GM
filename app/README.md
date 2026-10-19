@@ -51,6 +51,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.5.1: lichess-Partien vollständig
+
+lichess hängt bei Partien, die nicht mit einem Zug enden (Zeit, Aufgabe), die Uhr beim Ende als zusätzlichen Eintrag an `clocks`. 1.4 und 1.5
+haben diese Partien verworfen (Zahl der Uhren ≠ Zahl der Züge) und nur Mattpartien gezählt: vom 15. bis 19.10. 4 von 25 Bullet-Partien,
+ausgerechnet ohne die Zeitverluste. Jetzt wird der Eintrag abgeschnitten. Der Nachbau in `tools/mock-games.mjs` liefert ihn jetzt auch.
+
 ## Version 1.5: Variantenansicht und Bewertungsbalken
 
 - **Feste Leiste.** „Variante ansehen“ öffnet unten eine Leiste, die stehen bleibt: Auswahl der Variante, Zugliste mit Zugnummern (seitlich scrollbar, der aktive Zug wandert in die Mitte), ◀ ▶, die Gewinnchance der Stellung und „Fertig“ (zurück zu „Weiter“). Im Hochformat bleibt das Brett oben stehen (`position: sticky`, nur im einspaltigen Layout; im Querformat steht es ohnehin neben dem Text). Zusätzlich: Pfeiltasten (iPad mit Tastatur) und Wischen auf dem Brett.
