@@ -7,6 +7,9 @@ export const PLAYABLE_WP = 25;
 /** Unterschied, der als genauso gut gilt (z. B. zwei Mattzüge). */
 export const SAME_WP = 0.5;
 
+/** Bei "Sicher gewinnen": so viele Punkte unter der Sicherheitsgrenze gilt ein Zug noch als "spielbar", darunter als falsch. */
+export const WIN_PLAYABLE = 15;
+
 /** Hat eine Übung die Liste `more`, liegt jeder Zug, der in keiner Liste steht, mindestens so viele Prozentpunkte hinter dem besten. */
 export const COVER_WP = 30;
 
@@ -30,6 +33,12 @@ export function wpOf(ex: Exercise, san: string): number | null {
 /** Bewertet einen Zug (als SAN) anhand der gespeicherten Bewertungen aller Züge, die nicht viel schlechter sind. */
 export function judge(ex: Exercise, san: string, tolerance: boolean): Judgement {
   const wp = wpOf(ex, san);
+  // "Sicher gewinnen": jeder Zug, der die Gewinnstellung hält, ist richtig, unabhängig von der Einstellung "Gleichwertige Züge"
+  if (ex.win && wp !== null) {
+    const loss = Math.max(0, ex.lines[0].wp - wp);
+    const verdict: Verdict = wp >= ex.win.safe ? (loss <= SAME_WP ? 'best' : 'equal') : wp >= ex.win.safe - WIN_PLAYABLE ? 'playable' : 'wrong';
+    return { verdict, lossWp: loss, wp, correct: isCorrect(verdict) };
+  }
   // unbekannter Zug: weit hinter dem besten (oder, bei älteren Daten ohne `more`, nicht unter den besten Zügen)
   if (wp === null) return { verdict: 'wrong', lossWp: null, wp: null, correct: false };
   const loss = Math.max(0, ex.lines[0].wp - wp);
@@ -45,8 +54,9 @@ export function judge(ex: Exercise, san: string, tolerance: boolean): Judgement 
 export function equalMoves(ex: Exercise, tolerance: boolean): { san: string; wp: number }[] {
   const limit = tolerance ? TOLERANCE_WP : SAME_WP;
   const best = ex.lines[0].wp;
+  const safe = ex.win?.safe;
   return [...ex.lines.slice(1).map((l) => ({ san: l.san, wp: l.wp })), ...(ex.more ?? []).map(([san, wp]) => ({ san, wp }))]
-    .filter((m) => best - m.wp <= limit)
+    .filter((m) => (safe !== undefined ? m.wp >= safe : best - m.wp <= limit))
     .sort((a, b) => b.wp - a.wp);
 }
 

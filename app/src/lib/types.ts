@@ -59,6 +59,11 @@ export interface Exercise {
   more?: [string, number][];
   /** Prüfsatz: kommt nie im Training vor, nur im Monats-Check (analysis/pick_holdout.py) */
   hold?: boolean;
+  /**
+   * "Sicher gewinnen" (analysis/win_positions.py): Stellung, in der der Spieler klar gewonnen steht. Richtig ist jeder Zug, der mindestens
+   * `safe` Prozent Gewinnchance hält, schnell gezogen (Zielzeit `limit` Sekunden). Es geht um Tempo, nicht um den besten Zug.
+   */
+  win?: { safe: number; limit: number };
 }
 
 export interface ExerciseFile {

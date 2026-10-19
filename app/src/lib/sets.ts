@@ -159,6 +159,12 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
     return ex ? expectedOf(ex, opt.tolerance) : null;
   }).filter((x): x is number => typeof x === 'number');
   const expected = n > 0 && withMaia.length >= Math.ceil(n * 0.6) ? (100 * withMaia.reduce((a, x) => a + x, 0)) / withMaia.length : null;
+  // gegen den Richtwert zählen nur Aufgaben, die einen haben ("Sicher gewinnen" ist leichter und hätte sonst die Quote angehoben)
+  const rated = entries.filter((e) => {
+    const ex = byId.get(e.id);
+    return ex && typeof expectedOf(ex, opt.tolerance) === 'number';
+  });
+  const rateRated = rated.length ? (100 * rated.filter(correct).length) / rated.length : rate;
 
   let tier: Tier;
   if (rate >= 80 && inTime / Math.max(1, n) >= 0.6) tier = 'strong';
@@ -169,7 +175,7 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   const lines: string[] = [];
   let first = `${n0(right)} von ${n0(n)} richtig (${n0(rate)} %).`;
   if (expected !== null) {
-    const diff = rate - expected;
+    const diff = rateRated - expected;
     const ref = `Richtwert für Spieler deiner Stärke bei diesen Stellungen: ${n0(expected)} %.`;
     if (diff >= 15) first += ` ${ref} Du liegst deutlich darüber.`;
     else if (diff >= -10) first += ` ${ref} Du liegst im erwarteten Bereich.`;
@@ -187,7 +193,7 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   if (quickWrong >= 2) {
     lines.push(`${n0(quickWrong)} Fehler kamen in unter ${n0(QUICK_MS / 1000)} Sekunden. Das spricht für vorschnelles Ziehen, weniger für fehlendes Wissen.`);
   }
-  if (gaveUp >= 2) lines.push(`Bei ${n0(gaveUp)} Aufgaben hast du die Lösung angezeigt. Sie kommen bald wieder.`);
+  if (gaveUp >= 2) lines.push(`Bei ${n0(gaveUp)} Aufgaben hast du die Lösung angezeigt. Sie kommen später wieder.`);
 
   const groups = groupsOf(entries, byId);
   const strong =
@@ -204,7 +210,7 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   else if (slowRight >= 2) tip = 'Suche zuerst die erzwingenden Züge (Schach, Schlagen, Drohen) und entscheide dann. Das spart Uhrzeit.';
   else if (weak) tip = `Schwerpunkt für die nächsten Sätze: ${weak.label}. In den Einstellungen kannst du den Filter darauf stellen.`;
   else if (tier === 'strong') tip = 'Genauigkeit und Tempo passen. Mehr Druck bekommst du mit einem kürzeren Zeitlimit in den Einstellungen.';
-  else tip = 'Der nächste Satz festigt, was gerade noch wackelt. Falsche Aufgaben kommen bald automatisch wieder.';
+  else tip = 'Der nächste Satz festigt, was gerade noch wackelt. Falsche Aufgaben kommen später automatisch wieder.';
 
   const prev = opt.previous.slice(-5);
   if (prev.length >= 2) {

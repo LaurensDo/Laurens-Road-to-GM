@@ -163,6 +163,52 @@ def order_by_priority(exercises):
     return out
 
 
+WIN_SAFE = 80.0  # "Sicher gewinnen": Züge mit mindestens so viel Gewinnchance gelten als sicher
+WIN_LIMIT = 5  # Zielzeit in Sekunden
+
+
+def load_dates():
+    """url -> Datum der Partie (YYYY-MM-DD) aus den Rohpartien."""
+    path = DATA / "games_raw.jsonl"
+    out = {}
+    if path.exists():
+        with path.open() as f:
+            for line in f:
+                g = json.loads(line)
+                out[g["url"]] = dt.datetime.fromtimestamp(g["end_ts"], dt.timezone.utc).strftime("%Y-%m-%d")
+    return out
+
+
+def win_exercises(taken):
+    """Übungen "Sicher gewinnen" aus analysis/win_positions.py (data/win_positions.jsonl). Stellungen, die schon eine Fehler-Übung sind, entfallen."""
+    path = DATA / "win_positions.jsonl"
+    if not path.exists():
+        return []
+    dates = load_dates()
+    out = []
+    for line in path.open():
+        r = json.loads(line)
+        if r.get("skip") or "key" not in r:
+            continue
+        eid = ex_id(r["key"])
+        if eid in taken or r["url"] not in dates:
+            continue
+        best = r["lines"][0]
+        played = r["played"]
+        out.append({
+            "id": eid, "fen": r["fen"], "turn": r["turn"], "phase": r["phase"], "cat": "Sicher gewinnen", "motifs": [], "themes": [],
+            "lines": [{"san": l["san"], "uci": l["uci"], "wp": l["wp"], "cp": l["cp"], "pv": l["pv"]} for l in r["lines"]],
+            "played": {"san": played["san"], "uci": played["uci"], "wp": played["wp"], "cp": played["cp"]},
+            "loss": round(max(0.0, best["wp"] - played["wp"]), 1),
+            "clock": round(r["clock"]), "spent": round(r["spent"], 1), "date": dates[r["url"]], "url": r["url"], "src": platform_of(r["url"]),
+            "maia": {"me": None, "up": None, "cls": None},
+            "more": r["more"],
+            "prev": r["prev"],
+            "win": {"safe": WIN_SAFE, "limit": WIN_LIMIT},
+        })
+    return out
+
+
 STALE = {"n": 0}  # Bewertungen je Halbzug, die nicht mehr zu den Linien passen
 
 
@@ -257,6 +303,8 @@ def main():
             **({"hold": True} if ex_id(s["key"]) in holdout else {}),
         })
     exercises = order_by_priority(exercises)
+    wins = win_exercises({e["id"] for e in exercises})
+    exercises = exercises + wins  # die App mischt sie ein: jede fünfte neue Aufgabe (queue.ts, WIN_EVERY)
 
     OUT.mkdir(parents=True, exist_ok=True)
     gen = report["generated"]
@@ -293,6 +341,7 @@ def main():
     held = sum(1 for e in exercises if e.get("hold"))
     if STALE["n"]:
         print(f"Achtung: {STALE['n']} Bewertungen je Halbzug passen nicht mehr zu den Linien. data/ply_evals.jsonl löschen und analysis/ply_evals.py neu laufen lassen.")
+    print(f"davon {len(wins)} \"Sicher gewinnen\"")
     print(f"{len(exercises)} Übungen ({size // 1024} KB), davon {held} im Prüfsatz, verworfen: {dropped}, ohne letzten Zug: {no_prev}")
     if held != len(holdout):
         print(f"Achtung: {len(holdout)} IDs in holdout_ids.json, aber {held} gefunden")

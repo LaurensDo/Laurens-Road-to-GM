@@ -7,6 +7,7 @@ const CAT_TEXT: Record<string, string> = {
   'Gegnerische Taktik übersehen': 'In der Partie hast du hier eine gegnerische Taktik übersehen.',
   'Gegnerfehler nicht bestraft': 'Der Gegner hatte gepatzt, und du hast es in der Partie nicht bestraft.',
   'Positioneller Fehler': 'In der Partie war das hier ein positioneller Fehler, der viel Gewinnchance gekostet hat.',
+  'Sicher gewinnen': 'Hier stehst du klar gewonnen. Jeder Zug, der die Gewinnstellung hält, ist richtig. Es geht um Tempo, nicht um den besten Zug.',
 };
 
 const MATE = /^Matt in \d+$|^Grundreihenmatt$/;

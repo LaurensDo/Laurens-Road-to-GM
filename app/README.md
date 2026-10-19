@@ -45,11 +45,20 @@ node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Ger�
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
 node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echten Übungsdaten
+node tools/e2e-win.mjs /tmp/w       # "Sicher gewinnen": Zielzeit, jeder sichere Zug zählt, Wortlaut, Mischung
 node tools/e2e-variation.mjs /tmp/v # Variantenansicht: festes Brett, Auswahl, Bewertungsbalken, Tastatur, Wischen, alle Formate
 node tools/e2e-games.mjs /tmp/g    # Partien holen (chess.com und lichess nachgebaut), Karten auf Heute und Fortschritt, Offline, Ausschalten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.7: „Sicher gewinnen“
+
+- **Der Befund.** Von 791 Partien, in denen du mindestens 90 % Gewinnchance hattest, hast du 17 % noch verloren, 101 davon auf Zeit. Zu langes Nachdenken in einer gewonnenen Stellung kostet mehr als ein nicht ganz bester Zug. Die App übte bisher nur das Gegenteil, den besten Zug zu finden.
+- **Die Aufgabe** (`Exercise.win`). Stellung aus deinen Partien, in der du klar gewonnen stehst (`analysis/win_positions.py`: dein Zug, Zug 12 bis 55, mindestens 90 %, mindestens 5 s gebraucht oder unter 40 s auf der Uhr, nicht im Schach, höchstens zwei je Partie). Behalten wird sie nur, wenn mindestens drei Züge den Vorteil sicher halten (Gewinnchance mindestens 80 %, höchstens drei Viertel aller legalen), aber auch mindestens vier Züge ihn klar verspielen. Richtig ist **jeder** Zug, der die Gewinnstellung hält, unabhängig von der Einstellung „Gleichwertige Züge“ (`judge.ts`). Knapp darunter (bis 15 Punkte) ist „spielbar“, tiefer „falsch“. Zielzeit 5 Sekunden statt des normalen Limits, auch wenn das Limit ausgeschaltet ist.
+- **Im Training.** Jede fünfte neue Aufgabe ist eine solche Stellung (`queue.ts`: `WIN_EVERY`, die dritte, achte, … aller je gesehenen, unabhängig davon, wie viele du schon hast). Sie laufen wie normale Aufgaben durch den Wiederholungsplan, bekommen den Tag „Klar gewonnen“ und die Aufforderung „Zieh einen sicheren Zug, ohne zu grübeln“. Die Ergebnisseite nennt, ob dein Zug die Gewinnstellung hält, und die weiteren sicheren Züge. Der Filter „Fehlerart“ in den Einstellungen kennt sie als „Sicher gewinnen“.
+- **Statistik.** Der Vergleich eines Satzes mit dem Richtwert (Spieler deiner Stärke) zählt nur Aufgaben, die einen Richtwert haben. „Sicher gewinnen“ ist leichter und hätte die Quote sonst angehoben. Für diese Aufgaben gibt es keinen Richtwert und keine gerechneten Bewertungen je Halbzug; der Bewertungsbalken bleibt bei ihnen auf dem Wert der Linie.
+- **Rechnung.** `python analysis/win_positions.py` (Stockfish, etwa eine Stunde), danach `python analysis/build_exercises.py`. Ändern sich die Schwellen, `data/win_positions.jsonl` löschen und neu rechnen.
 
 ## Version 1.6: Fehler später wiederholen, Tagesziel in Minuten, vorläufiges Urteil
 

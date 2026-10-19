@@ -1,6 +1,6 @@
 # Road to GM – Roadmap nach Version 1.1 (Entwurf)
 
-Stand: 17.10.2026 · Status: Entwurf, abgestimmt; Schritte 1 bis 3 und der Einschub Varianten gebaut (Versionen 1.2 bis 1.5).
+Stand: 17.10.2026 · Status: Entwurf, abgestimmt; Schritte 1 bis 3, der Einschub Varianten und „Sicher gewinnen“ (statt der „ruhigen Stellungen“ aus Schritt 5) gebaut (Versionen 1.2 bis 1.7).
 
 Entstanden aus sechs unabhängigen Blickwinkeln (Lernwissenschaft, Motivation und Gewohnheit, Blitz-Trainer, Wirkungsmessung, Produkt und UX im Code, Spieldesign) mit 55 Ideen, gebündelt zu 29 Kandidaten, bewertet von vier Juroren (Spielstärke, Spaß und Regelmäßigkeit, Machbarkeit, Skeptiker) und danach auf Lücken geprüft. Die Kernzahlen wurden gegen die Partiedaten nachgerechnet. Die Entscheidungen am Ende trifft Laurens.
 

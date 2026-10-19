@@ -31,7 +31,7 @@ export function buildVariations(ex: Exercise, ownSan: string | null, tolerance: 
   const out: Variation[] = [];
   ex.lines.forEach((l, i) => {
     const best = i === 0;
-    const equal = !best && bestWp - l.wp <= limit;
+    const equal = !best && (ex.win ? l.wp >= ex.win.safe : bestWp - l.wp <= limit);
     const own = l.san === ownSan;
     const game = l.san === ex.played.san;
     if (!best && !equal && !own && !game) return;

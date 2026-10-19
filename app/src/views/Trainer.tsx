@@ -73,9 +73,13 @@ const THREAT_CATS = new Set(['Figur eingestellt', 'Gegnerische Taktik übersehen
 
 const KIND_TEXT: Record<PickKind, string> = { due: 'Wiederholung', learning: 'Lernschritt', new: 'Neu' };
 
+/** Zeitlimit für diese Aufgabe: "Sicher gewinnen" hat seine kurze Zielzeit, sonst gilt die Einstellung. */
+const limitOf = (ex: Exercise | null | undefined): number => ex?.win?.limit ?? getState().settings.timeLimit;
+
 /** Zeile zum eigenen Zug: Gewinnchance und Abstand zum besten, bei unbekannten Zügen ehrlich "deutlich schlechter". */
-function yourMoveText(j: Judgement | null, complete: boolean): string {
+function yourMoveText(j: Judgement | null, complete: boolean, win?: Exercise['win']): string {
   if (!j) return '';
+  if (win && j.wp !== null) return j.wp >= win.safe ? ` · hält die Gewinnstellung (${n0(j.wp)} %)` : ` · verspielt Gewinnchance, nur noch ${n0(j.wp)} %`;
   if (j.wp !== null && j.lossWp !== null) {
     const pts = Math.round(j.lossWp);
     return ` · ${n0(j.wp)} % Gewinnchance${pts >= 1 ? `, ${count(pts, 'Punkt', 'Punkte')} weniger als der beste` : ''}`;
@@ -341,7 +345,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       shownAt.current = performance.now();
       shownWall.current = Date.now();
       setLive(true);
-      if (startCue(getPrefs().timerSound, getState().settings.timeLimit)) play('start');
+      if (startCue(getPrefs().timerSound, limitOf(ex))) play('start');
     };
     const timers: number[] = [];
     const start = last ? { ...common, ...locked, fen: last.board } : { ...common, ...unlocked, fen: ex.fen };
@@ -373,7 +377,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       if (sec - lastSec > 2) lastSec = sec - 1; // nach einer Pause nicht alle verpassten Ticks nachholen
       while (lastSec < sec) {
         lastSec++;
-        const cue = timerCue(getPrefs().timerSound, getState().settings.timeLimit, lastSec);
+        const cue = timerCue(getPrefs().timerSound, limitOf(curRef.current), lastSec);
         if (cue) play(cue.sfx, { gain: cue.gain });
       }
     }, 100);
@@ -450,7 +454,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       ms,
       // schon hier begrenzen: Beim Abgleich gewinnt die längere Dauer, eine spätere Begrenzung käme sonst nie an
       dur: Math.min(ms, MAX_DUR_MS),
-      lim: getState().settings.timeLimit,
+      lim: limitOf(ex),
       dv: dataVersion,
       san: san ?? undefined,
       ...(act ? { set: { id: act.id, n: act.size } } : {}),
@@ -475,7 +479,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     }
     const ms = Math.round(performance.now() - shownAt.current);
     const j = judge(ex, san, getState().settings.tolerance);
-    const grade = gradeFor(j.correct, ms, getState().settings.timeLimit);
+    const grade = gradeFor(j.correct, ms, limitOf(ex));
     const best = ex.lines[0];
     const shapes: DrawShape[] = [];
     const [bf, bt] = uciSquares(best.uci);
@@ -661,7 +665,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   };
 
   const ex = current?.ex ?? null;
-  const limit = settings.timeLimit;
+  const limit = limitOf(ex);
   const explanation = ex ? explain(ex, settings.tolerance) : [];
   const over = limit > 0 && elapsed > limit * 1000;
   const barPct = limit > 0 ? Math.min(100, (elapsed / (limit * 1000)) * 100) : 0;
@@ -757,6 +761,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       <div class="prompt">
         <span class={`side ${ex.turn}`}>{sideName(ex.turn)} am Zug</span>
         <span class="tag">{KIND_TEXT[current!.kind]}</span>
+        {ex.win && <span class="tag">Klar gewonnen</span>}
         <span class="tag">{ex.phase}</span>
         {settings.showLast && lastMoveLabel(ex) && (
           <span class="tag last" title="Letzter Zug des Gegners">
@@ -793,7 +798,9 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
 
       {phase === 'ask' && (
         <div class="actions ask">
-          <p class="muted small">Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.</p>
+          <p class="muted small">
+            {ex.win ? 'Du stehst klar gewonnen. Zieh einen sicheren Zug, ohne zu grübeln. Tippe Figur und Zielfeld oder zieh die Figur.' : 'Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.'}
+          </p>
           <button class="btn secondary" onClick={giveUp} disabled={!live}>
             Lösung zeigen
           </button>
@@ -804,7 +811,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
         <div class="result" role="status" aria-live="polite">
           <div class="verdict-row">
             <span class={`chip ${correctNow ? (slow ? 'warn' : 'good') : result.verdict === 'playable' ? 'warn' : 'bad'}`}>
-              {slow ? 'Richtig, aber zu langsam' : VERDICT_TEXT[result.verdict]}
+              {slow ? 'Richtig, aber zu langsam' : ex.win && result.verdict === 'equal' ? 'Richtig, sicherer Zug' : VERDICT_TEXT[result.verdict]}
             </span>
             <span class="mono muted">{seconds(result.ms)}</span>
           </div>
@@ -812,7 +819,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
           {result.san && (
             <p>
               Dein Zug: <b class="mono">{result.san}</b>
-              {yourMoveText(result.judgement, ex.more !== undefined)}
+              {yourMoveText(result.judgement, ex.more !== undefined, ex.win)}
             </p>
           )}
           <p>
@@ -820,7 +827,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
             {alts.length > 0 && (
               <span class="muted">
                 {' '}
-                · gleichwertig: {alts.slice(0, 5).map((a) => a.san).join(', ')}
+                · {ex.win ? 'weitere sichere Züge' : 'gleichwertig'}: {alts.slice(0, 5).map((a) => a.san).join(', ')}
                 {alts.length > 5 ? ' …' : ''}
               </span>
             )}

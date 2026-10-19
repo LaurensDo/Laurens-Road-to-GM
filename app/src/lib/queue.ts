@@ -32,6 +32,9 @@ export const BACKLOG_NEW = 3;
 export const COMEBACK_DAYS = 4;
 /** So viele sichere Karten zum Wiedereinstieg. */
 export const COMEBACK_CARDS = 5;
+/** Jede WIN_EVERY-te neue Aufgabe ist eine "Sicher gewinnen"-Stellung (die dritte, achte, ... aller je gesehenen) */
+export const WIN_EVERY = 5;
+export const WIN_OFFSET = 2;
 
 /** Mindestens so viele neue Aufgaben am Tag, auch wenn die Wiederholungen das Tagesziel schon füllen würden */
 export const MIN_NEW = 3;
@@ -196,8 +199,13 @@ export function pickNext(
   }
 
   if (sc.newQuota > 0 && sc.fresh.length) {
+    // "Sicher gewinnen" kommt als jede fünfte neue Aufgabe dazwischen, unabhängig davon, wie viele schon gesehen sind
+    const wins = sc.fresh.filter((e) => e.win);
+    const regular = sc.fresh.filter((e) => !e.win);
+    const wantWin = wins.length > 0 && (regular.length === 0 || Object.keys(state.cards).length % WIN_EVERY === WIN_OFFSET);
+    const from = wantWin || regular.length === 0 ? wins : regular;
     // leicht durchmischen: unter den nächsten Kandidaten eine andere Fehlerart als zuletzt
-    const window = sc.fresh.slice(0, 8);
+    const window = from.slice(0, 8);
     const pick = window.find((e) => e.cat !== last?.cat) ?? window[0];
     return { ex: pick, kind: 'new' };
   }

@@ -190,8 +190,16 @@ Auf Wunsch von Laurens nach dem Gebrauch im Alltag.
 - **Vorläufiges Urteil:** Uhr-Karte ab 20 Partien, am Bereich der Monatswerte gemessen und als vorläufig gekennzeichnet.
 - **lichess-Korrektur (1.5.1/1.5.2):** Partien mit Zeitverlust oder Aufgabe wurden bis dahin verworfen.
 
+## 9g. Version 1.7 (umgesetzt)
+
+Aus der Analyse der eigenen Partien: Gewonnene Stellungen gehen verloren, weil zu lange nachgedacht wird (Spezifikation 4, Roadmap Schritt 5, hier mit „klar gewonnen“ statt „ruhig“ vorgezogen).
+
+- **Sicher gewinnen:** Stellungen aus deinen Partien mit mindestens 90 % Gewinnchance. Richtig ist jeder Zug, der die Gewinnstellung hält (mindestens 80 %), in 5 Sekunden Zielzeit. Jede fünfte neue Aufgabe, durch den normalen Wiederholungsplan, mit eigenem Tag und eigenem Wortlaut. Keine Gewinn- oder Verlustzahlen aus Maia, kein Richtwert.
+- **Bewusst anders als im Entwurf (Schritt 5):** keine „ruhigen Stellungen“ aus Denkpausen und kein eigener Pool außerhalb des Wiederholungsplans. Eine Gewinnstellung ist leichter zu definieren (Gewinnchance) als „ruhig“, und der Befund dafür ist klar. Ruhige Stellungen mit mehreren gleich guten Zügen bleiben als mögliche Ergänzung.
+- **Prüfen:** Nach 2 Wochen Nutzung zählt die Auswertung für Claude (unter `varianten14Tage` und den Sätzen), ob die Gewinnstellungen die Sätze verlängern, und in den Partien, ob „Zug 30 im Budget“ steigt.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5 und 1.6 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6 und 1.7 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.
