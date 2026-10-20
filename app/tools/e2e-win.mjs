@@ -1,4 +1,5 @@
-// Prüft "Sicher gewinnen": kurzes Zeitlimit, jeder sichere Zug zählt, Wortlaut, Variantenauswahl und die Mischung in die neuen Aufgaben.
+// Prüft "Sicher gewinnen" als eigene Art von Satz: eigener Startknopf, keine Mischung mit dem Fehler-Training, eigenes Zeitlimit, jeder sichere Zug zählt,
+// Wortlaut und Variantenauswahl.
 // Die Übungen kommen aus public/data/exercises.json (oder aus der Datei in EXFILE) und werden dem Browser anstelle der ganzen Datei geliefert.
 // Aufruf: npx vite preview --port 4173 --strictPort &  node tools/e2e-win.mjs [Ausgabeordner]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
@@ -22,7 +23,7 @@ if (wins.length < 3) { console.log(`FAIL zu wenige Übungen "Sicher gewinnen" ($
 const byId = new Map([...wins, ...normal].map((e) => [e.id, e]));
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
-async function session(exercises, { winLimit } = {}) {
+async function session(exercises, { winLimit, mode = 'fehler' } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: 'block' });
   await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false, games: false })));
   await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ...file, exercises }) }));
@@ -38,7 +39,7 @@ async function session(exercises, { winLimit } = {}) {
     await page.getByRole('radiogroup', { name: 'Zeitlimit Sicher gewinnen' }).getByRole('radio', { name: `${winLimit} s`, exact: true }).click();
     await page.locator('nav').getByText('Heute').click();
   }
-  await page.click('text=/Satz starten|Satz fortsetzen/');
+  await page.click(mode === 'sicher' ? 'text=/Sicher gewinnen (starten|weiter)/' : 'text=/Fehler-Training (starten|weiter)/');
   await page.waitForSelector('.board-wrap[data-live="1"]');
   return { ctx, page, errors };
 }
@@ -80,14 +81,15 @@ const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap'
 
 // ---- A: nur Gewinnstellungen: Zeitlimit, Wortlaut, Wertung
 {
-  const { ctx, page, errors } = await session(wins.slice(0, 6), { winLimit: 5 });
+  const { ctx, page, errors } = await session(wins.slice(0, 6), { winLimit: 5, mode: 'sicher' });
   const e = await currentEx(page);
   const prompt = (await page.locator('.prompt').textContent()).replace(/\s+/g, ' ');
-  ok(/Klar gewonnen/.test(prompt), `A: Tag "Klar gewonnen" (${prompt.slice(0, 70)})`);
+  const top = (await page.locator('.counts').textContent()).replace(/\s+/g, ' ');
+  ok(/^Sicher gewinnen · Aufgabe 1 von/.test(top.trim()), `A: Die Kopfzeile nennt die Art des Satzes (${top.trim()})`);
   ok(/Zieh einen sicheren Zug, ohne zu grübeln/.test(await page.locator('.actions.ask').textContent()), 'A: Aufforderung nennt Tempo statt "bester Zug"');
   const timer = (await page.locator('.timer').textContent()).replace(/\s+/g, ' ');
   ok(/von 5 s/.test(timer), `A: eingestellte Zielzeit von 5 s (${timer.trim()})`);
-  ok(/Sicher gewinnen\./.test(await page.locator('.actions.ask').textContent()), 'A: Die Aufforderung nennt die Art der Aufgabe "Sicher gewinnen"');
+  void prompt;
 
   // ein sicherer Zug, der nicht der beste ist (sonst der beste), schnell
   const alt = e.lines.slice(1).find((l) => l.wp >= e.win.safe && e.lines[0].wp - l.wp > 1) ?? e.lines[0];
@@ -133,17 +135,16 @@ const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap'
   await ctx.close();
 }
 
-// ---- B: Mischung: jede fünfte neue Aufgabe
+// ---- B: getrennte Sätze: im Fehler-Training nie eine Gewinnstellung, mit eigener Zeit und eigener Kopfzeile
 {
   const mixed = [...normal, ...wins.slice(0, 6)];
-  const { ctx, page } = await session(mixed);
-  const kinds = [];
+  const { ctx, page } = await session(mixed, { mode: 'fehler' });
+  let allRegular = true, timers20 = true, headers = true;
   for (let i = 0; i < 10; i++) {
     const e = await currentEx(page);
-    kinds.push(!!e.win);
-    const timer = (await page.locator('.timer').textContent()).replace(/\s+/g, ' ');
-    const hint = (await page.locator('.actions.ask').textContent()).replace(/\s+/g, ' ');
-    ok(e.win ? /von 10 s/.test(timer) && /^Sicher gewinnen\./.test(hint.trim()) : /von 20 s/.test(timer) && /^Fehler-Training\./.test(hint.trim()), `B: Aufgabe ${i + 1} (${e.win ? 'Sicher gewinnen' : 'Fehler-Training'}): ${timer.trim()}`);
+    if (e.win) allRegular = false;
+    if (!/von 20 s/.test(await page.locator('.timer').textContent())) timers20 = false;
+    if (!/^Fehler-Training · Aufgabe/.test((await page.locator('.counts').textContent()).trim())) headers = false;
     await page.click('text=Lösung zeigen');
     await page.waitForSelector('.result');
     if (i < 9) {
@@ -151,8 +152,38 @@ const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap'
       await page.waitForSelector('.board-wrap[data-live="1"]');
     }
   }
-  const at = kinds.map((w, i) => (w ? i : -1)).filter((i) => i >= 0);
-  ok(JSON.stringify(at) === JSON.stringify([2, 7]), `B: Im ersten Satz sind die 3. und die 8. Aufgabe Gewinnstellungen (${JSON.stringify(at)})`);
+  ok(allRegular, 'B: Ein Satz Fehler-Training enthält keine einzige Gewinnstellung');
+  ok(timers20, 'B: Fehler-Training läuft mit 20 s');
+  ok(headers, 'B: Die Kopfzeile nennt "Fehler-Training"');
+  await ctx.close();
+}
+
+// ---- C: Heute zeigt zwei Startknöpfe, jeder startet seine Art
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false, games: false })));
+  await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ...file, exercises: [...normal, ...wins.slice(0, 12)] }) }));
+  await mockGames(ctx);
+  const page = await ctx.newPage();
+  await page.goto(BASE, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.hero');
+  ok((await page.locator('.hero .start-mode').count()) === 2, 'C: Heute hat zwei Startbereiche');
+  ok((await page.locator('text=Fehler-Training starten').count()) === 1 && (await page.locator('text=Sicher gewinnen starten').count()) === 1, 'C: Zwei Startknöpfe mit der Art im Namen');
+  await page.screenshot({ path: `${OUT}/C-heute.png`, fullPage: true });
+  await page.click('text=Sicher gewinnen starten');
+  await page.waitForSelector('.board-wrap[data-live="1"]');
+  const timer = (await page.locator('.timer').textContent()).replace(/\s+/g, ' ');
+  const e = byId.get(await page.getAttribute('.board-wrap', 'data-ex'));
+  ok(!!e.win && /von 10 s/.test(timer), `C: Der Knopf startet einen Satz "Sicher gewinnen" (${timer.trim()})`);
+  // abbrechen nach einer Antwort, dann den anderen Knopf: der offene Satz der anderen Art wird nicht fortgesetzt
+  await page.click('text=Lösung zeigen');
+  await page.waitForSelector('.result');
+  await page.getByRole('button', { name: 'Training beenden' }).click();
+  await page.waitForSelector('text=Satz beenden?');
+  await page.getByRole('button', { name: 'Später weitermachen', exact: true }).click();
+  await page.waitForSelector('.hero');
+  ok((await page.locator('text=Sicher gewinnen weiter (1 von 10)').count()) === 1, 'C: Ein angefangener Satz lässt sich bei seiner Art fortsetzen');
+  ok((await page.locator('text=Fehler-Training starten').count()) === 1, 'C: Der Knopf der anderen Art bleibt "starten"');
   await ctx.close();
 }
 

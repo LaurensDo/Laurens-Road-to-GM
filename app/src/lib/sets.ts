@@ -1,7 +1,7 @@
 import { correct, slowCorrect } from './stats';
 import { n0, n1 } from './format';
 import { expectedOf } from './skill';
-import { TASK_LABEL, taskType } from './limit';
+import { TASK_LABEL, taskType, type TaskType } from './limit';
 import type { Exercise, ReviewEntry } from './types';
 
 /**
@@ -14,6 +14,8 @@ export interface ActiveSet {
   id: string;
   startedAt: number;
   size: number;
+  /** Art des Satzes: ein Satz enthält nur Fehler-Training oder nur "Sicher gewinnen" (fehlt in alten Ständen = Fehler-Training) */
+  mode: TaskType;
   /** Übungen, die in diesem Satz schon vorkamen (auch die gerade offene) */
   served: string[];
 }
@@ -33,7 +35,7 @@ export function loadActive(now = Date.now()): ActiveSet | null {
     const a = JSON.parse(raw) as Partial<ActiveSet>;
     if (typeof a.id !== 'string' || typeof a.startedAt !== 'number' || typeof a.size !== 'number' || !Array.isArray(a.served)) return null;
     if (now - a.startedAt > RESUME_WINDOW_MS) return null;
-    return { id: a.id, startedAt: a.startedAt, size: a.size, served: a.served.map(String) };
+    return { id: a.id, startedAt: a.startedAt, size: a.size, mode: a.mode === 'sicher' ? 'sicher' : 'fehler', served: a.served.map(String) };
   } catch {
     return null;
   }

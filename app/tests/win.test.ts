@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { equalMoves, judge } from '../src/lib/judge';
 import { explain } from '../src/lib/explain';
 import { buildVariations } from '../src/lib/variation';
-import { counts, pickNext, WIN_EVERY, WIN_OFFSET } from '../src/lib/queue';
+import { counts, pickNext } from '../src/lib/queue';
 import { applyReview } from '../src/lib/srs';
 import { DEFAULT_SETTINGS, emptyState } from '../src/lib/types';
-import { limitFor, TASK_LABEL, taskType } from '../src/lib/limit';
+import { limitFor, modeOfEntries, TASK_LABEL, taskType } from '../src/lib/limit';
 import { breakdown } from '../src/lib/stats';
 import { fromRemote, toRemote } from '../src/lib/merge';
 import { summarize } from '../src/lib/sets';
@@ -90,39 +90,51 @@ describe('Sicher gewinnen: Satzauswertung', () => {
   });
 });
 
-describe('Sicher gewinnen: Mischung in die neuen Aufgaben', () => {
+describe('Sicher gewinnen: eigene Sätze, keine Mischung', () => {
   const regular = (i: number): Exercise => ({ ...win({ id: 'r' + i, win: undefined, cat: i % 2 ? 'Figur eingestellt' : 'Matt übersehen' }), maia: { me: 0.5, up: 0.7, cls: 'Leichtsinn' } }) as Exercise;
   const pool = [...Array.from({ length: 40 }, (_, i) => regular(i)), ...Array.from({ length: 10 }, (_, i) => win({ id: 'w' + i }))];
   const t = new Date('2026-10-19T10:00:00');
 
-  it('jede fünfte neue Aufgabe ist eine Gewinnstellung, unabhängig vom bisherigen Fortschritt', () => {
-    for (const seen of [0, 3, 17, 120]) {
-      const kinds: boolean[] = [];
-      const s = emptyState();
-      s.settings.newPerDay = 100;
-      // schon gesehene Karten (alle aus dem normalen Vorrat und weit in der Vergangenheit fällig)
-      for (let i = 0; i < seen; i++) s.cards['x' + i] = applyReview(undefined, 3, new Date(t.getTime() - 40 * 86400000));
-      for (let n = 0; n < 15; n++) {
-        const pick = pickNext(pool, s, t)!;
-        kinds.push(!!pick.ex.win);
-        s.cards[pick.ex.id] = applyReview(undefined, 3, t);
+  it('jede Art hat ihre eigene Auswahl, nie gemischt', () => {
+    const s = emptyState();
+    s.settings.newPerDay = 100;
+    for (const mode of ['fehler', 'sicher'] as const) {
+      const seen = new Set<string>();
+      for (let n = 0; n < 8; n++) {
+        const pick = pickNext(pool, s, t, undefined, seen, mode)!;
+        expect(!!pick.ex.win).toBe(mode === 'sicher');
+        seen.add(pick.ex.id);
       }
-      const winAt = kinds.map((w, i) => (w ? i : -1)).filter((i) => i >= 0);
-      expect(winAt.length).toBe(3);
-      // zwischen zwei Gewinnstellungen genau WIN_EVERY - 1 normale Aufgaben
-      expect(winAt[1] - winAt[0]).toBe(WIN_EVERY);
-      expect((seen + winAt[0]) % WIN_EVERY).toBe(WIN_OFFSET);
     }
   });
 
-  it('ohne Gewinnstellungen oder ohne normale Aufgaben läuft alles weiter', () => {
-    const s = emptyState();
-    expect(pickNext(pool.filter((e) => !e.win), s, t)?.ex.win).toBeUndefined();
-    expect(pickNext(pool.filter((e) => e.win), s, t)?.ex.win).toBeDefined();
+  it('ohne Angabe der Art ist es das Fehler-Training', () => {
+    expect(pickNext(pool, emptyState(), t)?.ex.win).toBeUndefined();
+    expect(counts(pool, emptyState(), t).newTotal).toBe(40);
+    expect(counts(pool, emptyState(), t, 'sicher').newTotal).toBe(10);
   });
 
-  it('zählt sie zu den neuen Aufgaben', () => {
-    expect(counts(pool, emptyState(), t).newTotal).toBe(50);
+  it('die Obergrenze neuer Aufgaben zählt je Art', () => {
+    const s = emptyState();
+    s.settings.newPerDay = 3;
+    for (let i = 0; i < 3; i++) s.cards['r' + i] = { ...applyReview(undefined, 3, t), firstSeen: t.getTime() };
+    expect(counts(pool, s, t).newAvailable).toBe(0);
+    expect(counts(pool, s, t, 'sicher').newAvailable).toBe(3);
+  });
+
+  it('die Filter der Einstellungen gelten nur für das Fehler-Training', () => {
+    const s = emptyState();
+    s.settings.filters = { phase: 'Eröffnung', cat: 'alle', motif: 'alle' };
+    expect(counts(pool, s, t).total).toBe(0);
+    expect(counts(pool, s, t, 'sicher').total).toBe(10);
+  });
+
+  it('die Art eines Satzes folgt aus seinen Antworten', () => {
+    const byId = new Map(pool.map((x) => [x.id, x]));
+    const ent = (id: string): ReviewEntry => ({ id, ts: 1, grade: 3 as Grade, verdict: 'best', ms: 1000, dur: 2000 });
+    expect(modeOfEntries([ent('w1'), ent('w2')], byId)).toBe('sicher');
+    expect(modeOfEntries([ent('r1'), ent('w2')], byId)).toBe('fehler');
+    expect(modeOfEntries([], byId)).toBe('fehler');
   });
 });
 
@@ -150,7 +162,7 @@ describe('Zwei Arten von Aufgaben mit je eigenem Zeitlimit', () => {
     const old = toRemote({ ...emptyState(), settings: { ...emptyState().settings, timeLimit: 15 } });
     const raw = JSON.parse(JSON.stringify(old));
     delete raw.settings.winLimit;
-    const st = fromRemote(raw);
+    const st = fromRemote(raw)!;
     expect(st.settings.winLimit).toBe(10);
     expect(st.settings.timeLimit).toBe(15);
   });

@@ -68,7 +68,7 @@ ok((await runningBuild()) === buildB, 'Nach dem Neuladen läuft die neue Version
 await sleep(1200);
 rebuild();
 const buildC = await serverBuild();
-await page.click('text=/Satz starten|Satz fortsetzen/');
+await page.click('text=/Fehler-Training (starten|weiter)/');
 await page.waitForSelector('.board-wrap[data-live="1"]', { timeout: 15000 });
 await page.evaluate(() => { window.__noReload = 1; });
 await wake();

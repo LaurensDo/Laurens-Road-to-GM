@@ -12,6 +12,7 @@ import { Splash } from './views/Splash';
 import { Settings } from './views/Settings';
 import { Today } from './views/Today';
 import { Trainer } from './views/Trainer';
+import type { TaskType } from './lib/limit';
 
 type Tab = 'today' | 'progress' | 'settings';
 
@@ -28,7 +29,8 @@ export function App() {
   const [data, setData] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('today');
-  const [training, setTraining] = useState(false);
+  /** läuft ein Satz, und welche Art: Fehler-Training oder "Sicher gewinnen" */
+  const [training, setTraining] = useState<TaskType | null>(null);
   const [stateReady, setStateReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   const prefs = usePrefs();
@@ -96,14 +98,14 @@ export function App() {
   } else if (training) {
     content = (
       <main>
-        <Trainer exercises={data.exercises} byId={data.byId} dataVersion={data.dataVersion} onExit={() => setTraining(false)} />
+        <Trainer exercises={data.exercises} byId={data.byId} dataVersion={data.dataVersion} mode={training} onExit={() => setTraining(null)} />
       </main>
     );
   } else {
     content = (
       <>
         <main>
-          {tab === 'today' && <Today exercises={data.exercises} meta={data.meta} regel={data.regel} onStart={() => setTraining(true)} onOpenSettings={() => setTab('settings')} />}
+          {tab === 'today' && <Today exercises={data.exercises} meta={data.meta} regel={data.regel} onStart={(mode) => setTraining(mode)} onOpenSettings={() => setTab('settings')} />}
           {tab === 'progress' && <Progress exercises={data.exercises} byId={data.byId} meta={data.meta} basis={data.basis} />}
           {tab === 'settings' && <Settings exercises={data.exercises} generated={data.generated} holdout={data.holdout} byId={data.byId} dataVersion={data.dataVersion} />}
         </main>

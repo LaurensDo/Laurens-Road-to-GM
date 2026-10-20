@@ -171,7 +171,8 @@ describe('aktiver Satz', () => {
 
   it('speichert, lädt und läuft nach sechs Stunden ab', () => {
     const now = 1_000_000_000;
-    saveActive({ id: newSetId(now), startedAt: now, size: 10, served: ['a', 'b'] });
+    saveActive({ id: newSetId(now), startedAt: now, size: 10, mode: 'fehler', served: ['a', 'b'] });
+    expect(loadActive(now + 1000)?.mode).toBe('fehler');
     expect(loadActive(now + 1000)?.served).toEqual(['a', 'b']);
     expect(loadActive(now + RESUME_WINDOW_MS + 1)).toBeNull();
     saveActive(null);

@@ -81,14 +81,14 @@ ok(await page.locator('.hero h1').textContent() === 'Heute' && await page.locato
 // ---- Heute und Satzgröße
 await page.waitForSelector('.hero');
 await page.screenshot({ path: `${OUT}/1-heute.png` });
-ok(await page.locator('text=Satz starten (10 Aufgaben)').count() === 1, 'Heute zeigt "Satz starten (10 Aufgaben)"');
+ok(await page.locator('text=Fehler-Training starten').count() === 1, 'Heute zeigt "Fehler-Training starten"');
 await chooseSetSize(5);
 await page.locator('nav').getByText('Heute').click();
-ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Satzgröße 5 wird übernommen');
+ok((await page.locator('.start-mode').first().locator('.hero-facts-small div').first().textContent()).replace(/\s+/g, '') === 'Satz5', 'Satzgröße 5 wird übernommen (Heute zeigt "Satz 5")');
 
 // ---- Aufgabe 1: letzter Zug, Tippen, Töne
 await sfxClear();
-await page.click('text=Satz starten (5 Aufgaben)');
+await page.click('text=Fehler-Training starten');
 await page.waitForSelector('.board-wrap[data-live="0"]');
 ok(/0,0 s/.test(await page.textContent('.timer')), 'Vor der Freigabe läuft die Zeit noch nicht');
 await page.waitForSelector('.board-wrap[data-live="1"]');
@@ -226,8 +226,8 @@ await page.waitForSelector('text=Satz beenden?');
 await page.screenshot({ path: `${OUT}/5c-dialog.png` });
 await btn('Später weitermachen').click();
 await page.waitForSelector('.hero');
-ok(await page.locator('text=Satz fortsetzen (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
-await page.click('text=Satz fortsetzen (1 von 5)');
+ok(await page.locator('text=Fehler-Training weiter (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
+await page.click('text=Fehler-Training weiter (1 von 5)');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Fortgesetzt wird bei Aufgabe 2');
 await page.getByRole('button', { name: 'Training beenden' }).click();
@@ -236,7 +236,7 @@ await page.waitForSelector('text=Satz beendet nach 1 von 5');
 ok(true, 'Vorzeitig beendeter Satz zeigt Ergebnis');
 await btn('Für heute fertig').click();
 await page.waitForSelector('.hero');
-ok(await page.locator('text=Satz starten (5 Aufgaben)').count() === 1, 'Nach dem Beenden gibt es keinen offenen Satz mehr');
+ok(await page.locator('text=Fehler-Training starten').count() === 1, 'Nach dem Beenden gibt es keinen offenen Satz mehr');
 
 // ---- Speicherung
 await page.waitForTimeout(500);
@@ -244,7 +244,7 @@ await page.reload({ waitUntil: 'networkidle' });
 await page.waitForSelector('.hero');
 {
   const done = (await page.locator('text=Heute erledigt').locator('..').textContent()).replace(/\s+/g, ' ');
-  ok(/Satz mit 5 Aufgaben/.test(done) && /Satz mit 1 Aufgabe:/.test(done), `Heutige Sätze bleiben nach dem Neuladen erhalten (${done.slice(0, 120)})`);
+  ok(/Fehler-Training, 5 Aufgaben/.test(done) && /Fehler-Training, 1 Aufgabe:/.test(done), `Heutige Sätze bleiben nach dem Neuladen erhalten (${done.slice(0, 120)})`);
 }
 await page.locator('nav').getByText('Fortschritt').click();
 await page.waitForSelector('text=Letzte 14 Tage');
@@ -283,7 +283,7 @@ await page.getByRole('radiogroup', { name: 'Ton', exact: true }).getByRole('radi
 // ---- Letzter Zug aus
 await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Nicht zeigen', exact: true }).click();
 await page.locator('nav').getByText('Heute').click();
-await page.click('text=/Satz starten|Satz fortsetzen/');
+await page.click('text=/Fehler-Training (starten|weiter)/');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 ok(await page.locator('.tag.last').count() === 0 && await page.locator('.board square.last-move').count() === 0, 'Ohne Einstellung kein letzter Zug');
 await page.getByRole('button', { name: 'Training beenden' }).click();
@@ -295,7 +295,7 @@ await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRol
 await page.getByRole('radiogroup', { name: 'Zeitlimit Fehler-Training' }).getByRole('radio', { name: '5 s', exact: true }).click();
 await page.locator('nav').getByText('Heute').click();
 await sfxClear();
-await page.click('text=Satz starten (5 Aufgaben)');
+await page.click('text=Fehler-Training starten');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 await page.waitForTimeout(5800);
 {
@@ -330,7 +330,7 @@ await ctx.setOffline(true);
 await page.reload({ waitUntil: 'load' });
 await page.waitForSelector('.hero', { timeout: 8000 });
 ok(true, 'App startet offline');
-await page.click('text=/Satz starten|Satz fortsetzen/');
+await page.click('text=/Fehler-Training (starten|weiter)/');
 await page.waitForSelector('.board cg-board', { timeout: 8000 });
 ok(true, 'Training läuft offline');
 await ctx.setOffline(false);
@@ -348,7 +348,7 @@ for (const f of formats) {
   const c = await browser.newContext({ viewport: f.vp, deviceScaleFactor: 1, hasTouch: true, isMobile: f.mobile });
   const p = await c.newPage();
   await p.goto(BASE, { waitUntil: 'networkidle' });
-  await p.click('text=/Satz starten|Satz fortsetzen/');
+  await p.click('text=/Fehler-Training (starten|weiter)/');
   await p.waitForSelector('.board-wrap[data-live="1"]');
   await p.waitForTimeout(300);
   await p.click('text=Lösung zeigen');

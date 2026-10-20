@@ -42,7 +42,7 @@ async function session({ evalbar, viewport = { width: 390, height: 844 }, only }
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   await page.goto(BASE, { waitUntil: 'networkidle' });
   await page.waitForSelector('.hero');
-  await page.click('text=/Satz starten|Satz fortsetzen/');
+  await page.click('text=/Fehler-Training (starten|weiter)/');
   await page.waitForSelector('.board-wrap[data-live="1"]');
   return { ctx, page, errors };
 }

@@ -41,7 +41,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
 
   const phases = ['alle', ...new Set(exercises.map((e) => e.phase))];
-  const cats = ['alle', ...new Set(exercises.map((e) => e.cat))];
+  const cats = ['alle', ...new Set(exercises.filter((e) => !e.win).map((e) => e.cat))];
   const motifs = ['alle', ...[...new Set(exercises.flatMap((e) => e.motifs))].sort()];
 
   const doExport = async () => {
@@ -237,6 +237,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
 
       <div class="card">
         <h2>Auswahl eingrenzen</h2>
+        <p class="muted small">Gilt für das Fehler-Training. „Sicher gewinnen“ nimmt immer alle Stellungen.</p>
         <div class="field">
           <label for="f-phase">Partiephase</label>
           <select id="f-phase" value={s.filters.phase} onChange={(e) => setFilter({ phase: (e.target as HTMLSelectElement).value })}>

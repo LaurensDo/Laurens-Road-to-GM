@@ -387,6 +387,9 @@ cg-board square.check { background: radial-gradient(ellipse at center, rgba(231,
 .update-note { appearance: none; border: 1px solid var(--rule); border-radius: 14px; background: var(--accent-soft); color: var(--ink); font: 500 0.95rem var(--font-body); padding: 10px 14px; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer; width: 100%; }
 .update-mark { width: 26px; height: 32px; object-fit: contain; flex: none; }
 .btn.light { background: var(--hero-ink); color: var(--hero-a); }
+.btn.light.alt { background: transparent; color: var(--hero-ink); box-shadow: inset 0 0 0 1.5px var(--hero-ink); }
+.start-mode { display: grid; gap: 8px; }
+.hero-body > .start-mode + .start-mode { margin-top: 6px; }
 .hero-note { font-size: 0.85rem; }
 .hero .sync-hint.bad { color: #ffb3a6; }
 .screen:not(.trainer) > .hero { grid-column: 1 / -1; }

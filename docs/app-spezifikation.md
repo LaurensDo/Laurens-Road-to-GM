@@ -207,8 +207,16 @@ Auf Wunsch von Laurens: Man soll bei jeder Aufgabe wissen, was man trainiert.
 - **Getrennt ausgewiesen:** Aufforderung unter dem Brett, Satzauswertung und die Karte „Nach Art der Aufgabe“ unter Fortschritt.
 - **Datensicherung** der Rohdaten in einem privaten Repo.
 
+## 9i. Version 1.9 (umgesetzt)
+
+Auf Wunsch von Laurens: zwei Spielmodi. Wer unter 10 Sekunden zieht, kann nicht auch noch nachsehen, welche Art Aufgabe gerade dran ist.
+
+- **Zwei Modi, zwei Startknöpfe auf Heute:** Fehler-Training und Sicher gewinnen. Ein Satz enthält nur eine Art, keine Mischung innerhalb eines Satzes (ersetzt die Mischung aus 9g).
+- **Getrennte Warteschlangen:** je Art eigene Fälligkeiten, Obergrenze neuer Aufgaben und Rückstand; Filter nur für das Fehler-Training; Vergleich mit früheren Sätzen nur innerhalb einer Art.
+- **Erkennbar:** Kopfzeile im Satz, Ergebnis, Heute und Fortschritt nennen die Art.
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7 und 1.8 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 und 1.9 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

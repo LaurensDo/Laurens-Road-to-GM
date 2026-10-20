@@ -58,7 +58,7 @@ await page.locator('nav').getByText('Einstellungen').click();
 await page.getByRole('radiogroup', { name: 'Aufgaben pro Satz' }).getByRole('radio', { name: '20', exact: true }).click();
 await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Nicht zeigen' }).click();
 await page.locator('nav').getByText('Heute').click();
-await page.click('text=/Satz starten|Satz fortsetzen/');
+await page.click('text=/Fehler-Training (starten|weiter)/');
 
 let doneA = false, doneB = false, doneB2 = false;
 for (let i = 0; i < 20 && !(doneA && doneB && doneB2); i++) {

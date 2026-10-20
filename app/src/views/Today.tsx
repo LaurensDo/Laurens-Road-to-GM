@@ -7,29 +7,32 @@ import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
 import { SyncBadge } from './SyncCard';
+import { modeOfEntries, TASK_LABEL, type TaskType } from '../lib/limit';
 import type { Exercise, Meta } from '../lib/types';
 
 interface Props {
   exercises: Exercise[];
   meta: Meta | null;
   regel: string;
-  onStart: () => void;
+  onStart: (mode: TaskType) => void;
   onOpenSettings: () => void;
 }
 
 export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props) {
   const state = useAppState();
   const now = new Date();
-  const c = counts(exercises, state, now);
+  const c = counts(exercises, state, now, 'fehler');
+  const cw = counts(exercises, state, now, 'sicher');
+  const byId = new Map(exercises.map((e) => [e.id, e]));
   const t = today(state.log, now);
   const goal = state.settings.goalMinutes;
   const done = Math.min(1, t.minutes / goal);
-  const available = c.due + c.learning + c.newAvailable;
   const filtered = state.settings.filters.phase !== 'alle' || state.settings.filters.cat !== 'alle' || state.settings.filters.motif !== 'alle';
   const b = meta?.baseline;
   const active = loadActive();
   const activeDone = active ? state.log.filter((e) => e.set?.id === active.id).length : 0;
-  const resumable = !!active && activeDone > 0 && activeDone < active.size;
+  const resumable = (mode: TaskType) => !!active && active.mode === mode && activeDone > 0 && activeDone < active.size;
+  const startable = (cc: typeof c) => !(cc.due + cc.learning + cc.newAvailable === 0 && cc.total > 0 && cc.newTotal === 0) && cc.total > 0;
   const todaySets = listSets(state.log).filter((r) => dayKey(r.startTs) === dayKey(now.getTime()));
   const updateReady = useUpdateReady();
 
@@ -57,23 +60,36 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
               {n1(t.minutes)} von {n0(goal)} Min
             </span>
           </div>
-          <button class="btn light" onClick={onStart} disabled={available === 0 && c.total > 0 && c.newTotal === 0}>
-            {resumable ? `Satz fortsetzen (${n0(activeDone)} von ${n0(active!.size)})` : `Satz starten (${n0(state.settings.setSize)} Aufgaben)`}
-          </button>
-          <dl class="hero-facts-small" aria-label="Heute im Vorrat">
-            <div>
-              <dt>Fällig</dt>
-              <dd class="mono">{n0(c.due)}</dd>
-            </div>
-            <div>
-              <dt>Lernen</dt>
-              <dd class="mono">{n0(c.learning)}</dd>
-            </div>
-            <div>
-              <dt>Neu</dt>
-              <dd class="mono">{n0(c.newAvailable)}</dd>
-            </div>
-          </dl>
+          {(['fehler', 'sicher'] as const).map((mode) => {
+            const cc = mode === 'fehler' ? c : cw;
+            return (
+              <div class="start-mode" key={mode}>
+                <button class={`btn light${mode === 'sicher' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
+                  {resumable(mode)
+                    ? `${TASK_LABEL[mode]} weiter (${n0(activeDone)} von ${n0(active!.size)})`
+                    : `${TASK_LABEL[mode]} starten`}
+                </button>
+                <dl class="hero-facts-small" aria-label={`${TASK_LABEL[mode]} heute im Vorrat`}>
+                  <div>
+                    <dt>Satz</dt>
+                    <dd class="mono">{n0(state.settings.setSize)}</dd>
+                  </div>
+                  <div>
+                    <dt>Fällig</dt>
+                    <dd class="mono">{n0(cc.due)}</dd>
+                  </div>
+                  <div>
+                    <dt>Lernen</dt>
+                    <dd class="mono">{n0(cc.learning)}</dd>
+                  </div>
+                  <div>
+                    <dt>Neu</dt>
+                    <dd class="mono">{n0(cc.newAvailable)}</dd>
+                  </div>
+                </dl>
+              </div>
+            );
+          })}
           {c.backlogDays > 0 && (
             <p class="hero-note">
               Nach der Pause warten viele Wiederholungen. Sie verteilen sich über {n0(c.backlogDays)} Tage, heute kommen nur die sichersten dran.
@@ -81,7 +97,7 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
           )}
           {filtered && (
             <p class="hero-note">
-              Es gilt ein Filter ({count(c.total, 'Aufgabe', 'Aufgaben')}).{' '}
+              Für das Fehler-Training gilt ein Filter ({count(c.total, 'Aufgabe', 'Aufgaben')}).{' '}
               <button class="link inline" onClick={onOpenSettings}>
                 Ändern
               </button>
@@ -98,7 +114,7 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
             {todaySets.map((r) => (
               <li key={r.id}>
                 <span class="mono">{new Date(r.startTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>{' '}
-                Satz mit {count(r.entries.length, 'Aufgabe', 'Aufgaben')}: <b class="mono">{pct(rateOf(r))}</b> richtig
+                {TASK_LABEL[modeOfEntries(r.entries, byId)]}, {count(r.entries.length, 'Aufgabe', 'Aufgaben')}: <b class="mono">{pct(rateOf(r))}</b> richtig
                 {r.entries.length < r.planned && <span class="muted"> (nicht fertig)</span>}
               </li>
             ))}

@@ -18,7 +18,7 @@ import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
 import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
-import { limitFor, TASK_LABEL, taskType } from '../lib/limit';
+import { limitFor, modeOfEntries, TASK_LABEL, type TaskType } from '../lib/limit';
 import { SetBar, SetResult } from './SetResult';
 import { EvalBar, VarBar } from './Variation';
 import { buildVariations, evAt } from '../lib/variation';
@@ -28,6 +28,8 @@ interface Props {
   byId: Map<string, Exercise>;
   /** Datenstand der Übungen, steht als dv an jeder Antwort */
   dataVersion: number;
+  /** Art des Satzes: nur Fehler-Training oder nur "Sicher gewinnen" */
+  mode: TaskType;
   onExit: () => void;
 }
 
@@ -98,7 +100,7 @@ function shape(orig: SquareName, dest: SquareName, brush: string): DrawShape {
   return { orig: orig as Key, dest: dest as Key, brush };
 }
 
-export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
+export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const state = useAppState();
   const settings = state.settings;
 
@@ -179,7 +181,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
 
   const startSet = () => {
     const now = Date.now();
-    const act: ActiveSet = { id: newSetId(now), startedAt: now, size: getState().settings.setSize, served: [] };
+    const act: ActiveSet = { id: newSetId(now), startedAt: now, size: getState().settings.setSize, mode, served: [] };
     activeRef.current = act;
     saveActive(act);
     setSetId(act.id);
@@ -192,11 +194,12 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     if (!act) return;
     const st = getState();
     const entries = st.log.filter((e) => e.set?.id === act.id).sort((a, b) => a.ts - b.ts);
+    // verglichen wird mit den letzten Sätzen derselben Art ("Sicher gewinnen" ist leichter und würde sonst die Quote verzerren)
     const previous = listSets(st.log)
-      .filter((r) => r.id !== act.id && r.entries.length >= r.planned)
+      .filter((r) => r.id !== act.id && r.entries.length >= r.planned && modeOfEntries(r.entries, byId) === mode)
       .map(rateOf);
     const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, previous, tolerance: st.settings.tolerance });
-    const moreAvailable = !!pickNext(exercises, st, new Date());
+    const moreAvailable = !!pickNext(exercises, st, new Date(), undefined, undefined, mode);
     destroyBoard();
     saveActive(null);
     setCurrent(null);
@@ -224,7 +227,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       showSummary();
       return;
     }
-    const next = pickNext(exercises, st, new Date(), lastShown.current, new Set(act.served));
+    const next = pickNext(exercises, st, new Date(), lastShown.current, new Set(act.served), mode);
     if (!next) {
       if (done > 0) {
         showSummary();
@@ -249,6 +252,8 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
   useLayoutEffect(() => {
     const st = getState();
     let act = loadActive();
+    // ein liegengebliebener Satz der anderen Art wird nicht fortgesetzt
+    if (act && act.mode !== mode) act = null;
     if (act) {
       const answeredIds = new Set(st.log.filter((e) => e.set?.id === act!.id).map((e) => e.id));
       act.served = act.served.filter((id) => answeredIds.has(id));
@@ -706,7 +711,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
 
   if (finished || !ex) {
     // nur hier gebraucht: nicht bei jedem Uhr-Takt (zehnmal pro Sekunde) alle Übungen durchgehen
-    const c = counts(exercises, state, new Date());
+    const c = counts(exercises, state, new Date(), mode);
     const t = today(state.log, new Date());
     return (
       <section class="screen">
@@ -772,7 +777,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
         </button>
         <div class="counts" aria-label="Fortschritt im Satz">
           <span>
-            Aufgabe {n0(taskNo)} von {n0(setSize)}
+            {TASK_LABEL[mode]} · Aufgabe {n0(taskNo)} von {n0(setSize)}
           </span>
         </div>
       </header>
@@ -781,7 +786,6 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       <div class="prompt">
         <span class={`side ${ex.turn}`}>{sideName(ex.turn)} am Zug</span>
         <span class="tag">{KIND_TEXT[current!.kind]}</span>
-        {ex.win && <span class="tag">Klar gewonnen</span>}
         <span class="tag">{ex.phase}</span>
         {settings.showLast && lastMoveLabel(ex) && (
           <span class="tag last" title="Letzter Zug des Gegners">
@@ -819,7 +823,6 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       {phase === 'ask' && (
         <div class="actions ask">
           <p class="muted small">
-            <b>{TASK_LABEL[taskType(ex)]}.</b>{' '}
             {ex.win ? 'Du stehst klar gewonnen. Zieh einen sicheren Zug, ohne zu grübeln. Tippe Figur und Zielfeld oder zieh die Figur.' : 'Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.'}
           </p>
           <button class="btn secondary" onClick={giveUp} disabled={!live}>

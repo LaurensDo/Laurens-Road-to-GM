@@ -1,5 +1,6 @@
 import { State, cardState, dueDate, retrievability } from './srs';
 import { countsForSchedule } from './merge';
+import { taskType, type TaskType } from './limit';
 import { dayKey } from './format';
 import type { AppState, Exercise, Filters } from './types';
 
@@ -36,9 +37,6 @@ export const BACKLOG_NEW = 3;
 export const COMEBACK_DAYS = 4;
 /** So viele sichere Karten zum Wiedereinstieg. */
 export const COMEBACK_CARDS = 5;
-/** Jede WIN_EVERY-te neue Aufgabe ist eine "Sicher gewinnen"-Stellung (die dritte, achte, ... aller je gesehenen) */
-export const WIN_EVERY = 5;
-export const WIN_OFFSET = 2;
 
 /** Mindestens so viele neue Aufgaben am Tag, auch wenn die Wiederholungen das Tagesziel schon füllen würden */
 export const MIN_NEW = 3;
@@ -60,9 +58,10 @@ export function taskSeconds(state: AppState, now: Date): number {
   return Math.min(90, Math.max(8, med));
 }
 
-export function newIntroducedToday(state: AppState, now: Date): number {
+/** Heute zum ersten Mal gezeigte Aufgaben, bei `ids` nur die dieser Art */
+export function newIntroducedToday(state: AppState, now: Date, ids?: ReadonlySet<string>): number {
   const today = dayKey(now.getTime());
-  return Object.values(state.cards).filter((c) => dayKey(c.firstSeen) === today).length;
+  return Object.entries(state.cards).filter(([id, c]) => dayKey(c.firstSeen) === today && (!ids || ids.has(id))).length;
 }
 
 export function isHidden(state: AppState, id: string): boolean {
@@ -73,16 +72,22 @@ export function hiddenCount(state: AppState): number {
   return Object.values(state.hidden ?? {}).filter((h) => h.on).length;
 }
 
-export function poolOf(exercises: Exercise[], state: AppState): Exercise[] {
-  return exercises.filter((e) => !isHidden(state, e.id) && matchesFilters(e, state.settings.filters));
+/**
+ * Aufgaben einer Art. Fehler-Training und "Sicher gewinnen" sind getrennte Sätze (Laurens wählt vorher, was er trainiert, damit er in der Aufgabe
+ * nicht erst nachsehen muss). Die Filter aus den Einstellungen (Phase, Fehlerart, Motiv) gelten nur für das Fehler-Training.
+ */
+export function poolOf(exercises: Exercise[], state: AppState, mode: TaskType = 'fehler'): Exercise[] {
+  return exercises.filter((e) => taskType(e) === mode && !isHidden(state, e.id) && (mode === 'sicher' || matchesFilters(e, state.settings.filters)));
 }
 
+const idsOf = (exercises: Exercise[], mode: TaskType): Set<string> => new Set(exercises.filter((e) => taskType(e) === mode).map((e) => e.id));
+
 /** Wie viele verschiedene ältere Karten wurden heute schon wiederholt? */
-export function reviewedToday(state: AppState, now: Date): number {
+export function reviewedToday(state: AppState, now: Date, only?: ReadonlySet<string>): number {
   const today = dayKey(now.getTime());
   const ids = new Set<string>();
   for (const e of state.log) {
-    if (!countsForSchedule(e) || dayKey(e.ts) !== today) continue;
+    if (!countsForSchedule(e) || dayKey(e.ts) !== today || (only && !only.has(e.id))) continue;
     const rec = state.cards[e.id];
     if (rec && dayKey(rec.firstSeen) !== today) ids.add(e.id);
   }
@@ -117,7 +122,7 @@ interface Scan {
   newQuota: number;
 }
 
-function scan(pool: Exercise[], state: AppState, now: Date): Scan {
+function scan(pool: Exercise[], state: AppState, now: Date, ofMode: ReadonlySet<string>, mode: TaskType): Scan {
   const t = now.getTime();
   const dueReview: Scan['dueReview'] = [];
   const dueLearn: Scan['dueLearn'] = [];
@@ -139,7 +144,7 @@ function scan(pool: Exercise[], state: AppState, now: Date): Scan {
   dueLearn.sort(byDue);
   ahead.sort(byDue);
   // Rückstand: Fällige heute plus die heute schon erledigten überschreiten den Tagesdeckel
-  const done = reviewedToday(state, now);
+  const done = reviewedToday(state, now, ofMode);
   const backlog = dueReview.length + done > DUE_CAP;
   const reviewLeft = backlog ? Math.max(0, DUE_CAP - done) : Infinity;
   const today = dayKey(now.getTime());
@@ -148,16 +153,17 @@ function scan(pool: Exercise[], state: AppState, now: Date): Scan {
   // Neue Aufgaben pro Tag sind eine Obergrenze: Was das Tagesziel in Minuten nach den Wiederholungen übrig lässt, ist der Rahmen
   const committed = done + Math.min(dueReview.length, reviewLeft) + dueLearn.length;
   const fit = Math.floor((state.settings.goalMinutes * 60) / taskSeconds(state, now)) - committed;
-  const introduced = newIntroducedToday(state, now);
+  const introduced = newIntroducedToday(state, now, ofMode);
   // schon gezeigte neue Aufgaben nimmt die Obergrenze nicht zurück (sonst täte "5 weitere neue" nichts, wenn sie später kleiner wird)
-  const cap = Math.max(introduced, backlog ? base : Math.min(base, Math.max(MIN_NEW, fit)));
+  // die Zeitrechnung des Tagesziels gilt für das Fehler-Training, "Sicher gewinnen" startet Laurens bewusst als eigenen Satz
+  const cap = Math.max(introduced, backlog || mode === 'sicher' ? base : Math.min(base, Math.max(MIN_NEW, fit)));
   const newQuota = Math.max(0, cap + bonus - introduced);
   return { dueReview, dueLearn, ahead, fresh, backlog, reviewLeft, newQuota };
 }
 
-export function counts(exercises: Exercise[], state: AppState, now: Date): QueueCounts {
-  const pool = poolOf(exercises, state);
-  const sc = scan(pool, state, now);
+export function counts(exercises: Exercise[], state: AppState, now: Date, mode: TaskType = 'fehler'): QueueCounts {
+  const pool = poolOf(exercises, state, mode);
+  const sc = scan(pool, state, now, idsOf(exercises, mode), mode);
   const reviews = Math.min(sc.dueReview.length, sc.reviewLeft);
   const waiting = sc.dueReview.length - reviews;
   return {
@@ -186,9 +192,11 @@ export function pickNext(
   last?: { id: string; cat: string },
   /** Übungen, die in diesem Satz schon vorkamen und nicht noch einmal gewählt werden */
   exclude?: ReadonlySet<string>,
+  /** Art des Satzes */
+  mode: TaskType = 'fehler',
 ): { ex: Exercise; kind: PickKind } | null {
-  const pool = poolOf(exercises, state).filter((e) => !exclude?.has(e.id));
-  const sc = scan(pool, state, now);
+  const pool = poolOf(exercises, state, mode).filter((e) => !exclude?.has(e.id));
+  const sc = scan(pool, state, now, idsOf(exercises, mode), mode);
 
   const notLast = <T extends { ex: Exercise }>(xs: T[]) => xs.find((x) => x.ex.id !== last?.id) ?? xs[0];
 
@@ -205,13 +213,8 @@ export function pickNext(
   }
 
   if (sc.newQuota > 0 && sc.fresh.length) {
-    // "Sicher gewinnen" kommt als jede fünfte neue Aufgabe dazwischen, unabhängig davon, wie viele schon gesehen sind
-    const wins = sc.fresh.filter((e) => e.win);
-    const regular = sc.fresh.filter((e) => !e.win);
-    const wantWin = wins.length > 0 && (regular.length === 0 || Object.keys(state.cards).length % WIN_EVERY === WIN_OFFSET);
-    const from = wantWin || regular.length === 0 ? wins : regular;
     // leicht durchmischen: unter den nächsten Kandidaten eine andere Fehlerart als zuletzt
-    const window = from.slice(0, 8);
+    const window = sc.fresh.slice(0, 8);
     const pick = window.find((e) => e.cat !== last?.cat) ?? window[0];
     return { ex: pick, kind: 'new' };
   }

@@ -10,3 +10,7 @@ export const taskType = (ex: Pick<Exercise, 'win'> | null | undefined): TaskType
 /** Zeitlimit in Sekunden für diese Aufgabe (0 = aus): Jede Art hat ihre eigene Einstellung. */
 export const limitFor = (s: Pick<Settings, 'timeLimit' | 'winLimit'>, ex: Pick<Exercise, 'win'> | null | undefined): number =>
   taskType(ex) === 'sicher' ? s.winLimit : s.timeLimit;
+
+/** Art eines Satzes aus seinen Antworten: Sätze sind rein, die erste Antwort entscheidet (alte Sätze mit Mischung zählen als Fehler-Training). */
+export const modeOfEntries = (entries: { id: string }[], byId: Map<string, Pick<Exercise, 'win'>>): TaskType =>
+  entries.length && entries.every((e) => taskType(byId.get(e.id)) === 'sicher') ? 'sicher' : 'fehler';

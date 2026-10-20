@@ -285,7 +285,7 @@ describe('Neue Aufgaben passen zum Tagesziel', () => {
     const s = emptyState();
     s.settings.goalMinutes = 1;
     const nowT = new Date('2026-10-19T10:00:00');
-    for (let i = 0; i < 15; i++) s.cards['seen' + i] = { ...applyReview(undefined, 3, nowT), firstSeen: nowT.getTime() };
+    for (let i = 0; i < 15; i++) s.cards[many[i].id] = { ...applyReview(undefined, 3, nowT), firstSeen: nowT.getTime() };
     expect(counts(many, s, nowT).newAvailable).toBe(0);
     s.bonus = { day: '2026-10-19', n: 5 };
     expect(counts(many, s, nowT).newAvailable).toBe(5);

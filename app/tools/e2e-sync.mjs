@@ -35,7 +35,7 @@ async function connectWith(d, repo, token) {
 }
 async function solveFirstNew(d, ex) {
   await d.page.click('nav >> text=Heute');
-  await d.page.click('text=/Satz starten|Satz fortsetzen/');
+  await d.page.click('text=/Fehler-Training (starten|weiter)/');
   await d.page.waitForSelector('.board-wrap[data-live="1"]');
   await d.page.waitForTimeout(300);
   const white = ex.turn === 'w';
