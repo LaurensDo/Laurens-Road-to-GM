@@ -54,7 +54,7 @@ python analysis/build_exercises.py          # alles zusammenführen, Reihenfolge
 
 Weitere Skripte: `ratings.py` (Umrechnung chess.com → lichess-Skala, damit Maia und Explorer die richtige Stärke
 bekommen), `explorer.py` (lichess-Eröffnungsdatenbank, braucht `LICHESS_TOKEN` als Umgebungsvariable), `export_pgn.py`
-(Fehlerstudien für lichess), `restore_data.sh` (holt `data/` aus dem Branch `data-backup`).
+(Fehlerstudien für lichess), `restore_data.sh` (holt `data/` aus dem privaten Repo `road-to-gm-data`, siehe unten, oder mit `SOURCE=public` aus dem Branch `data-backup`).
 
 `data/` ist nicht im Repo (persönliche Partiedaten, Zwischenergebnisse).
 
@@ -75,3 +75,15 @@ bekommen), `explorer.py` (lichess-Eröffnungsdatenbank, braucht `LICHESS_TOKEN` 
 - **Maia-3**: Wahrscheinlichkeit, dass ein Mensch deiner Stärke (bzw. +300 Elo) den richtigen Zug findet.
   Daraus folgen die Klassen *Leichtsinn* (eigenes Niveau findet ihn meist), *Nächste Stufe*
   (+300 Elo findet ihn oft) und *Schwer*.
+
+## Datensicherung
+
+`data/` (32 MB: Rohpartien mit Gegnernamen, Stockfish-Analysen, Maia, Lösungen, Widerlegungen, Bewertungen, Gewinnstellungen) liegt nicht im öffentlichen Repo.
+Die Sicherung gehört in ein **privates** Repo, standardmäßig `LaurensDo/road-to-gm-data`:
+
+```bash
+bash analysis/backup_data.sh     # nach neuen Rechnungen: data/ in das private Repo schieben (nur Änderungen)
+bash analysis/restore_data.sh    # nach einem Zurücksetzen der Umgebung: data/ zurückholen
+```
+
+Einmalig: das leere private Repo auf GitHub anlegen und der Claude-GitHub-App Zugriff darauf geben. Der Zweig `data-backup` im öffentlichen Repo ist nur ein älterer, bereinigter Stand (15.10.2026, ohne Gegnernamen und ohne Lösungen).
