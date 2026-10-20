@@ -292,7 +292,7 @@ await page.locator('nav').getByText('Einstellungen').click();
 await page.getByRole('radiogroup', { name: 'Letzter Zug des Gegners' }).getByRole('radio', { name: 'Zeigen', exact: true }).click();
 
 // ---- Uhr-Ton mit 5 Sekunden Limit
-await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '5 s', exact: true }).click();
+await page.getByRole('radiogroup', { name: 'Zeitlimit Fehler-Training' }).getByRole('radio', { name: '5 s', exact: true }).click();
 await page.locator('nav').getByText('Heute').click();
 await sfxClear();
 await page.click('text=Satz starten (5 Aufgaben)');
@@ -306,7 +306,7 @@ await page.screenshot({ path: `${OUT}/5d-zeit-ueber.png` });
 await page.getByRole('button', { name: 'Training beenden' }).click();
 await page.waitForSelector('.hero');
 await page.locator('nav').getByText('Einstellungen').click();
-await page.getByRole('radiogroup', { name: 'Zeitlimit' }).getByRole('radio', { name: '10 s', exact: true }).click();
+await page.getByRole('radiogroup', { name: 'Zeitlimit Fehler-Training' }).getByRole('radio', { name: '10 s', exact: true }).click();
 
 // ---- Startbild ausschalten
 await page.locator('nav').getByText('Einstellungen').click();

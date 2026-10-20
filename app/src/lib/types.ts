@@ -61,9 +61,10 @@ export interface Exercise {
   hold?: boolean;
   /**
    * "Sicher gewinnen" (analysis/win_positions.py): Stellung, in der der Spieler klar gewonnen steht. Richtig ist jeder Zug, der mindestens
-   * `safe` Prozent Gewinnchance hält, schnell gezogen (Zielzeit `limit` Sekunden). Es geht um Tempo, nicht um den besten Zug.
+   * `safe` Prozent Gewinnchance hält, schnell gezogen. Es geht um Tempo, nicht um den besten Zug. Die Zielzeit steht in den Einstellungen
+   * (`Settings.winLimit`); `limit` im Datensatz ist nur ein Richtwert und wird nicht mehr gelesen.
    */
-  win?: { safe: number; limit: number };
+  win?: { safe: number; limit?: number };
 }
 
 export interface ExerciseFile {
@@ -135,7 +136,10 @@ export interface Filters {
 }
 
 export interface Settings {
-  timeLimit: number; // Sekunden, 0 = aus
+  /** Zeitlimit für "Fehler-Training" (Stellungen mit einem Fehler aus deinen Partien), Sekunden, 0 = aus */
+  timeLimit: number;
+  /** Zielzeit für "Sicher gewinnen" (klar gewonnene Stellungen), Sekunden, 0 = aus */
+  winLimit: number;
   tolerance: boolean; // gleichwertige Züge zählen
   newPerDay: number;
   /** Aufgaben pro Satz */
@@ -178,7 +182,8 @@ export interface AppState {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  timeLimit: 10,
+  timeLimit: 20,
+  winLimit: 10,
   tolerance: true,
   newPerDay: 15,
   setSize: 10,

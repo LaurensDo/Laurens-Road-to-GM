@@ -18,6 +18,7 @@ import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
 import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
+import { limitFor, TASK_LABEL, taskType } from '../lib/limit';
 import { SetBar, SetResult } from './SetResult';
 import { EvalBar, VarBar } from './Variation';
 import { buildVariations, evAt } from '../lib/variation';
@@ -73,8 +74,8 @@ const THREAT_CATS = new Set(['Figur eingestellt', 'Gegnerische Taktik übersehen
 
 const KIND_TEXT: Record<PickKind, string> = { due: 'Wiederholung', learning: 'Lernschritt', new: 'Neu' };
 
-/** Zeitlimit für diese Aufgabe: "Sicher gewinnen" hat seine kurze Zielzeit, sonst gilt die Einstellung. */
-const limitOf = (ex: Exercise | null | undefined): number => ex?.win?.limit ?? getState().settings.timeLimit;
+/** Zeitlimit für diese Aufgabe: Fehler-Training und "Sicher gewinnen" haben je ihre Einstellung. */
+const limitOf = (ex: Exercise | null | undefined): number => limitFor(getState().settings, ex);
 
 /**
  * Chessground merkt sich die Lage des Bretts und aktualisiert sie nur beim Scrollen und bei Größenänderung des Bretts selbst. Rutscht das Brett
@@ -194,7 +195,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
     const previous = listSets(st.log)
       .filter((r) => r.id !== act.id && r.entries.length >= r.planned)
       .map(rateOf);
-    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, previous, tolerance: st.settings.tolerance });
+    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, previous, tolerance: st.settings.tolerance });
     const moreAvailable = !!pickNext(exercises, st, new Date());
     destroyBoard();
     saveActive(null);
@@ -818,6 +819,7 @@ export function Trainer({ exercises, byId, dataVersion, onExit }: Props) {
       {phase === 'ask' && (
         <div class="actions ask">
           <p class="muted small">
+            <b>{TASK_LABEL[taskType(ex)]}.</b>{' '}
             {ex.win ? 'Du stehst klar gewonnen. Zieh einen sicheren Zug, ohne zu grübeln. Tippe Figur und Zielfeld oder zieh die Figur.' : 'Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.'}
           </p>
           <button class="btn secondary" onClick={giveUp} disabled={!live}>

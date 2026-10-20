@@ -22,7 +22,7 @@ if (wins.length < 3) { console.log(`FAIL zu wenige Übungen "Sicher gewinnen" ($
 const byId = new Map([...wins, ...normal].map((e) => [e.id, e]));
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
-async function session(exercises) {
+async function session(exercises, { winLimit } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: 'block' });
   await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false, games: false })));
   await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ...file, exercises }) }));
@@ -33,6 +33,11 @@ async function session(exercises) {
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   await page.goto(BASE, { waitUntil: 'networkidle' });
   await page.waitForSelector('.hero');
+  if (winLimit !== undefined) {
+    await page.locator('nav').getByText('Einstellungen').click();
+    await page.getByRole('radiogroup', { name: 'Zeitlimit Sicher gewinnen' }).getByRole('radio', { name: `${winLimit} s`, exact: true }).click();
+    await page.locator('nav').getByText('Heute').click();
+  }
   await page.click('text=/Satz starten|Satz fortsetzen/');
   await page.waitForSelector('.board-wrap[data-live="1"]');
   return { ctx, page, errors };
@@ -54,15 +59,35 @@ async function playMove(page, e, san) {
 }
 const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap', 'data-ex'));
 
+// ---- Einstellungen: Standardzeiten, getrennt einstellbar
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false, games: false })));
+  await mockGames(ctx);
+  const page = await ctx.newPage();
+  await page.goto(BASE, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.hero');
+  await page.locator('nav').getByText('Einstellungen').click();
+  const on = async (name) => (await page.getByRole('radiogroup', { name }).getByRole('radio', { checked: true }).textContent()).trim();
+  ok((await on('Zeitlimit Fehler-Training')) === '20 s', 'Einstellungen: Standard im Fehler-Training 20 s');
+  ok((await on('Zeitlimit Sicher gewinnen')) === '10 s', 'Einstellungen: Standard bei "Sicher gewinnen" 10 s');
+  await page.getByRole('radiogroup', { name: 'Zeitlimit Fehler-Training' }).getByRole('radio', { name: '30 s', exact: true }).click();
+  ok((await on('Zeitlimit Fehler-Training')) === '30 s' && (await on('Zeitlimit Sicher gewinnen')) === '10 s', 'Einstellungen: beide Zeiten sind unabhängig voneinander einstellbar');
+  await page.locator('nav').getByText('Einstellungen').screenshot({ path: `${OUT}/0-einstellungen-nav.png` }).catch(() => {});
+  await page.screenshot({ path: `${OUT}/0-einstellungen.png`, fullPage: true });
+  await ctx.close();
+}
+
 // ---- A: nur Gewinnstellungen: Zeitlimit, Wortlaut, Wertung
 {
-  const { ctx, page, errors } = await session(wins.slice(0, 6));
+  const { ctx, page, errors } = await session(wins.slice(0, 6), { winLimit: 5 });
   const e = await currentEx(page);
   const prompt = (await page.locator('.prompt').textContent()).replace(/\s+/g, ' ');
   ok(/Klar gewonnen/.test(prompt), `A: Tag "Klar gewonnen" (${prompt.slice(0, 70)})`);
   ok(/Zieh einen sicheren Zug, ohne zu grübeln/.test(await page.locator('.actions.ask').textContent()), 'A: Aufforderung nennt Tempo statt "bester Zug"');
   const timer = (await page.locator('.timer').textContent()).replace(/\s+/g, ' ');
-  ok(/von 5 s/.test(timer), `A: kurze Zielzeit von 5 s (${timer.trim()})`);
+  ok(/von 5 s/.test(timer), `A: eingestellte Zielzeit von 5 s (${timer.trim()})`);
+  ok(/Sicher gewinnen\./.test(await page.locator('.actions.ask').textContent()), 'A: Die Aufforderung nennt die Art der Aufgabe "Sicher gewinnen"');
 
   // ein sicherer Zug, der nicht der beste ist (sonst der beste), schnell
   const alt = e.lines.slice(1).find((l) => l.wp >= e.win.safe && e.lines[0].wp - l.wp > 1) ?? e.lines[0];
@@ -116,6 +141,9 @@ const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap'
   for (let i = 0; i < 10; i++) {
     const e = await currentEx(page);
     kinds.push(!!e.win);
+    const timer = (await page.locator('.timer').textContent()).replace(/\s+/g, ' ');
+    const hint = (await page.locator('.actions.ask').textContent()).replace(/\s+/g, ' ');
+    ok(e.win ? /von 10 s/.test(timer) && /^Sicher gewinnen\./.test(hint.trim()) : /von 20 s/.test(timer) && /^Fehler-Training\./.test(hint.trim()), `B: Aufgabe ${i + 1} (${e.win ? 'Sicher gewinnen' : 'Fehler-Training'}): ${timer.trim()}`);
     await page.click('text=Lösung zeigen');
     await page.waitForSelector('.result');
     if (i < 9) {

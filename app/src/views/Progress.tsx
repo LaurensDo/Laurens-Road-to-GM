@@ -126,6 +126,7 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
   const total = state.log.length;
   const right = state.log.filter(correct).length;
   const byCat = useMemo(() => breakdown(state.log, byId, 'cat'), [state.log, byId]);
+  const byType = useMemo(() => breakdown(state.log, byId, 'type'), [state.log, byId]);
   const byPhase = useMemo(() => breakdown(state.log, byId, 'phase'), [state.log, byId]);
   const byMotif = useMemo(() => breakdown(state.log, byId, 'motif'), [state.log, byId]);
   const b = meta?.baseline;
@@ -249,6 +250,14 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
         <p class="muted small">Gefestigt heißt: Die Wiederholungen liegen mindestens drei Wochen auseinander.</p>
       </div>
 
+      <div class="card">
+        <h2>Nach Art der Aufgabe</h2>
+        <Table rows={byType} />
+        <p class="muted small">
+          Fehler-Training: Stellungen mit einem Fehler aus deinen Partien, gesucht ist der beste Zug. Sicher gewinnen: klar gewonnene Stellungen, gesucht
+          ist ein sicherer Zug, schnell.
+        </p>
+      </div>
       <div class="card">
         <h2>Nach Fehlerart</h2>
         <Table rows={byCat} />

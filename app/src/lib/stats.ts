@@ -1,4 +1,5 @@
 import { State, cardState, stability } from './srs';
+import { TASK_LABEL, taskType } from './limit';
 import { dayKey, dayKeyBefore } from './format';
 import { isCorrect } from './judge';
 import type { AppState, Exercise, ReviewEntry } from './types';
@@ -72,7 +73,7 @@ export interface Row {
   avgMs: number;
 }
 
-export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field: 'cat' | 'phase' | 'motif'): Row[] {
+export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field: 'cat' | 'phase' | 'motif' | 'type'): Row[] {
   const acc = new Map<string, { n: number; right: number; ms: number }>();
   const add = (label: string, e: ReviewEntry) => {
     const a = acc.get(label) ?? { n: 0, right: 0, ms: 0 };
@@ -85,6 +86,7 @@ export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field
     const ex = byId.get(e.id);
     if (!ex) continue;
     if (field === 'motif') ex.motifs.forEach((m) => add(m, e));
+    else if (field === 'type') add(TASK_LABEL[taskType(ex)], e);
     else add(ex[field], e);
   }
   return [...acc.entries()]

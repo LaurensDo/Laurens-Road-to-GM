@@ -131,19 +131,41 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           <p class="muted small">Ein Satz ist eine Runde mit fester Zahl Aufgaben. Am Ende gibt es Ergebnis und Einordnung. Gilt ab dem nächsten Satz.</p>
         </div>
         <div class="field">
-          <label>Zeitlimit pro Aufgabe</label>
+          <label>Zeitlimit: Fehler-Training</label>
           <Segmented
-            label="Zeitlimit"
+            label="Zeitlimit Fehler-Training"
             value={s.timeLimit}
             options={[
               { value: 5, label: '5 s' },
               { value: 10, label: '10 s' },
               { value: 20, label: '20 s' },
+              { value: 30, label: '30 s' },
               { value: 0, label: 'Aus' },
             ]}
             onChange={(v) => set({ timeLimit: v })}
           />
-          <p class="muted small">Richtig, aber langsamer als das Limit, gilt als schwer und kommt früher wieder.</p>
+          <p class="muted small">
+            Stellungen aus deinen Partien, in denen du einen Fehler gemacht hast, meist schwierige Situationen im Mittelspiel. Gesucht ist der beste Zug,
+            dafür darfst du nachdenken. Standard 20 s. Richtig, aber langsamer als das Limit, gilt als schwer und kommt früher wieder.
+          </p>
+        </div>
+        <div class="field">
+          <label>Zeitlimit: Sicher gewinnen</label>
+          <Segmented
+            label="Zeitlimit Sicher gewinnen"
+            value={s.winLimit}
+            options={[
+              { value: 5, label: '5 s' },
+              { value: 10, label: '10 s' },
+              { value: 15, label: '15 s' },
+              { value: 0, label: 'Aus' },
+            ]}
+            onChange={(v) => set({ winLimit: v })}
+          />
+          <p class="muted small">
+            Stellungen aus deinen Partien, in denen du klar gewonnen standest. Gesucht ist irgendein sicherer Zug, ohne zu grübeln, hier zählt Tempo.
+            Standard 10 s.
+          </p>
         </div>
         <div class="field">
           <label>Letzter Zug des Gegners</label>

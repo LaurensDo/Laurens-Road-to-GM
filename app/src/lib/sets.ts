@@ -1,6 +1,7 @@
 import { correct, slowCorrect } from './stats';
 import { n0, n1 } from './format';
 import { expectedOf } from './skill';
+import { TASK_LABEL, taskType } from './limit';
 import type { Exercise, ReviewEntry } from './types';
 
 /**
@@ -108,8 +109,10 @@ export interface SetSummary {
 }
 
 export interface SummaryOptions {
-  /** aktuelles Zeitlimit in Sekunden für den Text, 0 = aus. Ob eine Antwort zu langsam war, steht in ihrer Note. */
+  /** aktuelles Zeitlimit des Fehler-Trainings in Sekunden für den Text, 0 = aus. Ob eine Antwort zu langsam war, steht in ihrer Note. */
   limit: number;
+  /** dasselbe für "Sicher gewinnen" (Standard: aus) */
+  winLimit?: number;
   /** Quoten (Prozent) der letzten abgeschlossenen Sätze davor, neueste zuletzt */
   previous: number[];
   /** Zählen gleichwertige Züge als richtig? Bestimmt, welcher Richtwert gilt. */
@@ -185,15 +188,23 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   }
   lines.push(first);
 
-  // "Sicher gewinnen" hat eine eigene Zielzeit: Dann nennt der Text beide, sonst stünde bei diesen Aufgaben das falsche Limit
-  const winLimit = entries.map((e) => byId.get(e.id)?.win?.limit).find((x): x is number => x !== undefined);
-  const timed = opt.limit > 0 || winLimit !== undefined;
-  if (timed) {
-    const where =
-      winLimit === undefined
-        ? `innerhalb von ${n0(opt.limit)} s`
-        : `in der Zielzeit (${opt.limit > 0 ? `${n0(opt.limit)} s, ` : ''}bei klar gewonnenen Stellungen ${n0(winLimit)} s)`;
-    let t = `${n0(inTime)} von ${n0(n)} richtig und ${where}, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
+  // Fehler-Training und "Sicher gewinnen" haben je ihr eigenes Limit: Kommen beide im Satz vor, steht jede Art mit ihrer Zeile da
+  const wins = entries.filter((e) => taskType(byId.get(e.id)) === 'sicher');
+  const regs = entries.filter((e) => taskType(byId.get(e.id)) !== 'sicher');
+  const winLimit = opt.winLimit ?? 0;
+  const timed = opt.limit > 0 || (wins.length > 0 && winLimit > 0);
+  const typeLine = (label: string, xs: ReviewEntry[], limit: number): string => {
+    const r = xs.filter(correct).length;
+    const slow = xs.filter(slowCorrect).length;
+    const avg = xs.reduce((a, e) => a + e.ms, 0) / xs.length;
+    return `${label}: ${n0(r)} von ${n0(xs.length)} richtig${limit > 0 ? ` und ${n0(r - slow)} innerhalb von ${n0(limit)} s` : ''}, im Schnitt ${n1(avg / 1000)} s.`;
+  };
+  if (wins.length > 0) {
+    if (regs.length > 0) lines.push(typeLine(TASK_LABEL.fehler, regs, opt.limit));
+    lines.push(typeLine(TASK_LABEL.sicher, wins, winLimit));
+    if (slowRight >= 2) lines.push(`${n0(slowRight)} richtige Antworten kamen erst nach der Zielzeit. In der Partie fehlt dir diese Zeit später auf der Uhr.`);
+  } else if (opt.limit > 0) {
+    let t = `${n0(inTime)} von ${n0(n)} richtig und innerhalb von ${n0(opt.limit)} s, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
     if (slowRight >= 2) t += ` ${n0(slowRight)} richtige Antworten kamen erst nach dem Limit. In der Partie fehlt dir diese Zeit später auf der Uhr.`;
     lines.push(t);
   } else {

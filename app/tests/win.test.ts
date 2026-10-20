@@ -4,7 +4,10 @@ import { explain } from '../src/lib/explain';
 import { buildVariations } from '../src/lib/variation';
 import { counts, pickNext, WIN_EVERY, WIN_OFFSET } from '../src/lib/queue';
 import { applyReview } from '../src/lib/srs';
-import { emptyState } from '../src/lib/types';
+import { DEFAULT_SETTINGS, emptyState } from '../src/lib/types';
+import { limitFor, TASK_LABEL, taskType } from '../src/lib/limit';
+import { breakdown } from '../src/lib/stats';
+import { fromRemote, toRemote } from '../src/lib/merge';
 import { summarize } from '../src/lib/sets';
 import type { Exercise, Grade, ReviewEntry } from '../src/lib/types';
 
@@ -120,5 +123,64 @@ describe('Sicher gewinnen: Mischung in die neuen Aufgaben', () => {
 
   it('zählt sie zu den neuen Aufgaben', () => {
     expect(counts(pool, emptyState(), t).newTotal).toBe(50);
+  });
+});
+
+describe('Zwei Arten von Aufgaben mit je eigenem Zeitlimit', () => {
+  const normal = (id: string): Exercise => ({ ...win({ id, win: undefined, cat: 'Figur eingestellt' }), maia: { me: 0.5, up: 0.7, cls: 'Leichtsinn', ok: 0.5, ok0: 0.4 } }) as Exercise;
+  const e = (id: string, ok: boolean, ms: number, grade: Grade): ReviewEntry => ({ id, ts: 1, grade, verdict: ok ? 'best' : 'wrong', ms, dur: ms + 2000 });
+
+  it('Standardzeiten: 20 s im Fehler-Training, 10 s bei "Sicher gewinnen"', () => {
+    expect(DEFAULT_SETTINGS.timeLimit).toBe(20);
+    expect(DEFAULT_SETTINGS.winLimit).toBe(10);
+  });
+
+  it('jede Art liest ihre eigene Einstellung, unabhängig vom Wert im Datensatz', () => {
+    const s = { timeLimit: 20, winLimit: 10 };
+    expect(taskType(win())).toBe('sicher');
+    expect(taskType(normal('n'))).toBe('fehler');
+    expect(limitFor(s, win())).toBe(10); // der Datensatz sagt 5, die Einstellung gilt
+    expect(limitFor(s, normal('n'))).toBe(20);
+    expect(limitFor({ timeLimit: 0, winLimit: 7 }, win())).toBe(7);
+    expect(limitFor({ timeLimit: 0, winLimit: 7 }, normal('n'))).toBe(0);
+    expect(limitFor(s, null)).toBe(20);
+  });
+
+  it('ältere Daten ohne die neue Einstellung bekommen den Standard, gespeicherte Werte bleiben', () => {
+    const old = toRemote({ ...emptyState(), settings: { ...emptyState().settings, timeLimit: 15 } });
+    const raw = JSON.parse(JSON.stringify(old));
+    delete raw.settings.winLimit;
+    const st = fromRemote(raw);
+    expect(st.settings.winLimit).toBe(10);
+    expect(st.settings.timeLimit).toBe(15);
+  });
+
+  it('der Satztext nennt jede Art mit ihrer Zielzeit', () => {
+    const exs = [normal('a'), normal('b'), win({ id: 'w1' }), win({ id: 'w2' })];
+    const byId = new Map(exs.map((x) => [x.id, x]));
+    const entries = [e('a', true, 15000, 3), e('b', true, 25000, 2), e('w1', true, 4000, 3), e('w2', true, 14000, 2)];
+    const s = summarize(entries, 4, byId, { limit: 20, winLimit: 10, previous: [], tolerance: true });
+    const text = s.lines.join(' | ');
+    expect(text).toContain('Fehler-Training: 2 von 2 richtig und 1 innerhalb von 20 s');
+    expect(text).toContain('Sicher gewinnen: 2 von 2 richtig und 1 innerhalb von 10 s');
+    expect(text).toMatch(/2 richtige Antworten kamen erst nach der Zielzeit/);
+    expect(s.timed).toBe(true);
+  });
+
+  it('nur "Sicher gewinnen" im Satz und beide Limits aus: kein Tempo-Urteil', () => {
+    const byId = new Map([[ 'w1', win({ id: 'w1' }) ]]);
+    const s = summarize([e('w1', true, 4000, 3)], 1, byId, { limit: 0, winLimit: 0, previous: [], tolerance: true });
+    expect(s.timed).toBe(false);
+    expect(s.lines.join(' ')).toContain('Sicher gewinnen: 1 von 1 richtig, im Schnitt');
+  });
+
+  it('die Auswertung nach Art trennt beide', () => {
+    const exs = [normal('a'), normal('b'), win({ id: 'w1' })];
+    const byId = new Map(exs.map((x) => [x.id, x]));
+    const rows = breakdown([e('a', true, 5000, 3), e('b', false, 8000, 1), e('w1', true, 3000, 3)], byId, 'type');
+    expect(rows.map((r) => [r.label, r.n, Math.round(r.rate)])).toEqual([
+      [TASK_LABEL.fehler, 2, 50],
+      [TASK_LABEL.sicher, 1, 100],
+    ]);
   });
 });
