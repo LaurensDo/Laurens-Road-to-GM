@@ -8,10 +8,15 @@ import { execFileSync } from 'node:child_process';
 const BASE = 'http://localhost:4173/Laurens-Road-to-GM/';
 const OUT = new URL('../public/launch/', import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
-const DEVICES = [{ name: 'ipad-pro-12-9', w: 1024, h: 1366, dpr: 2 }];
+// iPhone 13 (gleiche Maße wie iPhone 12, 12 Pro, 13 Pro, 14) und iPad Pro 12,9 Zoll
+const DEVICES = [
+  { name: 'ipad-pro-12-9', w: 1024, h: 1366, dpr: 2 },
+  { name: 'iphone-13', w: 390, h: 844, dpr: 3 },
+];
+// ONLY=iphone-13 erzeugt nur die Bilder eines Geräts
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
-for (const d of DEVICES) {
+for (const d of DEVICES.filter((x) => !process.env.ONLY || x.name === process.env.ONLY)) {
   for (const [orient, vw, vh] of [['portrait', d.w, d.h], ['landscape', d.h, d.w]]) {
     const ctx = await browser.newContext({ viewport: { width: vw, height: vh }, deviceScaleFactor: d.dpr, colorScheme: 'light' });
     const page = await ctx.newPage();
