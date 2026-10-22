@@ -73,11 +73,11 @@ export function hiddenCount(state: AppState): number {
 }
 
 /**
- * Aufgaben einer Art. Fehler-Training und "Sicher gewinnen" sind getrennte Sätze (Laurens wählt vorher, was er trainiert, damit er in der Aufgabe
+ * Aufgaben einer Art. Fehler-Training, "Sicher gewinnen" und "Endspiel" sind getrennte Sätze (Laurens wählt vorher, was er trainiert, damit er in der Aufgabe
  * nicht erst nachsehen muss). Die Filter aus den Einstellungen (Phase, Fehlerart, Motiv) gelten nur für das Fehler-Training.
  */
 export function poolOf(exercises: Exercise[], state: AppState, mode: TaskType = 'fehler'): Exercise[] {
-  return exercises.filter((e) => taskType(e) === mode && !isHidden(state, e.id) && (mode === 'sicher' || matchesFilters(e, state.settings.filters)));
+  return exercises.filter((e) => taskType(e) === mode && !isHidden(state, e.id) && (mode !== 'fehler' || matchesFilters(e, state.settings.filters)));
 }
 
 const idsOf = (exercises: Exercise[], mode: TaskType): Set<string> => new Set(exercises.filter((e) => taskType(e) === mode).map((e) => e.id));
@@ -156,7 +156,7 @@ function scan(pool: Exercise[], state: AppState, now: Date, ofMode: ReadonlySet<
   const introduced = newIntroducedToday(state, now, ofMode);
   // schon gezeigte neue Aufgaben nimmt die Obergrenze nicht zurück (sonst täte "5 weitere neue" nichts, wenn sie später kleiner wird)
   // die Zeitrechnung des Tagesziels gilt für das Fehler-Training, "Sicher gewinnen" startet Laurens bewusst als eigenen Satz
-  const cap = Math.max(introduced, backlog || mode === 'sicher' ? base : Math.min(base, Math.max(MIN_NEW, fit)));
+  const cap = Math.max(introduced, backlog || mode !== 'fehler' ? base : Math.min(base, Math.max(MIN_NEW, fit)));
   const newQuota = Math.max(0, cap + bonus - introduced);
   return { dueReview, dueLearn, ahead, fresh, backlog, reviewLeft, newQuota };
 }

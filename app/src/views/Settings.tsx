@@ -41,7 +41,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
   const setFilter = (patch: Partial<Filters>) => set({ filters: { ...s.filters, ...patch } });
 
   const phases = ['alle', ...new Set(exercises.map((e) => e.phase))];
-  const cats = ['alle', ...new Set(exercises.filter((e) => !e.win).map((e) => e.cat))];
+  const cats = ['alle', ...new Set(exercises.filter((e) => !e.win && !e.tb).map((e) => e.cat))];
   const motifs = ['alle', ...[...new Set(exercises.flatMap((e) => e.motifs))].sort()];
 
   const doExport = async () => {
@@ -168,6 +168,25 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           </p>
         </div>
         <div class="field">
+          <label>Zeitlimit: Endspiel</label>
+          <Segmented
+            label="Zeitlimit Endspiel"
+            value={s.endLimit}
+            options={[
+              { value: 10, label: '10 s' },
+              { value: 15, label: '15 s' },
+              { value: 20, label: '20 s' },
+              { value: 30, label: '30 s' },
+              { value: 0, label: 'Aus' },
+            ]}
+            onChange={(v) => set({ endLimit: v })}
+          />
+          <p class="muted small">
+            Endspiele mit höchstens sieben Steinen aus deinen Partien, exakt bewertet (Tablebase). Gesucht ist ein Zug, der das Ergebnis hält: Gewinn bleibt
+            Gewinn, Remis bleibt Remis. Standard 15 s.
+          </p>
+        </div>
+        <div class="field">
           <label>Letzter Zug des Gegners</label>
           <Segmented
             label="Letzter Zug des Gegners"
@@ -237,7 +256,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
 
       <div class="card">
         <h2>Auswahl eingrenzen</h2>
-        <p class="muted small">Gilt für das Fehler-Training. „Sicher gewinnen“ nimmt immer alle Stellungen.</p>
+        <p class="muted small">Gilt für das Fehler-Training. „Sicher gewinnen“ und „Endspiel“ nehmen immer alle Stellungen.</p>
         <div class="field">
           <label for="f-phase">Partiephase</label>
           <select id="f-phase" value={s.filters.phase} onChange={(e) => setFilter({ phase: (e.target as HTMLSelectElement).value })}>

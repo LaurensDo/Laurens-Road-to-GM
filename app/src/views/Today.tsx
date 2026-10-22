@@ -7,7 +7,7 @@ import { listSets, loadActive, rateOf } from '../lib/sets';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
 import { SyncBadge } from './SyncCard';
-import { modeOfEntries, TASK_LABEL, type TaskType } from '../lib/limit';
+import { modeOfEntries, TASK_LABEL, TASK_TYPES, type TaskType } from '../lib/limit';
 import type { Exercise, Meta } from '../lib/types';
 
 interface Props {
@@ -22,7 +22,7 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
   const state = useAppState();
   const now = new Date();
   const c = counts(exercises, state, now, 'fehler');
-  const cw = counts(exercises, state, now, 'sicher');
+  const byMode = Object.fromEntries(TASK_TYPES.map((m) => [m, counts(exercises, state, now, m)])) as Record<TaskType, typeof c>;
   const byId = new Map(exercises.map((e) => [e.id, e]));
   const t = today(state.log, now);
   const goal = state.settings.goalMinutes;
@@ -60,11 +60,13 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
               {n1(t.minutes)} von {n0(goal)} Min
             </span>
           </div>
-          {(['fehler', 'sicher'] as const).map((mode) => {
-            const cc = mode === 'fehler' ? c : cw;
+          {TASK_TYPES.map((mode) => {
+            const cc = byMode[mode];
+            // Arten ohne Aufgaben (ältere Daten) bekommen keinen Knopf
+            if (cc.total === 0 && mode !== 'fehler') return null;
             return (
               <div class="start-mode" key={mode}>
-                <button class={`btn light${mode === 'sicher' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
+                <button class={`btn light${mode !== 'fehler' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
                   {resumable(mode)
                     ? `${TASK_LABEL[mode]} weiter (${n0(activeDone)} von ${n0(active!.size)})`
                     : `${TASK_LABEL[mode]} starten`}

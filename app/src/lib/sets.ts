@@ -1,7 +1,7 @@
 import { correct, slowCorrect } from './stats';
 import { n0, n1 } from './format';
 import { expectedOf } from './skill';
-import { TASK_LABEL, taskType, type TaskType } from './limit';
+import { TASK_LABEL, TASK_TYPES, taskType, type TaskType } from './limit';
 import type { Exercise, ReviewEntry } from './types';
 
 /**
@@ -35,7 +35,7 @@ export function loadActive(now = Date.now()): ActiveSet | null {
     const a = JSON.parse(raw) as Partial<ActiveSet>;
     if (typeof a.id !== 'string' || typeof a.startedAt !== 'number' || typeof a.size !== 'number' || !Array.isArray(a.served)) return null;
     if (now - a.startedAt > RESUME_WINDOW_MS) return null;
-    return { id: a.id, startedAt: a.startedAt, size: a.size, mode: a.mode === 'sicher' ? 'sicher' : 'fehler', served: a.served.map(String) };
+    return { id: a.id, startedAt: a.startedAt, size: a.size, mode: a.mode === 'sicher' || a.mode === 'endspiel' ? a.mode : 'fehler', served: a.served.map(String) };
   } catch {
     return null;
   }
@@ -113,8 +113,9 @@ export interface SetSummary {
 export interface SummaryOptions {
   /** aktuelles Zeitlimit des Fehler-Trainings in Sekunden für den Text, 0 = aus. Ob eine Antwort zu langsam war, steht in ihrer Note. */
   limit: number;
-  /** dasselbe für "Sicher gewinnen" (Standard: aus) */
+  /** dasselbe für "Sicher gewinnen" und "Endspiel" (Standard: aus) */
   winLimit?: number;
+  endLimit?: number;
   /** Quoten (Prozent) der letzten abgeschlossenen Sätze davor, neueste zuletzt */
   previous: number[];
   /** Zählen gleichwertige Züge als richtig? Bestimmt, welcher Richtwert gilt. */
@@ -190,20 +191,19 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   }
   lines.push(first);
 
-  // Fehler-Training und "Sicher gewinnen" haben je ihr eigenes Limit: Kommen beide im Satz vor, steht jede Art mit ihrer Zeile da
-  const wins = entries.filter((e) => taskType(byId.get(e.id)) === 'sicher');
-  const regs = entries.filter((e) => taskType(byId.get(e.id)) !== 'sicher');
-  const winLimit = opt.winLimit ?? 0;
-  const timed = opt.limit > 0 || (wins.length > 0 && winLimit > 0);
+  // Jede Art hat ihr eigenes Limit: Außer im reinen Fehler-Training steht jede Art mit ihrer eigenen Zeile und Zielzeit da
+  const limits: Record<TaskType, number> = { fehler: opt.limit, sicher: opt.winLimit ?? 0, endspiel: opt.endLimit ?? 0 };
+  const byType = TASK_TYPES.map((t) => ({ t, xs: entries.filter((e) => taskType(byId.get(e.id)) === t) })).filter((g) => g.xs.length > 0);
+  const onlyFehler = byType.every((g) => g.t === 'fehler');
+  const timed = onlyFehler ? opt.limit > 0 : byType.some((g) => limits[g.t] > 0);
   const typeLine = (label: string, xs: ReviewEntry[], limit: number): string => {
     const r = xs.filter(correct).length;
     const slow = xs.filter(slowCorrect).length;
     const avg = xs.reduce((a, e) => a + e.ms, 0) / xs.length;
     return `${label}: ${n0(r)} von ${n0(xs.length)} richtig${limit > 0 ? ` und ${n0(r - slow)} innerhalb von ${n0(limit)} s` : ''}, im Schnitt ${n1(avg / 1000)} s.`;
   };
-  if (wins.length > 0) {
-    if (regs.length > 0) lines.push(typeLine(TASK_LABEL.fehler, regs, opt.limit));
-    lines.push(typeLine(TASK_LABEL.sicher, wins, winLimit));
+  if (!onlyFehler) {
+    for (const g of byType) lines.push(typeLine(TASK_LABEL[g.t], g.xs, limits[g.t]));
     if (slowRight >= 2) lines.push(`${n0(slowRight)} richtige Antworten kamen erst nach der Zielzeit. In der Partie fehlt dir diese Zeit später auf der Uhr.`);
   } else if (opt.limit > 0) {
     let t = `${n0(inTime)} von ${n0(n)} richtig und innerhalb von ${n0(opt.limit)} s, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;

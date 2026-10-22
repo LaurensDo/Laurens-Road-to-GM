@@ -148,13 +148,13 @@ describe('Zwei Arten von Aufgaben mit je eigenem Zeitlimit', () => {
   });
 
   it('jede Art liest ihre eigene Einstellung, unabhängig vom Wert im Datensatz', () => {
-    const s = { timeLimit: 20, winLimit: 10 };
+    const s = { timeLimit: 20, winLimit: 10, endLimit: 15 };
     expect(taskType(win())).toBe('sicher');
     expect(taskType(normal('n'))).toBe('fehler');
     expect(limitFor(s, win())).toBe(10); // der Datensatz sagt 5, die Einstellung gilt
     expect(limitFor(s, normal('n'))).toBe(20);
-    expect(limitFor({ timeLimit: 0, winLimit: 7 }, win())).toBe(7);
-    expect(limitFor({ timeLimit: 0, winLimit: 7 }, normal('n'))).toBe(0);
+    expect(limitFor({ timeLimit: 0, winLimit: 7, endLimit: 15 }, win())).toBe(7);
+    expect(limitFor({ timeLimit: 0, winLimit: 7, endLimit: 15 }, normal('n'))).toBe(0);
     expect(limitFor(s, null)).toBe(20);
   });
 

@@ -45,12 +45,20 @@ node tools/e2e.mjs /tmp/e2e        # Sätze, Töne, Offline, Prüfung aller Ger�
 bash tools/e2e-sync.sh             # Abgleich dreier Geräte gegen einen Mock von GitHub, mit Zurücksetzen und Sicherung
 bash tools/e2e-update.sh           # Update-Weg: neue Version erkennen, nicht im Satz neu laden, Hinweis danach
 node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echten Übungsdaten
+node tools/e2e-endgame.mjs /tmp/eg  # Endspiel: Startknopf, 15 s, exakte Wertung, Fehler aus der Partie mit Widerlegung
 node tools/e2e-win.mjs /tmp/w       # "Sicher gewinnen": Zielzeit, jeder sichere Zug zählt, Wortlaut, Mischung
 node tools/e2e-variation.mjs /tmp/v # Variantenansicht: festes Brett, Auswahl, Bewertungsbalken, Tastatur, Wischen, alle Formate
 node tools/e2e-games.mjs /tmp/g    # Partien holen (chess.com und lichess nachgebaut), Karten auf Heute und Fortschritt, Offline, Ausschalten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.10: Endspiel
+
+- **Der Befund.** In 271 deiner Partien gab es Endspiele mit höchstens 7 Steinen. Von 132 Gewinnstellungen hast du 88 gewonnen: 36-mal wurde aus Gewinn Remis, 8-mal Verlust, und 17 von 33 Remisstellungen gingen verloren. Am häufigsten in Turm- und Leichtfigurenendspielen, und 58 % dieser Züge fielen in Zeitnot.
+- **Die Aufgabe** (`Exercise.tb`, `analysis/endgame_positions.py`). Deine Stellungen mit Gewinn oder Remis, exakt bewertet mit der lichess-Tablebase: Für jeden legalen Zug ist bekannt, ob er gewinnt, remisiert oder verliert. Richtig ist jeder Zug, der das Ergebnis hält (`judge.ts`), der schnellste Gewinn heißt „bester Zug“. Ausgewählt sind Stellungen, in denen etwas zu entscheiden war (mindestens ein Zug hält, mindestens zwei verspielen, höchstens 60 % der Züge sind richtig), deine eigenen Fehler zuerst, höchstens vier je Partie.
+- **Im Training.** Dritter Startknopf „Endspiel starten“ auf Heute, eigener Satz, eigene Warteschlange, Zeitlimit 15 s (Einstellungen). Die Aufforderung nennt das Ziel („Gewinnstellung: Finde einen Zug, der gewinnt“ oder „Remisstellung: … hält“), die Ergebnisseite sagt „hält den Gewinn“, „nur noch Remis“ oder „verliert“ und was in der Partie passiert ist („aus Gewinn wurde Remis“). Dein Fehler aus der Partie wird mit der besten Antwort des Gegners vorgeführt, der Balken fällt dabei von Gewinn (100) auf Remis (50) oder Verlust (0). Die Variante zeigt die beste Linie der Tablebase.
+- **Später:** „Zu Ende spielen“ gegen die Tablebase (sie verteidigt perfekt) und eine Analyse danach. Die Tablebase erlaubt Abfragen direkt aus dem Browser (CORS), braucht dann aber Internet.
 
 ## Version 1.9: zwei Spielmodi, keine Mischung im Satz
 

@@ -215,8 +215,13 @@ Auf Wunsch von Laurens: zwei Spielmodi. Wer unter 10 Sekunden zieht, kann nicht 
 - **Getrennte Warteschlangen:** je Art eigene Fälligkeiten, Obergrenze neuer Aufgaben und Rückstand; Filter nur für das Fehler-Training; Vergleich mit früheren Sätzen nur innerhalb einer Art.
 - **Erkennbar:** Kopfzeile im Satz, Ergebnis, Heute und Fortschritt nennen die Art.
 
+## 9j. Version 1.10 (umgesetzt)
+
+- **Endspiel:** dritter Modus mit Stellungen aus deinen Partien (höchstens 7 Steine), exakt bewertet mit der Tablebase. Richtig ist jeder Zug, der das Ergebnis hält. Zeitlimit 15 s, eigener Satz und eigene Warteschlange.
+- **Als Nächstes (abgestimmt, nicht gebaut):** nach der Aufgabe die Stellung gegen die Tablebase zu Ende spielen und danach analysieren (online).
+
 ## 10. Reihenfolge
 
-1. **Version 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 und 1.9 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1 bis 1.10 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

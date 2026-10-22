@@ -210,6 +210,34 @@ def win_exercises(taken):
     return out
 
 
+def endgame_exercises(taken):
+    """Übungen "Endspiel" aus analysis/endgame_positions.py (data/endgame_positions.jsonl): exakt bewertete Stellungen mit höchstens 7 Steinen."""
+    path = DATA / "endgame_positions.jsonl"
+    if not path.exists():
+        return []
+    dates = load_dates()
+    out = []
+    for line in path.open():
+        r = json.loads(line)
+        eid = ex_id(r["key"])
+        if eid in taken or r["url"] not in dates:
+            continue
+        taken.add(eid)
+        best = r["lines"][0]
+        out.append({
+            "id": eid, "fen": r["fen"], "turn": r["turn"], "phase": "Endspiel", "cat": "Endspiel", "motifs": [], "themes": [],
+            "lines": r["lines"],
+            "played": r["played"],
+            "loss": round(max(0.0, best["wp"] - r["played"]["wp"]), 1),
+            "clock": round(r["clock"] or 0), "spent": r["spent"], "date": dates[r["url"]], "url": r["url"], "src": platform_of(r["url"]),
+            "maia": {"me": None, "up": None, "cls": None},
+            "prev": r["prev"],
+            "tb": r["tb"],
+            **({"refs": r["refs"]} if r.get("refs") else {}),
+        })
+    return out
+
+
 STALE = {"n": 0}  # Bewertungen je Halbzug, die nicht mehr zu den Linien passen
 
 
@@ -305,7 +333,9 @@ def main():
         })
     exercises = order_by_priority(exercises)
     wins = win_exercises({e["id"] for e in exercises})
-    exercises = exercises + wins  # die App mischt sie ein: jede fünfte neue Aufgabe (queue.ts, WIN_EVERY)
+    exercises = exercises + wins  # eigener Modus in der App ("Sicher gewinnen")
+    ends = endgame_exercises({e["id"] for e in exercises})
+    exercises = exercises + ends  # eigener Modus in der App ("Endspiel")
 
     OUT.mkdir(parents=True, exist_ok=True)
     gen = report["generated"]
@@ -342,7 +372,7 @@ def main():
     held = sum(1 for e in exercises if e.get("hold"))
     if STALE["n"]:
         print(f"Achtung: {STALE['n']} Bewertungen je Halbzug passen nicht mehr zu den Linien. data/ply_evals.jsonl löschen und analysis/ply_evals.py neu laufen lassen.")
-    print(f"davon {len(wins)} \"Sicher gewinnen\"")
+    print(f"davon {len(wins)} \"Sicher gewinnen\" und {len(ends)} \"Endspiel\"")
     print(f"{len(exercises)} Übungen ({size // 1024} KB), davon {held} im Prüfsatz, verworfen: {dropped}, ohne letzten Zug: {no_prev}")
     if held != len(holdout):
         print(f"Achtung: {len(holdout)} IDs in holdout_ids.json, aber {held} gefunden")

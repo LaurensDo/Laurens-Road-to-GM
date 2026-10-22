@@ -9,7 +9,7 @@ import type { Role, SquareName } from 'chessops/types';
 import { destsOf, isCapture, isPromotion, lastSquares, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
 import { explain, lastMoveLabel, sideName } from '../lib/explain';
 import { count, dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
-import { COVER_WP, equalMoves, gradeFor, isCorrect, judge, type Judgement } from '../lib/judge';
+import { COVER_WP, equalMoves, gradeFor, isCorrect, judge, TB_TEXT, TB_WP, type Judgement } from '../lib/judge';
 import { counts, pickNext, type PickKind } from '../lib/queue';
 import { getPrefs } from '../lib/device';
 import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type ActiveSet, type SetSummary } from '../lib/sets';
@@ -85,9 +85,16 @@ const limitOf = (ex: Exercise | null | undefined): number => limitFor(getState()
  */
 const refreshBoardBounds = () => document.dispatchEvent(new Event('scroll'));
 
+/** Was in der Partie aus der Endspielstellung wurde, in Worten der Tablebase ("win", "draw", "blessed-loss" ...) */
+const GAME_RES: Record<string, string> = { win: 'Gewinn', 'cursed-win': 'Remis', draw: 'Remis', 'blessed-loss': 'Remis', loss: 'Verlust' };
+
 /** Zeile zum eigenen Zug: Gewinnchance und Abstand zum besten, bei unbekannten Zügen ehrlich "deutlich schlechter". */
-function yourMoveText(j: Judgement | null, complete: boolean, win?: Exercise['win']): string {
+function yourMoveText(j: Judgement | null, complete: boolean, win?: Exercise['win'], tb?: Exercise['tb']): string {
   if (!j) return '';
+  if (tb && j.wp !== null) {
+    if (j.correct) return tb.res === 'w' ? ' · hält den Gewinn' : ' · hält das Remis';
+    return j.wp === TB_WP.d ? ' · nur noch Remis' : ' · verliert';
+  }
   if (win && j.wp !== null) return j.wp >= win.safe ? ` · hält die Gewinnstellung (${n0(j.wp)} %)` : ` · verspielt Gewinnchance, nur noch ${n0(j.wp)} %`;
   if (j.wp !== null && j.lossWp !== null) {
     const pts = Math.round(j.lossWp);
@@ -198,7 +205,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     const previous = listSets(st.log)
       .filter((r) => r.id !== act.id && r.entries.length >= r.planned && modeOfEntries(r.entries, byId) === mode)
       .map(rateOf);
-    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, previous, tolerance: st.settings.tolerance });
+    const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, endLimit: st.settings.endLimit, previous, tolerance: st.settings.tolerance });
     const moreAvailable = !!pickNext(exercises, st, new Date(), undefined, undefined, mode);
     destroyBoard();
     saveActive(null);
@@ -823,7 +830,14 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
       {phase === 'ask' && (
         <div class="actions ask">
           <p class="muted small">
-            {ex.win ? 'Du stehst klar gewonnen. Zieh einen sicheren Zug, ohne zu grübeln. Tippe Figur und Zielfeld oder zieh die Figur.' : 'Finde den besten Zug. Tippe Figur und Zielfeld oder zieh die Figur.'}
+            {ex.tb
+              ? ex.tb.res === 'w'
+                ? 'Gewinnstellung: Finde einen Zug, der gewinnt.'
+                : 'Remisstellung: Finde einen Zug, der das Remis hält.'
+              : ex.win
+                ? 'Du stehst klar gewonnen. Zieh einen sicheren Zug, ohne zu grübeln.'
+                : 'Finde den besten Zug.'}{' '}
+            Tippe Figur und Zielfeld oder zieh die Figur.
           </p>
           <button class="btn secondary" onClick={giveUp} disabled={!live}>
             Lösung zeigen
@@ -835,7 +849,13 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
         <div class="result" role="status" aria-live="polite">
           <div class="verdict-row">
             <span class={`chip ${correctNow ? (slow ? 'warn' : 'good') : result.verdict === 'playable' ? 'warn' : 'bad'}`}>
-              {slow ? 'Richtig, aber zu langsam' : ex.win && result.verdict === 'equal' ? 'Richtig, sicherer Zug' : VERDICT_TEXT[result.verdict]}
+              {slow
+                ? 'Richtig, aber zu langsam'
+                : ex.win && result.verdict === 'equal'
+                  ? 'Richtig, sicherer Zug'
+                  : ex.tb && result.verdict === 'equal'
+                    ? 'Richtig, hält das Ergebnis'
+                    : VERDICT_TEXT[result.verdict]}
             </span>
             <span class="mono muted">{seconds(result.ms)}</span>
           </div>
@@ -843,15 +863,16 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
           {result.san && (
             <p>
               Dein Zug: <b class="mono">{result.san}</b>
-              {yourMoveText(result.judgement, ex.more !== undefined, ex.win)}
+              {yourMoveText(result.judgement, ex.more !== undefined, ex.win, ex.tb)}
             </p>
           )}
           <p>
-            Bester Zug: <b class="mono good-text">{best.san}</b> · {n0(best.wp)} % Gewinnchance
+            Bester Zug: <b class="mono good-text">{best.san}</b> ·{' '}
+            {ex.tb ? (ex.tb.res === 'w' ? 'gewinnt am schnellsten' : 'hält das Remis') : `${n0(best.wp)} % Gewinnchance`}
             {alts.length > 0 && (
               <span class="muted">
                 {' '}
-                · {ex.win ? 'weitere sichere Züge' : 'gleichwertig'}: {alts.slice(0, 5).map((a) => a.san).join(', ')}
+                · {ex.tb ? 'auch richtig' : ex.win ? 'weitere sichere Züge' : 'gleichwertig'}: {alts.slice(0, 5).map((a) => a.san).join(', ')}
                 {alts.length > 5 ? ' …' : ''}
               </span>
             )}
@@ -867,10 +888,19 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
             </p>
           )}
           {sameAsGame && <p class="muted">Derselbe Zug wie in der Partie. Dieser Reflex ist es, den du hier umlernst.</p>}
-          <p class="muted">
-            In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Prozentpunkte weniger
-            als der beste Zug).
-          </p>
+          {ex.tb ? (
+            <p class="muted">
+              In der Partie gespielt: <span class="mono">{ex.played.san}</span>
+              {ex.tb.game && GAME_RES[ex.tb.game[0]] !== GAME_RES[ex.tb.game[1]]
+                ? ` (aus ${GAME_RES[ex.tb.game[0]]} wurde ${GAME_RES[ex.tb.game[1]]}).`
+                : ` (hielt das Ergebnis: ${TB_TEXT[ex.tb.res]}).`}
+            </p>
+          ) : (
+            <p class="muted">
+              In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Prozentpunkte weniger
+              als der beste Zug).
+            </p>
+          )}
 
           <ul class="why">
             {explanation.map((t) => (

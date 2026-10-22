@@ -65,6 +65,12 @@ export interface Exercise {
    * (`Settings.winLimit`); `limit` im Datensatz ist nur ein Richtwert und wird nicht mehr gelesen.
    */
   win?: { safe: number; limit?: number };
+  /**
+   * "Endspiel" (analysis/endgame_positions.py): Stellung mit höchstens 7 Steinen, exakt bewertet mit der Tablebase. `res` ist das Ergebnis der
+   * Stellung für den Spieler ('w' Gewinn, 'd' Remis), `moves` alle legalen Züge mit ihrem Ergebnis ('w', 'd', 'l'). Richtig ist jeder Zug,
+   * der das Ergebnis hält. `game`: was in der Partie aus der Stellung wurde (vorher, nachher, wie die Tablebase es nennt).
+   */
+  tb?: { res: 'w' | 'd'; moves: [string, 'w' | 'd' | 'l'][]; game?: [string, string] };
 }
 
 export interface ExerciseFile {
@@ -140,6 +146,8 @@ export interface Settings {
   timeLimit: number;
   /** Zielzeit für "Sicher gewinnen" (klar gewonnene Stellungen), Sekunden, 0 = aus */
   winLimit: number;
+  /** Zeitlimit für "Endspiel" (Tablebase-Stellungen aus deinen Partien), Sekunden, 0 = aus */
+  endLimit: number;
   tolerance: boolean; // gleichwertige Züge zählen
   newPerDay: number;
   /** Aufgaben pro Satz */
@@ -184,6 +192,7 @@ export interface AppState {
 export const DEFAULT_SETTINGS: Settings = {
   timeLimit: 20,
   winLimit: 10,
+  endLimit: 15,
   tolerance: true,
   newPerDay: 15,
   setSize: 10,
