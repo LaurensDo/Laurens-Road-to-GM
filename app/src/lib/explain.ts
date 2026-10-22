@@ -25,7 +25,8 @@ export function motifLines(ex: Exercise): string[] {
   const tactics = ex.motifs.filter((m) => !MATE.test(m));
   if (mates.length) out.push(`Der Gegner droht: ${mates[0]}.`);
   if (tactics.length) out.push(`Der Gegner nutzt aus: ${tactics.slice(0, 3).join(', ')}.`);
-  if (!ex.motifs.length && ex.missed?.length) out.push(`In der besten Fortsetzung steckt: ${ex.missed.slice(0, 3).join(', ')}.`);
+  // was in der besten Fortsetzung steckt, steht jetzt in der Zeile "Idee" (why.ts), sofern die Übung dazu Angaben hat
+  if (!ex.motifs.length && ex.missed?.length && !ex.why) out.push(`In der besten Fortsetzung steckt: ${ex.missed.slice(0, 3).join(', ')}.`);
   return out;
 }
 

@@ -53,6 +53,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.11: Idee zum besten Zug
+
+- **Warum der Zug richtig ist** (`analysis/why.py`, `src/lib/why.ts`). Für jede Aufgabe wertet der Motiv-Erkenner von lichess (derselbe, mit dem lichess seine Puzzles taggt) die beste Linie aus: Der letzte Zug des Gegners ist der „Fehler“, die beste Linie die Lösung. Dazu kommt, was die Linie bringt (Matt in N oder Material in Worten: „die Qualität“, „einen Springer für einen Bauern“), vorsichtig gerechnet: Ein Schlag zählt erst nach der Antwort des Gegners. Für deinen Partiezug und die wahrscheinlichen Fehlzüge steht, was die Widerlegung kostet.
+- **Auf der Ergebnisseite** (nur nach deiner Antwort): eine hervorgehobene Zeile „Idee: Gabel, Fesselung. Nach 23.Sd5 Dd8 24.Sxc7 gewinnst du die Qualität.“ Bei deinem Fehlzug: „Nach 23.Lxf7 folgt Kxf7 24.Sg5+, und du verlierst einen Läufer.“ Ohne greifbare Taktik sagt sie das ehrlich: bei eigenen Patzern „Keine eigene Taktik: Wichtig ist, nichts einzustellen“ (mit der Drohung des Gegners), sonst „Hier geht es um die Stellung“. Bei „Sicher gewinnen“ entfällt sie, dort zählt Tempo.
+- **Abdeckung.** Fehler-Training: Bei 868 von 1.200 Aufgaben gibt es ein Motiv oder einen Gewinn (vorher bei 503 ein Motiv), bei 654 die Kosten des Partiezugs.
+
 ## Version 1.10: Endspiel
 
 - **Der Befund.** In 271 deiner Partien gab es Endspiele mit höchstens 7 Steinen. Von 132 Gewinnstellungen hast du 88 gewonnen: 36-mal wurde aus Gewinn Remis, 8-mal Verlust, und 17 von 33 Remisstellungen gingen verloren. Am häufigsten in Turm- und Leichtfigurenendspielen, und 58 % dieser Züge fielen in Zeitnot.

@@ -61,6 +61,7 @@ await page.locator('nav').getByText('Heute').click();
 await page.click('text=/Fehler-Training (starten|weiter)/');
 
 let doneA = false, doneB = false, doneB2 = false;
+let ideaSeen = 0, ideaExpected = 0, costChecked = false;
 for (let i = 0; i < 20 && !(doneA && doneB && doneB2); i++) {
   await page.waitForSelector('.board-wrap[data-live="1"]', { timeout: 10000 });
   const id = await page.getAttribute('.board-wrap', 'data-ex');
@@ -83,6 +84,11 @@ for (let i = 0; i < 20 && !(doneA && doneB && doneB2); i++) {
     const txt = await page.textContent('.result');
     ok(txt.includes('folgt') && txt.includes(refPlayed[1][0]), `B: Text nennt die Widerlegung (${refPlayed[1].slice(0, 3).join(' ')})`);
     ok(txt.includes('Derselbe Zug wie in der Partie'), 'B: Hinweis auf denselben Zug wie in der Partie');
+    const cost = e.why?.against.find((a) => a[0] === e.played.san)?.[1];
+    if (cost) {
+      ok(cost.mate ? txt.includes('du wirst mattgesetzt') : txt.includes(`du verlierst ${cost.words}`), `B: Text nennt, was der Fehler kostet (${cost.words ?? `Matt in ${cost.mate}`})`);
+      costChecked = true;
+    }
     if (e.threat && ['Figur eingestellt', 'Gegnerische Taktik übersehen', 'Matt übersehen'].includes(e.cat)) {
       ok(txt.includes(e.threat.san), `B: Drohung des Gegners genannt (${e.threat.san})`);
     }
@@ -100,10 +106,16 @@ for (let i = 0; i < 20 && !(doneA && doneB && doneB2); i++) {
   } else {
     await page.click('text=Lösung zeigen');
     await page.waitForSelector('.result');
+    if (e.why && !e.win) {
+      ideaExpected++;
+      if ((await page.locator('.result .idea').count()) === 1) ideaSeen++;
+    }
   }
   if (i < 19 && !(doneA && doneB && doneB2)) await next();
 }
 ok(doneA, 'A kam in den ersten 20 Aufgaben vor');
+ok(ideaExpected > 0 && ideaSeen === ideaExpected, `Idee zum besten Zug wird gezeigt (${ideaSeen} von ${ideaExpected} Aufgaben mit Angaben)`);
+ok(costChecked, 'Mindestens einmal wurde geprüft, was ein Fehler kostet');
 ok(doneB, 'B kam in den ersten 20 Aufgaben vor');
 ok(errors.length === 0, `Keine Fehler ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
 await browser.close();

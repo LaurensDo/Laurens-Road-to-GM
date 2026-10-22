@@ -49,6 +49,7 @@ python analysis/refutations.py --workers 3  # Drohung (Nullzug) und Widerlegunge
 python analysis/ply_evals.py --workers 3    # Gewinnchance nach jedem Halbzug der Varianten (Bewertungsbalken) -> data/ply_evals.jsonl, etwa eine Stunde; bei neuen Lösungen die Datei löschen und neu rechnen
 python analysis/win_positions.py --workers 3  # Stellungen "Sicher gewinnen" (klar gewonnen, ein sicherer Zug gesucht) -> data/win_positions.jsonl, etwa eine Stunde
 python analysis/endgame_positions.py         # Stellungen "Endspiel" (höchstens 7 Steine, exakt über die lichess-Tablebase) -> data/endgame_positions.jsonl, etwa 30 min (Netz)
+python analysis/why.py                      # warum der beste Zug richtig ist (Motiv mit dem lichess-Tagger, Gewinn, was der Fehlzug kostet) -> data/why.jsonl, danach build_exercises.py noch einmal
 python analysis/pick_holdout.py             # Prüfsatz ergänzen (nur wenn er wachsen soll)
 python analysis/build_exercises.py          # alles zusammenführen, Reihenfolge nach Priorität
 ```

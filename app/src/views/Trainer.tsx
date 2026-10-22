@@ -22,6 +22,7 @@ import { limitFor, modeOfEntries, TASK_LABEL, type TaskType } from '../lib/limit
 import { SetBar, SetResult } from './SetResult';
 import { EvalBar, VarBar } from './Variation';
 import { buildVariations, evAt } from '../lib/variation';
+import { costText, ideaText } from '../lib/why';
 
 interface Props {
   exercises: Exercise[];
@@ -770,6 +771,10 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const refLine = refPv?.slice(0, 3).join(' ');
   const threatLine = result && !correctNow && result.verdict !== 'gaveup' && ex.threat && THREAT_CATS.has(ex.cat) ? ex.threat.san : null;
   const sameAsGame = !!result && !correctNow && result.verdict !== 'gaveup' && result.san === ex.played.san;
+  // Warum der beste Zug richtig ist, und was der eigene Fehlzug kostet (nur nach der Antwort, nie vorher)
+  const idea = result ? ideaText(ex) : null;
+  const ownCost = result && result.san && !correctNow ? costText(ex, result.san) : null;
+  const gameCost = result && !sameAsGame && ex.played.san !== result.san ? costText(ex, ex.played.san) : null;
   const taskNo = Math.min(setSize, phase === 'ask' ? answered + 1 : answered);
   // Bewertungsbalken: zeigt die Stellung, die das Brett zeigt. Nach dem Zug (Standard) oder auch in der Aufgabe (Einstellung)
   const barMode = getPrefs().evalbar;
@@ -877,10 +882,19 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
               </span>
             )}
           </p>
-          {refLine && (
-            <p>
-              Nach <b class="mono">{result.san}</b> folgt <span class="mono">{refLine}</span>.
+          {idea && (
+            <p class="idea">
+              <b>Idee:</b> {idea}
             </p>
+          )}
+          {ownCost ? (
+            <p>{ownCost}</p>
+          ) : (
+            refLine && (
+              <p>
+                Nach <b class="mono">{result.san}</b> folgt <span class="mono">{refLine}</span>.
+              </p>
+            )
           )}
           {threatLine && (
             <p>
@@ -898,7 +912,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
           ) : (
             <p class="muted">
               In der Partie gespielt: <span class="mono">{ex.played.san}</span> ({n0(ex.played.wp)} %, {n0(ex.loss)} Prozentpunkte weniger
-              als der beste Zug).
+              als der beste Zug).{gameCost ? ` ${gameCost}` : ''}
             </p>
           )}
 

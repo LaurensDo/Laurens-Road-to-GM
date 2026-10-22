@@ -220,8 +220,12 @@ Auf Wunsch von Laurens: zwei Spielmodi. Wer unter 10 Sekunden zieht, kann nicht 
 - **Endspiel:** dritter Modus mit Stellungen aus deinen Partien (höchstens 7 Steine), exakt bewertet mit der Tablebase. Richtig ist jeder Zug, der das Ergebnis hält. Zeitlimit 15 s, eigener Satz und eigene Warteschlange.
 - **Als Nächstes (abgestimmt, nicht gebaut):** nach der Aufgabe die Stellung gegen die Tablebase zu Ende spielen und danach analysieren (online).
 
+## 9k. Version 1.11 (umgesetzt)
+
+- **Idee zum besten Zug:** Motiv der besten Linie (lichess-Tagger), was sie bringt (Matt oder Material in Worten) und was der eigene Fehlzug kostet. Nur Fakten aus Engine-Linien und Material, kein freier Text; wo nichts Greifbares ist, sagt die App das.
+
 ## 10. Reihenfolge
 
-1. **Version 1 bis 1.10 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1 bis 1.11 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

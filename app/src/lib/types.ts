@@ -71,6 +71,19 @@ export interface Exercise {
    * der das Ergebnis hält. `game`: was in der Partie aus der Stellung wurde (vorher, nachher, wie die Tablebase es nennt).
    */
   tb?: { res: 'w' | 'd'; moves: [string, 'w' | 'd' | 'l'][]; game?: [string, string] };
+  /**
+   * Warum der beste Zug richtig ist (analysis/why.py): Motive der besten Linie nach dem lichess-Tagger, was die Linie bringt, und was die Widerlegung
+   * der gespeicherten Fehlzüge kostet. Gewinne sind vorsichtig gerechnet (ein Schlag zählt erst nach der Antwort des Gegners).
+   */
+  why?: { tags: string[]; gain: WhyOutcome | null; against: [string, WhyOutcome][] };
+}
+
+/** Ergebnis einer Linie: Matt in N oder Material in Worten ("die Qualität", "einen Springer für einen Bauern"), mit der Linie (SAN) dorthin */
+export interface WhyOutcome {
+  mate?: number;
+  pts?: number;
+  words?: string;
+  line: string[];
 }
 
 export interface ExerciseFile {

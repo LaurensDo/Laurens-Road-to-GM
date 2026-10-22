@@ -336,6 +336,12 @@ def main():
     exercises = exercises + wins  # eigener Modus in der App ("Sicher gewinnen")
     ends = endgame_exercises({e["id"] for e in exercises})
     exercises = exercises + ends  # eigener Modus in der App ("Endspiel")
+    # Warum der beste Zug richtig ist (analysis/why.py, rechnet auf der fertigen Datei: nach neuen Übungen why.py und diesen Build noch einmal)
+    why = load_jsonl(DATA / "why.jsonl")
+    for e in exercises:
+        w = why.get(e["id"])
+        if w and (w["tags"] or w["gain"] or w["against"]):
+            e["why"] = {"tags": w["tags"], "gain": w["gain"], "against": w["against"]}
 
     OUT.mkdir(parents=True, exist_ok=True)
     gen = report["generated"]
