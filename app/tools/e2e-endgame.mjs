@@ -44,7 +44,7 @@ async function playMove(page, e, san) {
 
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, serviceWorkers: 'block' });
 await ctx.addInitScript(() => localStorage.setItem('road-to-gm-device-v1', JSON.stringify({ splash: false, sound: false, games: false })));
-await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ...file, exercises: [...file.exercises.filter((e) => !e.tb).slice(0, 5), ...pick] }) }));
+await ctx.route('**/data/exercises.json', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ...file, exercises: [...file.exercises.filter((e) => !e.tb && !e.win).slice(0, 5), ...file.exercises.filter((e) => e.win).slice(0, 2), ...pick] }) }));
 await mockGames(ctx);
 const page = await ctx.newPage();
 const errors = [];
