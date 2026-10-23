@@ -32,7 +32,9 @@ function rowText(e: ReviewEntry, ex: Exercise | undefined): string {
   if (!ex) return e.san ?? '';
   const best = ex.lines[0].san;
   if (e.verdict === 'gaveup') return `Lösung angezeigt · bester Zug ${best}`;
-  if (correct(e)) return e.san === best ? `Richtig: ${best}` : `Richtig: ${e.san} (gleichwertig, bester ${best})`;
+  // wie im Trainer: Im Endspiel hält jeder richtige Zug das Ergebnis, bei "Sicher gewinnen" zählt jeder sichere Zug
+  const also = ex.tb ? 'hält das Ergebnis' : ex.win ? 'sicherer Zug' : 'gleichwertig';
+  if (correct(e)) return e.san === best ? `Richtig: ${best}` : `Richtig: ${e.san} (${also}, bester ${best})`;
   return `Dein Zug ${e.san ?? '–'} · bester Zug ${best}`;
 }
 

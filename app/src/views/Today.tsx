@@ -1,4 +1,4 @@
-import { counts } from '../lib/queue';
+import { activeFilters, counts } from '../lib/queue';
 import { count, dayKey, n0, n1, pct } from '../lib/format';
 import { KingMark } from './Mark';
 import { applyUpdate, useUpdateReady } from '../lib/updater';
@@ -27,11 +27,16 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
   const t = today(state.log, now);
   const goal = state.settings.goalMinutes;
   const done = Math.min(1, t.minutes / goal);
-  const filtered = state.settings.filters.phase !== 'alle' || state.settings.filters.cat !== 'alle' || state.settings.filters.motif !== 'alle';
+  const f = activeFilters(exercises, state.settings.filters);
+  const filtered = f.phase !== 'alle' || f.cat !== 'alle' || f.motif !== 'alle';
   const b = meta?.baseline;
-  const active = loadActive();
-  const activeDone = active ? state.log.filter((e) => e.set?.id === active.id).length : 0;
-  const resumable = (mode: TaskType) => !!active && active.mode === mode && activeDone > 0 && activeDone < active.size;
+  const active = Object.fromEntries(
+    TASK_TYPES.map((m) => {
+      const a = loadActive(m);
+      return [m, a ? { size: a.size, done: state.log.filter((e) => e.set?.id === a.id).length } : null];
+    }),
+  ) as Record<TaskType, { size: number; done: number } | null>;
+  const resumable = (mode: TaskType) => { const a = active[mode]; return !!a && a.done > 0 && a.done < a.size; };
   const startable = (cc: typeof c) => !(cc.due + cc.learning + cc.newAvailable === 0 && cc.total > 0 && cc.newTotal === 0) && cc.total > 0;
   const todaySets = listSets(state.log).filter((r) => dayKey(r.startTs) === dayKey(now.getTime()));
   const updateReady = useUpdateReady();
@@ -68,7 +73,7 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
               <div class="start-mode" key={mode}>
                 <button class={`btn light${mode !== 'fehler' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
                   {resumable(mode)
-                    ? `${TASK_LABEL[mode]} weiter (${n0(activeDone)} von ${n0(active!.size)})`
+                    ? `${TASK_LABEL[mode]} weiter (${n0(active[mode]!.done)} von ${n0(active[mode]!.size)})`
                     : `${TASK_LABEL[mode]} starten`}
                 </button>
                 <dl class="hero-facts-small" aria-label={`${TASK_LABEL[mode]} heute im Vorrat`}>

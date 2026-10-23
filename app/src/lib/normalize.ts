@@ -22,27 +22,46 @@ function normalizeDevices(raw: unknown): Record<string, DeviceInfo> {
   return out;
 }
 
+type Bonus = { day: string; n: number };
+const bonusOk = (v: unknown): v is Bonus => !!v && typeof v === 'object' && typeof (v as Bonus).day === 'string' && typeof (v as Bonus).n === 'number';
+
+function normalizeBonusBy(raw: unknown): AppState['bonusBy'] {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const r = raw as Record<string, unknown>;
+  const out: NonNullable<AppState['bonusBy']> = {};
+  if (bonusOk(r.sicher)) out.sicher = { day: r.sicher.day, n: r.sicher.n };
+  if (bonusOk(r.endspiel)) out.endspiel = { day: r.endspiel.day, n: r.endspiel.n };
+  return out.sicher || out.endspiel ? out : undefined;
+}
+
 export function normalize(raw: unknown): AppState {
   const base = emptyState();
   if (!raw || typeof raw !== 'object') return base;
   const r = raw as Partial<AppState> & { hidden?: unknown; devices?: unknown; ext?: unknown };
   const epoch = typeof r.epoch === 'number' ? r.epoch : 0;
+  const settingsTs = typeof r.settingsTs === 'number' ? r.settingsTs : 0;
+  const bonusBy = normalizeBonusBy(r.bonusBy);
   return {
     version: 1,
     cards: r.cards && typeof r.cards === 'object' ? r.cards : {},
     log: Array.isArray(r.log) ? r.log : [],
     bonus: r.bonus,
+    ...(bonusBy ? { bonusBy } : {}),
     hidden: normalizeHidden(r.hidden),
     epoch,
     // ältere Stände kennen nur die Epoche: Sie wurde beim Zurücksetzen auf die damalige Uhrzeit gesetzt
     epochTs: typeof r.epochTs === 'number' ? r.epochTs : epoch,
     devices: normalizeDevices(r.devices),
     ext: r.ext && typeof r.ext === 'object' && !Array.isArray(r.ext) ? (r.ext as Record<string, unknown>) : {},
-    settingsTs: typeof r.settingsTs === 'number' ? r.settingsTs : 0,
-    settings: {
-      ...DEFAULT_SETTINGS,
-      ...(r.settings ?? {}),
-      filters: { ...DEFAULT_SETTINGS.filters, ...(r.settings?.filters ?? {}) },
-    },
+    settingsTs,
+    // Nie geändert (Zeitpunkt 0): Dann gelten die aktuellen Vorgaben, auch wenn eine ältere Version andere gespeichert hat (Zeitlimit früher 10 s)
+    settings:
+      settingsTs === 0
+        ? { ...DEFAULT_SETTINGS, filters: { ...DEFAULT_SETTINGS.filters } }
+        : {
+            ...DEFAULT_SETTINGS,
+            ...(r.settings ?? {}),
+            filters: { ...DEFAULT_SETTINGS.filters, ...(r.settings?.filters ?? {}) },
+          },
   };
 }

@@ -20,7 +20,8 @@ export interface ActiveSet {
   served: string[];
 }
 
-const KEY = 'road-to-gm-activeset-v1';
+/** Je Art ein eigener Platz: Ein pausierter Satz bleibt liegen, auch wenn zwischendurch ein Satz der anderen Art läuft (Fehler-Training auf dem alten Schlüssel) */
+const keyOf = (mode: TaskType) => (mode === 'fehler' ? 'road-to-gm-activeset-v1' : `road-to-gm-activeset-v1-${mode}`);
 /** Ein liegengebliebener Satz wird nach dieser Zeit nicht mehr fortgesetzt */
 export const RESUME_WINDOW_MS = 6 * 3600 * 1000;
 
@@ -28,26 +29,33 @@ export function newSetId(now: number): string {
   return `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
-export function loadActive(now = Date.now()): ActiveSet | null {
+export function loadActive(mode: TaskType, now = Date.now()): ActiveSet | null {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(keyOf(mode));
     if (!raw) return null;
     const a = JSON.parse(raw) as Partial<ActiveSet>;
     if (typeof a.id !== 'string' || typeof a.startedAt !== 'number' || typeof a.size !== 'number' || !Array.isArray(a.served)) return null;
     if (now - a.startedAt > RESUME_WINDOW_MS) return null;
-    return { id: a.id, startedAt: a.startedAt, size: a.size, mode: a.mode === 'sicher' || a.mode === 'endspiel' ? a.mode : 'fehler', served: a.served.map(String) };
+    // bis 1.11 lag jede Art auf dem einen Platz: Ein Satz der anderen Art dort gehört nicht hierher
+    if ((a.mode === 'sicher' || a.mode === 'endspiel' ? a.mode : 'fehler') !== mode) return null;
+    return { id: a.id, startedAt: a.startedAt, size: a.size, mode, served: a.served.map(String) };
   } catch {
     return null;
   }
 }
 
-export function saveActive(a: ActiveSet | null): void {
+export function saveActive(mode: TaskType, a: ActiveSet | null): void {
   try {
-    if (a) localStorage.setItem(KEY, JSON.stringify(a));
-    else localStorage.removeItem(KEY);
+    if (a) localStorage.setItem(keyOf(mode), JSON.stringify(a));
+    else localStorage.removeItem(keyOf(mode));
   } catch {
     // ohne Speicher gibt es nur kein Fortsetzen
   }
+}
+
+/** Alle liegengebliebenen Sätze verwerfen (nach dem Löschen des Trainingsstands) */
+export function clearActive(): void {
+  TASK_TYPES.forEach((m) => saveActive(m, null));
 }
 
 // ---- Auswertung
@@ -143,11 +151,11 @@ function groupsOf(entries: ReviewEntry[], byId: Map<string, Exercise>): Group[] 
   for (const e of entries) {
     const ex = byId.get(e.id);
     if (!ex) continue;
-    add(ex.phase, e);
-    add(ex.cat, e);
-    ex.motifs.forEach((m) => add(m, e));
+    // jede Antwort zählt je Bezeichnung einmal: Bei Endspielen heißen Phase und Art beide "Endspiel"
+    for (const label of new Set([ex.phase, ex.cat, ...ex.motifs])) add(label, e);
   }
-  return [...acc.values()].filter((g) => g.n >= 2);
+  // Eine Gruppe, die den ganzen Satz umfasst, sagt nichts über Stärken und Schwächen (sie wiederholt nur die Quote)
+  return [...acc.values()].filter((g) => g.n >= 2 && g.n < entries.length);
 }
 
 /** Wertet einen Satz nach festen Regeln aus. Keine KI, jede Aussage folgt aus den Zahlen. */
@@ -195,18 +203,27 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   const limits: Record<TaskType, number> = { fehler: opt.limit, sicher: opt.winLimit ?? 0, endspiel: opt.endLimit ?? 0 };
   const byType = TASK_TYPES.map((t) => ({ t, xs: entries.filter((e) => taskType(byId.get(e.id)) === t) })).filter((g) => g.xs.length > 0);
   const onlyFehler = byType.every((g) => g.t === 'fehler');
-  const timed = onlyFehler ? opt.limit > 0 : byType.some((g) => limits[g.t] > 0);
+  // das Limit, das beim Antworten galt (steht an jeder Antwort): Wird es mitten im Satz geändert, nennt der Text keine falsche Zahl
+  const within = (xs: ReviewEntry[], current: number): string | null => {
+    const ls = new Set(xs.map((e) => e.lim ?? current));
+    if (ls.size > 1) return 'innerhalb des jeweiligen Limits';
+    const l = [...ls][0] ?? current;
+    return l > 0 ? `innerhalb von ${n0(l)} s` : null;
+  };
+  const timed = onlyFehler ? within(entries, opt.limit) !== null : byType.some((g) => within(g.xs, limits[g.t]) !== null);
   const typeLine = (label: string, xs: ReviewEntry[], limit: number): string => {
     const r = xs.filter(correct).length;
     const slow = xs.filter(slowCorrect).length;
     const avg = xs.reduce((a, e) => a + e.ms, 0) / xs.length;
-    return `${label}: ${n0(r)} von ${n0(xs.length)} richtig${limit > 0 ? ` und ${n0(r - slow)} innerhalb von ${n0(limit)} s` : ''}, im Schnitt ${n1(avg / 1000)} s.`;
+    const w = within(xs, limit);
+    return `${label}: ${n0(r)} von ${n0(xs.length)} richtig${w ? ` und ${n0(r - slow)} ${w}` : ''}, im Schnitt ${n1(avg / 1000)} s.`;
   };
+  const fehlerWithin = within(entries, opt.limit);
   if (!onlyFehler) {
     for (const g of byType) lines.push(typeLine(TASK_LABEL[g.t], g.xs, limits[g.t]));
     if (slowRight >= 2) lines.push(`${n0(slowRight)} richtige Antworten kamen erst nach der Zielzeit. In der Partie fehlt dir diese Zeit später auf der Uhr.`);
-  } else if (opt.limit > 0) {
-    let t = `${n0(inTime)} von ${n0(n)} richtig und innerhalb von ${n0(opt.limit)} s, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
+  } else if (fehlerWithin) {
+    let t = `${n0(inTime)} von ${n0(n)} richtig und ${fehlerWithin}, im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
     if (slowRight >= 2) t += ` ${n0(slowRight)} richtige Antworten kamen erst nach dem Limit. In der Partie fehlt dir diese Zeit später auf der Uhr.`;
     lines.push(t);
   } else {
@@ -230,7 +247,8 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   let tip: string;
   if (quickWrong >= 2) tip = 'Zähle vor dem Ziehen bis zwei und prüfe Schachgebote, Schlagzüge und hängende Figuren.';
   else if (slowRight >= 2) tip = 'Suche zuerst die erzwingenden Züge (Schach, Schlagen, Drohen) und entscheide dann. Das spart Uhrzeit.';
-  else if (weak) tip = `Schwerpunkt für die nächsten Sätze: ${weak.label}. In den Einstellungen kannst du den Filter darauf stellen.`;
+  // die Filter gelten nur für das Fehler-Training: Nur dort führt der Schwerpunkt zu einer Einstellung
+  else if (weak && onlyFehler) tip = `Schwerpunkt für die nächsten Sätze: ${weak.label}. In den Einstellungen kannst du den Filter darauf stellen.`;
   else if (tier === 'strong') tip = 'Genauigkeit und Tempo passen. Mehr Druck bekommst du mit einem kürzeren Zeitlimit in den Einstellungen.';
   else tip = 'Der nächste Satz festigt, was gerade noch wackelt. Falsche Aufgaben kommen später automatisch wieder.';
 

@@ -78,11 +78,15 @@ export interface Exercise {
   why?: { tags: string[]; gain: WhyOutcome | null; against: [string, WhyOutcome][] };
 }
 
-/** Ergebnis einer Linie: Matt in N oder Material in Worten ("die Qualität", "einen Springer für einen Bauern"), mit der Linie (SAN) dorthin */
+/**
+ * Ergebnis einer Linie: Matt in N oder Material in Worten ("die Qualität", "einen Springer für einen Bauern"), mit der Linie (SAN) dorthin.
+ * Eine Umwandlung steht getrennt (new: "eine neue Dame"), sie ist kein geschlagener Stein.
+ */
 export interface WhyOutcome {
   mate?: number;
   pts?: number;
   words?: string;
+  new?: string;
   line: string[];
 }
 
@@ -185,8 +189,12 @@ export interface AppState {
   settings: Settings;
   /** Zeitpunkt der letzten Änderung der Einstellungen (neuere gewinnen beim Abgleich) */
   settingsTs: number;
-  /** zusätzliche neue Aufgaben, die heute freigegeben wurden */
+  /** zusätzliche neue Aufgaben, die heute freigegeben wurden (Fehler-Training) */
   bonus?: { day: string; n: number };
+  /** dasselbe für die anderen Arten, je Art getrennt (ab 1.12; ältere Versionen reichen das Feld unverändert weiter) */
+  bonusBy?: { sicher?: { day: string; n: number }; endspiel?: { day: string; n: number } };
+  /** nur beim Lesen einer Sync-Datei: welche Einstellungen dort wirklich standen (ältere Versionen kennen nicht alle), nie gespeichert */
+  settingsKnown?: string[];
   /** ausgeblendete Übungen (z. B. fehlerhafte Stellungen), je Übung mit Zeitstempel */
   hidden: Record<string, HiddenEntry>;
   /** Zeitpunkt des letzten Zurücksetzens: ältere Antworten zählen nicht mehr */

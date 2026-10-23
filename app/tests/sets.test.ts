@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { clean, DEFAULT_PREFS } from '../src/lib/device';
 import { isCapture, positionOf } from '../src/lib/chess';
 import { counts, pickNext } from '../src/lib/queue';
-import { listSets, loadActive, newSetId, rateOf, RESUME_WINDOW_MS, saveActive, summarize } from '../src/lib/sets';
+import { clearActive, listSets, loadActive, newSetId, rateOf, RESUME_WINDOW_MS, saveActive, summarize } from '../src/lib/sets';
 import { startCue, timerCue } from '../src/lib/sound';
 import { fromRemote, mergeStates, toRemote } from '../src/lib/merge';
 import { gradeFor, isCorrect } from '../src/lib/judge';
@@ -171,17 +171,34 @@ describe('aktiver Satz', () => {
 
   it('speichert, lädt und läuft nach sechs Stunden ab', () => {
     const now = 1_000_000_000;
-    saveActive({ id: newSetId(now), startedAt: now, size: 10, mode: 'fehler', served: ['a', 'b'] });
-    expect(loadActive(now + 1000)?.mode).toBe('fehler');
-    expect(loadActive(now + 1000)?.served).toEqual(['a', 'b']);
-    expect(loadActive(now + RESUME_WINDOW_MS + 1)).toBeNull();
-    saveActive(null);
-    expect(loadActive(now)).toBeNull();
+    saveActive('fehler', { id: newSetId(now), startedAt: now, size: 10, mode: 'fehler', served: ['a', 'b'] });
+    expect(loadActive('fehler', now + 1000)?.mode).toBe('fehler');
+    expect(loadActive('fehler', now + 1000)?.served).toEqual(['a', 'b']);
+    expect(loadActive('fehler', now + RESUME_WINDOW_MS + 1)).toBeNull();
+    saveActive('fehler', null);
+    expect(loadActive('fehler', now)).toBeNull();
+  });
+
+  it('hält je Art einen eigenen Satz: Ein neuer Endspiel-Satz verdrängt den pausierten Fehler-Satz nicht', () => {
+    const now = 1_000_000_000;
+    saveActive('fehler', { id: 'f1', startedAt: now, size: 10, mode: 'fehler', served: ['a'] });
+    saveActive('endspiel', { id: 'e1', startedAt: now, size: 10, mode: 'endspiel', served: [] });
+    saveActive('endspiel', null);
+    expect(loadActive('fehler', now)?.id).toBe('f1');
+    expect(loadActive('endspiel', now)).toBeNull();
+    clearActive();
+    expect(loadActive('fehler', now)).toBeNull();
+  });
+
+  it('ein Satz der anderen Art auf dem alten Platz (bis 1.11) wird nicht als Fehler-Satz fortgesetzt', () => {
+    const now = 1_000_000_000;
+    localStorage.setItem('road-to-gm-activeset-v1', JSON.stringify({ id: 's1', startedAt: now, size: 10, mode: 'sicher', served: [] }));
+    expect(loadActive('fehler', now)).toBeNull();
   });
 
   it('kaputte Daten ergeben keinen Satz', () => {
     localStorage.setItem('road-to-gm-activeset-v1', '{"id":5}');
-    expect(loadActive()).toBeNull();
+    expect(loadActive('fehler')).toBeNull();
   });
 });
 

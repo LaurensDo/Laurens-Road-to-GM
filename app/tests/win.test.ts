@@ -159,7 +159,7 @@ describe('Zwei Arten von Aufgaben mit je eigenem Zeitlimit', () => {
   });
 
   it('ältere Daten ohne die neue Einstellung bekommen den Standard, gespeicherte Werte bleiben', () => {
-    const old = toRemote({ ...emptyState(), settings: { ...emptyState().settings, timeLimit: 15 } });
+    const old = toRemote({ ...emptyState(), settings: { ...emptyState().settings, timeLimit: 15 }, settingsTs: 1000 });
     const raw = JSON.parse(JSON.stringify(old));
     delete raw.settings.winLimit;
     const st = fromRemote(raw)!;

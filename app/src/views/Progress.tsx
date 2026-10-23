@@ -2,6 +2,7 @@ import { useMemo } from 'preact/hooks';
 import { count, dayKey, dayLabel, n0, n1, pct } from '../lib/format';
 import { breakdown, cardCounts, correct, lastDays, today, trainingDays, windowStats } from '../lib/stats';
 import { listSets, rateOf } from '../lib/sets';
+import { modeOfEntries, TASK_LABEL, TASK_TYPES, type TaskType } from '../lib/limit';
 import { MIN_TRIES, SKILL_TEXT, firstTries, skillStat, type SkillStat } from '../lib/skill';
 import type { UhrBasis } from '../lib/basis';
 import { ClockCard } from './Games';
@@ -135,8 +136,13 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
   const skill = skillStat(tries);
   const skillNext = skillStat(tries.filter((t) => t.cls === 'Nächste Stufe'), 50, 15);
   const skillEasy = skillStat(tries.filter((t) => t.cls === 'Leichtsinn'), 50, 15);
-  const lastRuns = runs.slice(-10);
-  const lastRates = lastRuns.map(rateOf);
+  // je Art getrennt: "Sicher gewinnen" ist leichter und würde die Kurve des Fehler-Trainings anheben
+  const runsOf = (m: TaskType) => runs.filter((r) => modeOfEntries(r.entries, byId) === m);
+  const fehlerRuns = runsOf('fehler');
+  const lastRates = fehlerRuns.slice(-10).map(rateOf);
+  const otherRuns = TASK_TYPES.filter((m) => m !== 'fehler')
+    .map((m) => ({ m, rates: runsOf(m).map(rateOf) }))
+    .filter((x) => x.rates.length > 0);
 
   return (
     <section class="screen">
@@ -194,12 +200,24 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
       {runs.length > 0 && (
         <div class="card">
           <h2>Aufgabensätze</h2>
-          <SetBars rates={lastRates} />
-          <p class="muted">
-            {runs.length === 1
-              ? `1 Satz bisher: ${pct(lastRates[0])} richtig.`
-              : `${count(runs.length, 'Satz', 'Sätze')} insgesamt. Quote der letzten ${n0(lastRates.length)}: Ø ${pct(lastRates.reduce((a, x) => a + x, 0) / lastRates.length)}, bester ${pct(Math.max(...lastRates))}.`}
-          </p>
+          {lastRates.length > 0 && (
+            <>
+              <SetBars rates={lastRates} />
+              <p class="muted">
+                {fehlerRuns.length === 1
+                  ? `Fehler-Training, 1 Satz bisher: ${pct(lastRates[0])} richtig.`
+                  : `Fehler-Training, ${count(fehlerRuns.length, 'Satz', 'Sätze')} insgesamt. Quote der letzten ${n0(lastRates.length)}: Ø ${pct(lastRates.reduce((a, x) => a + x, 0) / lastRates.length)}, bester ${pct(Math.max(...lastRates))}.`}
+              </p>
+            </>
+          )}
+          {otherRuns.map(({ m, rates }) => {
+            const last = rates.slice(-10);
+            return (
+              <p class="muted" key={m}>
+                {TASK_LABEL[m]}, {count(rates.length, 'Satz', 'Sätze')}: Quote der letzten {n0(last.length)} Ø {pct(last.reduce((a, x) => a + x, 0) / last.length)}.
+              </p>
+            );
+          })}
         </div>
       )}
 
@@ -255,11 +273,13 @@ export function Progress({ exercises, byId, meta, basis }: Props) {
         <Table rows={byType} />
         <p class="muted small">
           Fehler-Training: Stellungen mit einem Fehler aus deinen Partien, gesucht ist der beste Zug. Sicher gewinnen: klar gewonnene Stellungen, gesucht
-          ist ein sicherer Zug, schnell.
+          ist ein sicherer Zug, schnell. Endspiel: Stellungen mit höchstens sieben Steinen, gesucht ist ein Zug, der Gewinn oder Remis hält (exakt
+          bewertet).
         </p>
       </div>
       <div class="card">
         <h2>Nach Fehlerart</h2>
+        <p class="muted small">Nur Fehler-Training.</p>
         <Table rows={byCat} />
       </div>
       <div class="card">

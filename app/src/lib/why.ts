@@ -14,12 +14,17 @@ const GENERAL = new Set(['Stiller Zug', 'Verteidigungszug', 'Vorgerückter Bauer
 export function ideaText(ex: Exercise): string | null {
   if (ex.win) return null;
   const w = ex.why;
+  // im Remis-Endspiel geht es ums Halten: Materialgewinn wäre dort die falsche Lehre (die Daten lassen ihn dort schon weg)
+  const drawn = ex.tb?.res === 'd';
   const tags = w ? [...w.tags.filter((t) => !GENERAL.has(t)), ...w.tags.filter((t) => GENERAL.has(t))] : [];
   const parts: string[] = [];
   if (tags.length) parts.push(`${tags.slice(0, 3).join(', ')}.`);
-  const g = w?.gain;
+  const g = drawn ? null : w?.gain;
   if (g?.mate) parts.push(`Matt in ${g.mate}: ${numberedMoves(ex.fen, g.line).join(' ')}.`);
-  else if (g?.words) parts.push(`Nach ${numberedMoves(ex.fen, g.line).join(' ')} gewinnst du ${g.words}.`);
+  else if (g && (g.words || g.new)) {
+    const what = g.words && g.new ? `gewinnst du ${g.words} und bekommst ${g.new}` : g.words ? `gewinnst du ${g.words}` : `bekommst du ${g.new}`;
+    parts.push(`Nach ${numberedMoves(ex.fen, g.line).join(' ')} ${what}.`);
+  }
   if (!parts.length) {
     if (ex.tb || !w) return null;
     // Bei eigenen Patzern ist die Lehre "nichts einstellen", nicht "Stellung": Der beste Zug hält, was der Fehler hergab
@@ -37,5 +42,9 @@ export function costText(ex: Exercise, san: string): string | null {
   if (!a) return null;
   const line = numberedMoves(ex.fen, [san, ...a.line]);
   const head = `Nach ${line[0]} folgt ${line.slice(1).join(' ')}`;
-  return a.mate ? `${head}, und du wirst mattgesetzt.` : `${head}, und du verlierst ${a.words}.`;
+  if (a.mate) return `${head}, und du wirst mattgesetzt.`;
+  // eine Umwandlung des Gegners ist keine verlorene Dame: "der Gegner bekommt eine neue Dame"
+  if (a.words && a.new) return `${head}: Du verlierst ${a.words}, und der Gegner bekommt ${a.new}.`;
+  if (a.new) return `${head}, und der Gegner bekommt ${a.new}.`;
+  return a.words ? `${head}, und du verlierst ${a.words}.` : null;
 }

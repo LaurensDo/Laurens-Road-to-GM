@@ -85,6 +85,8 @@ export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field
   for (const e of log) {
     const ex = byId.get(e.id);
     if (!ex) continue;
+    // Fehlerart gibt es nur im Fehler-Training: "Sicher gewinnen" und "Endspiel" sind Arten der Aufgabe, keine Fehler
+    if (field === 'cat' && taskType(ex) !== 'fehler') continue;
     if (field === 'motif') ex.motifs.forEach((m) => add(m, e));
     else if (field === 'type') add(TASK_LABEL[taskType(ex)], e);
     else add(ex[field], e);

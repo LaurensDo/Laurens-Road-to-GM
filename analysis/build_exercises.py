@@ -272,8 +272,14 @@ def main():
     maia_dist = load_jsonl(DATA / "maia_dist.jsonl")
     refutations = load_jsonl(DATA / "refutations.jsonl")
     ply_evals = load_jsonl(DATA / "ply_evals.jsonl") if (DATA / "ply_evals.jsonl").exists() else {}
-    exercises, dropped = [], {"kein_fehler": 0, "verloren": 0, "ohne_lösung": 0}
+    exercises, dropped = [], {"kein_fehler": 0, "verloren": 0, "ohne_lösung": 0, "tablebase_kein_fehler": 0, "als_endspiel": 0}
     no_prev = 0
+    # Endspiele mit höchstens 7 Steinen kennt die Tablebase exakt: Ihre Übung ersetzt die Stockfish-Übung derselben Stellung (außer im Prüfsatz,
+    # der bleibt fest), und ein Partiezug, der laut Tablebase das Ergebnis hält, ist kein Fehler
+    ends = endgame_exercises(set(holdout))
+    end_ids = {e["id"] for e in ends}
+    tb_path = DATA / "tablebase.jsonl"
+    tb_rows = {(r["fen"], r["uci"]): r for r in map(json.loads, tb_path.open())} if tb_path.exists() else {}
     for line in (DATA / "solutions.jsonl").open():
         s = json.loads(line)
         p = positions.get(s["key"])
@@ -298,6 +304,13 @@ def main():
         if prev is None:
             no_prev += 1
         eid = ex_id(s["key"])
+        if eid in end_ids:
+            dropped["als_endspiel"] += 1
+            continue
+        tbr = tb_rows.get((p["fen"], played["uci"]))
+        if tbr and tbr["before"] == tbr["after"] and eid not in holdout:
+            dropped["tablebase_kein_fehler"] += 1
+            continue
         rf = refutations.get(eid)
         am = all_moves.get(eid)
         md = maia_dist.get(eid)
@@ -332,10 +345,8 @@ def main():
             **({"hold": True} if ex_id(s["key"]) in holdout else {}),
         })
     exercises = order_by_priority(exercises)
-    wins = win_exercises({e["id"] for e in exercises})
-    exercises = exercises + wins  # eigener Modus in der App ("Sicher gewinnen")
-    ends = endgame_exercises({e["id"] for e in exercises})
-    exercises = exercises + ends  # eigener Modus in der App ("Endspiel")
+    wins = win_exercises({e["id"] for e in exercises} | end_ids)
+    exercises = exercises + wins + ends  # eigene Modi in der App ("Sicher gewinnen", "Endspiel")
     # Warum der beste Zug richtig ist (analysis/why.py, rechnet auf der fertigen Datei: nach neuen Übungen why.py und diesen Build noch einmal)
     why = load_jsonl(DATA / "why.jsonl")
     for e in exercises:

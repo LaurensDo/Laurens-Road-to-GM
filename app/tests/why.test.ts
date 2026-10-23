@@ -46,6 +46,20 @@ describe('Idee zum besten Zug', () => {
     expect(costText(ex(), 'O-O')).toBe('Nach 4.O-O folgt Ng4 5.h3 Qh4, und du wirst mattgesetzt.');
     expect(costText(ex(), 'a3')).toBeNull();
   });
+  it('eine Umwandlung heißt "neue Dame", nicht "die Dame für einen Bauern"', () => {
+    const own = ex({ why: { tags: [], gain: { pts: 8, new: 'eine neue Dame', line: ['Ng5', 'd5'] }, against: [] } });
+    expect(ideaText(own)).toBe('Nach 4.Ng5 d5 bekommst du eine neue Dame.');
+    const both = ex({ why: { tags: [], gain: { pts: 13, words: 'einen Turm', new: 'eine neue Dame', line: ['Ng5', 'd5'] }, against: [] } });
+    expect(ideaText(both)).toBe('Nach 4.Ng5 d5 gewinnst du einen Turm und bekommst eine neue Dame.');
+    const opp = ex({ why: { tags: [], gain: null, against: [['Nc3', { pts: 8, new: 'eine neue Dame', line: ['Nxe4', 'Nxe4'] }]] } });
+    expect(costText(opp, 'Nc3')).toBe('Nach 4.Nc3 folgt Nxe4 5.Nxe4, und der Gegner bekommt eine neue Dame.');
+    const mixed = ex({ why: { tags: [], gain: null, against: [['Nc3', { pts: 11, words: 'einen Läufer', new: 'eine neue Dame', line: ['Nxe4'] }]] } });
+    expect(costText(mixed, 'Nc3')).toBe('Nach 4.Nc3 folgt Nxe4: Du verlierst einen Läufer, und der Gegner bekommt eine neue Dame.');
+  });
+  it('im Remis-Endspiel kein "gewinnst du": Dort geht es ums Halten', () => {
+    const drawn = ex({ tb: { res: 'd', moves: [] }, why: { tags: ['Umwandlung'], gain: { pts: 8, words: 'die Dame für einen Bauern', line: ['Ng5'] }, against: [] } });
+    expect(ideaText(drawn)).toBe('Umwandlung.');
+  });
   it('die alte Zeile "In der besten Fortsetzung steckt" entfällt, wenn es die Idee gibt', () => {
     expect(explain(ex()).join(' ')).not.toMatch(/In der besten Fortsetzung steckt/);
     expect(explain(ex({ why: undefined })).join(' ')).toMatch(/In der besten Fortsetzung steckt: Gabel/);

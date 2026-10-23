@@ -43,11 +43,14 @@ export const MIN_NEW = 3;
 /** Annahme für die Zeit je Aufgabe, solange zu wenige Antworten vorliegen */
 export const DEFAULT_TASK_S = 30;
 
-/** Typische Zeit je Aufgabe in Sekunden (Median der letzten Antworten ohne die Zeit in Varianten), für die Planung des Tages. */
-export function taskSeconds(state: AppState, now: Date): number {
+/**
+ * Typische Zeit je Aufgabe in Sekunden (Median der letzten Antworten ohne die Zeit in Varianten), für die Planung des Tages.
+ * `only`: nur Antworten auf diese Übungen (Fehler-Training: Die schnellen Antworten bei "Sicher gewinnen" würden die Rechnung sonst lockern).
+ */
+export function taskSeconds(state: AppState, now: Date, only?: ReadonlySet<string>): number {
   const cutoff = now.getTime() - 30 * 86400000;
   const xs = state.log
-    .filter((e) => countsForSchedule(e) && e.ts >= cutoff)
+    .filter((e) => countsForSchedule(e) && e.ts >= cutoff && (!only || only.has(e.id)))
     .slice(-150)
     .map((e) => Math.max(0, e.dur - (e.pv ?? 0)) / 1000)
     .filter((x) => x > 0);
@@ -77,7 +80,30 @@ export function hiddenCount(state: AppState): number {
  * nicht erst nachsehen muss). Die Filter aus den Einstellungen (Phase, Fehlerart, Motiv) gelten nur für das Fehler-Training.
  */
 export function poolOf(exercises: Exercise[], state: AppState, mode: TaskType = 'fehler'): Exercise[] {
-  return exercises.filter((e) => taskType(e) === mode && !isHidden(state, e.id) && (mode !== 'fehler' || matchesFilters(e, state.settings.filters)));
+  const f = activeFilters(exercises, state.settings.filters);
+  return exercises.filter((e) => taskType(e) === mode && !isHidden(state, e.id) && (mode !== 'fehler' || matchesFilters(e, f)));
+}
+
+/**
+ * Die Filter, wie sie gelten: Eine Fehlerart, die es im Fehler-Training nicht gibt, zählt als 'alle'. Bis 1.7 ließ sich "Sicher gewinnen" als
+ * Fehlerart wählen; stehengeblieben würde dieser Filter das Fehler-Training leeren, ohne dass die Einstellungen ihn noch zeigen.
+ */
+export function activeFilters(exercises: Exercise[], f: Filters): Filters {
+  if (f.cat === 'alle' || exercises.some((e) => taskType(e) === 'fehler' && e.cat === f.cat)) return f;
+  return { ...f, cat: 'alle' };
+}
+
+/** Heute zusätzlich freigegebene neue Aufgaben dieser Art ("5 weitere neue Aufgaben") */
+export function bonusOf(state: AppState, mode: TaskType, now: Date): number {
+  const b = mode === 'fehler' ? state.bonus : state.bonusBy?.[mode];
+  return b && b.day === dayKey(now.getTime()) ? b.n : 0;
+}
+
+/** Fünf weitere neue Aufgaben für heute, nur für diese Art */
+export function addBonus(state: AppState, mode: TaskType, now: Date): AppState {
+  const day = dayKey(now.getTime());
+  const next = { day, n: bonusOf(state, mode, now) + 5 };
+  return mode === 'fehler' ? { ...state, bonus: next } : { ...state, bonusBy: { ...state.bonusBy, [mode]: next } };
 }
 
 const idsOf = (exercises: Exercise[], mode: TaskType): Set<string> => new Set(exercises.filter((e) => taskType(e) === mode).map((e) => e.id));
@@ -147,12 +173,11 @@ function scan(pool: Exercise[], state: AppState, now: Date, ofMode: ReadonlySet<
   const done = reviewedToday(state, now, ofMode);
   const backlog = dueReview.length + done > DUE_CAP;
   const reviewLeft = backlog ? Math.max(0, DUE_CAP - done) : Infinity;
-  const today = dayKey(now.getTime());
-  const bonus = state.bonus && state.bonus.day === today ? state.bonus.n : 0;
+  const bonus = bonusOf(state, mode, now);
   const base = backlog ? Math.min(state.settings.newPerDay, BACKLOG_NEW) : state.settings.newPerDay;
   // Neue Aufgaben pro Tag sind eine Obergrenze: Was das Tagesziel in Minuten nach den Wiederholungen übrig lässt, ist der Rahmen
   const committed = done + Math.min(dueReview.length, reviewLeft) + dueLearn.length;
-  const fit = Math.floor((state.settings.goalMinutes * 60) / taskSeconds(state, now)) - committed;
+  const fit = Math.floor((state.settings.goalMinutes * 60) / taskSeconds(state, now, ofMode)) - committed;
   const introduced = newIntroducedToday(state, now, ofMode);
   // schon gezeigte neue Aufgaben nimmt die Obergrenze nicht zurück (sonst täte "5 weitere neue" nichts, wenn sie später kleiner wird)
   // die Zeitrechnung des Tagesziels gilt für das Fehler-Training, "Sicher gewinnen" startet Laurens bewusst als eigenen Satz

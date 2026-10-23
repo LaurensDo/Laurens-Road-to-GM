@@ -76,17 +76,42 @@ function mergeExt(a: Record<string, unknown>, b: Record<string, unknown>): Recor
   return out;
 }
 
+function mergeBonusBy(a: AppState['bonusBy'], b: AppState['bonusBy']): AppState['bonusBy'] {
+  if (!a) return b;
+  if (!b) return a;
+  const sicher = mergeBonus(a.sicher, b.sicher);
+  const endspiel = mergeBonus(a.endspiel, b.endspiel);
+  return { ...(sicher ? { sicher } : {}), ...(endspiel ? { endspiel } : {}) };
+}
+
+const sortedJson = (o: object) => JSON.stringify(Object.fromEntries(Object.entries(o).sort(([x], [y]) => (x < y ? -1 : 1))));
+
+/**
+ * Einstellungen: Die jüngeren gewinnen. Bei gleichem Zeitpunkt deterministisch die größere Schreibweise, damit beide Geräte dasselbe Ergebnis haben.
+ * Felder, die in der Datei eines älteren Geräts fehlen (settingsKnown), kommen vom anderen Stand: Sonst setzte eine Änderung auf einem alten
+ * Gerät die neueren Felder (etwa das Zeitlimit für Endspiele) auf die Vorgabe zurück.
+ */
+function mergeSettings(a: AppState, b: AppState): Settings {
+  const useB = b.settingsTs > a.settingsTs || (b.settingsTs === a.settingsTs && sortedJson(b.settings) > sortedJson(a.settings));
+  const [win, lose] = useB ? [b, a] : [a, b];
+  if (!win.settingsKnown) return win.settings;
+  const known = new Set(win.settingsKnown);
+  const keep = Object.fromEntries(Object.entries(lose.settings).filter(([k]) => !known.has(k)));
+  return { ...win.settings, ...keep };
+}
+
 export function mergeStates(a: AppState, b: AppState): AppState {
   const { epoch, epochTs } = mergeEpoch(a, b);
   const log = mergeLogs(a.log, b.log, epoch);
-  const useB = b.settingsTs > a.settingsTs;
+  const bonusBy = mergeBonusBy(a.bonusBy, b.bonusBy);
   return {
     version: 1,
     cards: replay(log),
     log,
-    settings: useB ? b.settings : a.settings,
+    settings: mergeSettings(a, b),
     settingsTs: Math.max(a.settingsTs, b.settingsTs),
     bonus: mergeBonus(a.bonus, b.bonus),
+    ...(bonusBy ? { bonusBy } : {}),
     hidden: mergeHidden(a.hidden, b.hidden),
     epoch,
     epochTs,
@@ -110,6 +135,7 @@ export interface RemoteState {
   settings: Settings;
   settingsTs: number;
   bonus?: { day: string; n: number };
+  bonusBy?: AppState['bonusBy'];
   devices: Record<string, DeviceInfo>;
   /** weitere Felder späterer Versionen kommen hier oben auf dieselbe Ebene und werden unverändert weitergereicht */
   [key: string]: unknown;
@@ -129,11 +155,12 @@ export function toRemote(s: AppState): RemoteState {
     settings: s.settings,
     settingsTs: s.settingsTs,
     bonus: s.bonus,
+    ...(s.bonusBy ? { bonusBy: s.bonusBy } : {}),
     devices: s.devices,
   };
 }
 
-const KNOWN_KEYS = new Set(['app', 'schema', 'minReader', 'epoch', 'epochTs', 'log', 'hidden', 'settings', 'settingsTs', 'bonus', 'devices']);
+const KNOWN_KEYS = new Set(['app', 'schema', 'minReader', 'epoch', 'epochTs', 'log', 'hidden', 'settings', 'settingsTs', 'bonus', 'bonusBy', 'devices']);
 
 /** Welche Lese-Stufe braucht diese Datei? Dateien ohne Angabe stammen aus Versionen vor 1.2 (Stufe 1). */
 export function readerNeeded(raw: unknown): number {
@@ -154,7 +181,9 @@ export function fromRemote(raw: unknown): AppState | null {
   const ext = Object.fromEntries(Object.entries(r).filter(([k]) => !KNOWN_KEYS.has(k)));
   const base = normalize({ ...r, cards: {}, ext });
   const log = mergeLogs(base.log, [], base.epoch).map((e) => ({ ...e, dur: typeof e.dur === 'number' ? e.dur : e.ms ?? 0, ms: typeof e.ms === 'number' ? e.ms : 0 }));
-  return { ...base, log, cards: replay(log) };
+  // Einstellungen, die in der Datei fehlen, hat normalize mit Vorgaben gefüllt: merken, damit der Abgleich sie nicht als gewählt behandelt
+  const settingsKnown = base.settingsTs > 0 && r.settings && typeof r.settings === 'object' ? Object.keys(r.settings) : undefined;
+  return { ...base, log, cards: replay(log), ...(settingsKnown ? { settingsKnown } : {}) };
 }
 
 /** Feste Schreibweise für Vergleiche: gleiche Daten ergeben denselben Text. */

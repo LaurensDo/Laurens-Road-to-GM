@@ -210,7 +210,7 @@ textarea { font: 400 0.8rem var(--font-mono); }
 table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
 th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--ink); white-space: nowrap; font-weight: 600; }
 td { padding: 8px; border-bottom: 1px solid var(--rule); }
-th.n, td.n { text-align: right; }
+th.n, td.n { text-align: right; white-space: nowrap; }
 .chart { width: 100%; height: auto; display: block; overflow: visible; }
 .chart .grid { stroke: var(--rule); stroke-width: 1; }
 .chart .bar-right { fill: var(--accent); }

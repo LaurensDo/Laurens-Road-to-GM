@@ -8,9 +8,9 @@ import 'chessground/assets/chessground.cburnett.css';
 import type { Role, SquareName } from 'chessops/types';
 import { destsOf, isCapture, isPromotion, lastSquares, positionOf, sanOfMove, uciSquares, walkVariation } from '../lib/chess';
 import { explain, lastMoveLabel, sideName } from '../lib/explain';
-import { count, dateLabel, dayKey, inWords, n0, n1, pct, seconds } from '../lib/format';
+import { count, dateLabel, inWords, n0, n1, pct, seconds } from '../lib/format';
 import { COVER_WP, equalMoves, gradeFor, isCorrect, judge, TB_TEXT, TB_WP, type Judgement } from '../lib/judge';
-import { counts, pickNext, type PickKind } from '../lib/queue';
+import { addBonus, counts, pickNext, type PickKind } from '../lib/queue';
 import { getPrefs } from '../lib/device';
 import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type ActiveSet, type SetSummary } from '../lib/sets';
 import { play, startCue, timerCue } from '../lib/sound';
@@ -18,7 +18,7 @@ import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
 import { today } from '../lib/stats';
 import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
-import { limitFor, modeOfEntries, TASK_LABEL, type TaskType } from '../lib/limit';
+import { limitFor, modeOfEntries, TASK_LABEL, TASK_TYPES, taskType, type TaskType } from '../lib/limit';
 import { SetBar, SetResult } from './SetResult';
 import { EvalBar, VarBar } from './Variation';
 import { buildVariations, evAt } from '../lib/variation';
@@ -191,7 +191,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     const now = Date.now();
     const act: ActiveSet = { id: newSetId(now), startedAt: now, size: getState().settings.setSize, mode, served: [] };
     activeRef.current = act;
-    saveActive(act);
+    saveActive(mode, act);
     setSetId(act.id);
     setSummary(null);
     setFinished(false);
@@ -209,7 +209,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, endLimit: st.settings.endLimit, previous, tolerance: st.settings.tolerance });
     const moreAvailable = !!pickNext(exercises, st, new Date(), undefined, undefined, mode);
     destroyBoard();
-    saveActive(null);
+    saveActive(mode, null);
     setCurrent(null);
     setResult(null);
     setPromo(null);
@@ -247,7 +247,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
       return;
     }
     act.served.push(next.ex.id);
-    saveActive(act);
+    saveActive(mode, act);
     lastShown.current = { id: next.ex.id, cat: next.ex.cat };
     setLive(false);
     setFinished(false);
@@ -259,9 +259,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   // Vor dem ersten Zeichnen: sonst steht für ein Bild "Für heute ist alles erledigt" da, bis die erste Aufgabe gewählt ist
   useLayoutEffect(() => {
     const st = getState();
-    let act = loadActive();
-    // ein liegengebliebener Satz der anderen Art wird nicht fortgesetzt
-    if (act && act.mode !== mode) act = null;
+    let act = loadActive(mode);
     if (act) {
       const answeredIds = new Set(st.log.filter((e) => e.set?.id === act!.id).map((e) => e.id));
       act.served = act.served.filter((id) => answeredIds.has(id));
@@ -526,8 +524,12 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     record(ex, j.verdict, grade, ms, san, j);
     play(j.correct ? (grade === 2 ? 'slow' : 'correct') : 'wrong');
     const ref = j.verdict === 'wrong' ? ex.refs?.find((r) => r[0] === san) : undefined;
-    if (j.correct) showShapes(shapes);
-    else if (ref) {
+    if (j.correct) {
+      // Stellung nach dem Zug aus den Regeln, nicht aus chessground: Sonst stünde nach einer Umwandlung noch der Bauer da (und nach en passant der geschlagene)
+      const after = walkVariation(ex.fen, [san])[1];
+      if (after) cg.current?.set({ fen: after.fen, lastMove: after.lastMove } as never);
+      showShapes(shapes);
+    } else if (ref) {
       // erst die Widerlegung vorführen, danach erscheinen die Pfeile
       resultShapes.current = shapes;
       startRefutation(ex, san, ref[1], ref[2]);
@@ -619,12 +621,12 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     cancelAnim(false);
     commitDur();
     if (summary || finished || !activeRef.current) {
-      if (finished) saveActive(null);
+      if (finished) saveActive(mode, null);
       onExit();
       return;
     }
     if (answered === 0) {
-      saveActive(null);
+      saveActive(mode, null);
       onExit();
       return;
     }
@@ -719,8 +721,14 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
 
   if (finished || !ex) {
     // nur hier gebraucht: nicht bei jedem Uhr-Takt (zehnmal pro Sekunde) alle Übungen durchgehen
-    const c = counts(exercises, state, new Date(), mode);
-    const t = today(state.log, new Date());
+    const nowD = new Date();
+    const c = counts(exercises, state, nowD, mode);
+    // nur diese Art: "Heute 13 Aufgaben" zählte sonst auch die anderen Arten mit
+    const t = today(state.log.filter((e) => taskType(byId.get(e.id)) === mode), nowD);
+    // andere Arten, in denen heute noch etwas wartet
+    const open = TASK_TYPES.filter((m) => m !== mode)
+      .map((m) => ({ m, cc: counts(exercises, state, nowD, m) }))
+      .filter(({ cc }) => cc.due + cc.learning + cc.newAvailable > 0);
     return (
       <section class="screen">
         <header class="topbar">
@@ -729,7 +737,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
           </button>
         </header>
         <div class="card center">
-          <h2>{c.total === 0 ? 'Keine Aufgaben im Filter' : 'Für heute ist alles erledigt'}</h2>
+          <h2>{c.total === 0 ? 'Keine Aufgaben im Filter' : `${TASK_LABEL[mode]}: für heute erledigt`}</h2>
           <p class="muted">
             {c.total === 0
               ? 'Ändere den Filter in den Einstellungen.'
@@ -737,15 +745,16 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
                   c.backlogDays > 0 ? 'Der Rest der Wiederholungen kommt an den nächsten Tagen dran.' : 'Neue Aufgaben kommen morgen, fällige Wiederholungen früher.'
                 }`}
           </p>
+          {open.length > 0 && (
+            <p class="muted">
+              Noch offen: {open.map(({ m, cc }) => `${TASK_LABEL[m]} (${n0(cc.due + cc.learning + cc.newAvailable)})`).join(', ')}.
+            </p>
+          )}
           {c.total > 0 && c.newTotal > 0 && (
             <button
               class="btn secondary"
               onClick={() => {
-                update((s) => {
-                  const day = dayKey(Date.now());
-                  const n = (s.bonus && s.bonus.day === day ? s.bonus.n : 0) + 5;
-                  return { ...s, bonus: { day, n } };
-                });
+                update((s) => addBonus(s, mode, new Date()));
                 startSet();
                 loadNext();
               }}

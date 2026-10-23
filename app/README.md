@@ -53,6 +53,20 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.12: Durchsicht von 1.8 bis 1.11
+
+Drei unabhängige Prüfungen (Logik, Bedienung im Browser auf iPhone- und iPad-Größe, Daten) und die Korrekturen daraus:
+
+- **Kosten des Fehlzugs richtig gerechnet** (`analysis/why.py`). Die Zeile „du verlierst …“ wurde ab der Stellung nach deinem Zug gerechnet, was dein Zug selbst geschlagen hatte, fehlte: 135 Zeilen nannten einen Verlust, wo es ein Abtausch war („Lxh6 … du verlierst einen Läufer“), 164 übertrieben. Jetzt zählt die Rechnung ab der Stellung vor dem Zug, ein Abtausch erscheint nicht mehr als Verlust.
+- **Umwandlung ist kein Damengewinn.** „Du gewinnst die Dame für einen Bauern“ hieß früher: Du wandelst um. Jetzt: „bekommst du eine neue Dame“, beim Gegner „der Gegner bekommt eine neue Dame“. Umgewandelte Figuren werden Feld für Feld verfolgt.
+- **Gewinn muss halten.** Ein Gewinn zählt nur, wenn die Linie ihn bis zum Ende behält (kein „gewinnst du einen Springer“, der nach einem Zwischenschach zurückgeht), und ein Schlag am Linienende nur, wenn die beste Antwort nichts zurückholt. Im Remis-Endspiel entfällt „gewinnst du …“, dort geht es ums Halten. Motive fehlen nicht mehr, wenn der letzte Zug des Gegners eine Rochade war.
+- **Endspiele exakt** (`build_exercises.py`). 17 Endspiel-Stellungen steckten als Stockfish-Übung im Fehler-Training (einige werteten verlierende Züge als richtig). Sie sind jetzt Endspiel-Aufgaben mit Tablebase-Wertung, dein Lernstand bleibt erhalten; die zwei im Prüfsatz bleiben unverändert. Eine Übung entfällt, weil dein Partiezug laut Tablebase gar kein Fehler war.
+- **Pausierter Satz bleibt.** Jede Art hat ihren eigenen Platz für den laufenden Satz: Wer Fehler-Training pausiert und kurz ins Endspiel schaut, kann danach dort weitermachen.
+- **„5 weitere neue Aufgaben“ gilt nur für die Art, in der du tippst** (`bonusBy` in der Sync-Datei, ältere Versionen reichen es weiter).
+- **Einstellungen im Abgleich:** Bei gleichem Zeitpunkt entscheiden beide Geräte gleich. Ein älteres Gerät setzt neuere Felder (Zeitlimits je Art) nicht mehr auf die Vorgabe zurück. Nie geänderte Einstellungen bekommen die aktuellen Vorgaben (Fehler-Training 20 s statt früher 10 s).
+- **Kleinere Korrekturen:** Die Zeitplanung des Tages rechnet nur mit Fehler-Aufgaben. Ein alter Filter „Sicher gewinnen“ leert das Fehler-Training nicht mehr. Die Satzauswertung zählt Endspiele nicht doppelt und nennt den Filter nur im Fehler-Training, und sie nennt das Limit, das beim Antworten galt. Nach einer richtigen Umwandlung steht die neue Figur auf dem Brett. „Für heute erledigt“ nennt die Art und was in den anderen noch offen ist. Fortschritt: Satz-Kurve nur Fehler-Training (andere Arten als Zeile), Fehlerarten ohne „Sicher gewinnen“ und „Endspiel“. Die Auswertung für Claude enthält die Warteschlangen aller Arten.
+- **Abdeckung danach:** Fehler-Training 824 von 1.182 Aufgaben mit Motiv oder Gewinn, 557 mit den Kosten des Partiezugs. Es sind weniger als vorher, weil unsichere Aussagen jetzt wegfallen.
+
 ## Version 1.11: Idee zum besten Zug
 
 - **Warum der Zug richtig ist** (`analysis/why.py`, `src/lib/why.ts`). Für jede Aufgabe wertet der Motiv-Erkenner von lichess (derselbe, mit dem lichess seine Puzzles taggt) die beste Linie aus: Der letzte Zug des Gegners ist der „Fehler“, die beste Linie die Lösung. Dazu kommt, was die Linie bringt (Matt in N oder Material in Worten: „die Qualität“, „einen Springer für einen Bauern“), vorsichtig gerechnet: Ein Schlag zählt erst nach der Antwort des Gegners. Für deinen Partiezug und die wahrscheinlichen Fehlzüge steht, was die Widerlegung kostet.

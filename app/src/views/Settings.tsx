@@ -6,7 +6,7 @@ import { SoundCard } from './SoundCard';
 import { setPrefs, usePrefs } from '../lib/device';
 import { SyncCard } from './SyncCard';
 import { useSyncStatus } from '../lib/syncRunner';
-import { saveActive } from '../lib/sets';
+import { clearActive } from '../lib/sets';
 import { diagText } from '../lib/diag';
 import { count, n0 } from '../lib/format';
 import { counts } from '../lib/queue';
@@ -78,6 +78,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
       holdoutIds: holdout.map((e) => e.id),
       byId,
       queue: counts(exercises, state, new Date()),
+      queueBy: { sicher: counts(exercises, state, new Date(), 'sicher'), endspiel: counts(exercises, state, new Date(), 'endspiel') },
     });
     try {
       await navigator.clipboard.writeText(text);
@@ -452,7 +453,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
                 class="btn danger"
                 onClick={() => {
                   const now = Date.now();
-                  saveActive(null);
+                  clearActive();
                   replaceState({ ...emptyState(), settings: state.settings, settingsTs: state.settingsTs, hidden: state.hidden, epoch: now, epochTs: now });
                   setConfirmReset(false);
                   setMsg('Trainingsstand gelöscht.');

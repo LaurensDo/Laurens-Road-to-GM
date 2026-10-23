@@ -18,7 +18,10 @@ export interface ReportContext {
   /** Prüfsatz-IDs (Übungen, die nie im Training vorkommen sollen) */
   holdoutIds: string[];
   byId: Map<string, Exercise>;
+  /** Warteschlange des Fehler-Trainings */
   queue: QueueCounts;
+  /** dasselbe für "Sicher gewinnen" und "Endspiel" (fehlt in älteren Aufrufen) */
+  queueBy?: Partial<Record<'sicher' | 'endspiel', QueueCounts>>;
 }
 
 const DAY = 86400000;
@@ -118,6 +121,13 @@ export function usageReport(state: AppState, c: ReportContext) {
       minutenDarin: Math.round(viewed.reduce((a, e) => a + (e.pv ?? 0), 0) / 6000) / 10,
     },
     warteschlange: { heuteDran: c.queue.due, neu: c.queue.newAvailable, wartenAufSpaeter: c.queue.waiting, rueckstandTage: c.queue.backlogDays },
+    ...(c.queueBy
+      ? {
+          warteschlangeArten: Object.fromEntries(
+            Object.entries(c.queueBy).map(([m, q]) => [m, { heuteDran: q.due, neu: q.newAvailable, nochNieGesehen: q.newTotal, gesamt: q.total }]),
+          ),
+        }
+      : {}),
     pruefsatz: { groesse: c.holdoutIds.length, schonGesehen: seenHold },
     dauerbrenner: stubborn,
   };
