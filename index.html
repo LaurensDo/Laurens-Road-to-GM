@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Viewport vor der frühen Messung: Sonst misst Safari beim Start noch die Standardbreite von 980 px statt der Gerätebreite -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script>
+      // Frühe Messung ab dem allerersten Moment, noch vor Stil und App (für die Anzeige-Info in den Einstellungen)
+      (function () {
+        var log = (window.__early = []);
+        function snap(tag) {
+          var vv = window.visualViewport;
+          log.push({
+            t: Math.round(performance.now()), tag: tag, w: innerWidth, h: innerHeight, ow: outerWidth, oh: outerHeight, sx: screenX, sy: screenY,
+            vw: vv ? Math.round(vv.width) : 0, vh: vv ? Math.round(vv.height) : 0, vx: vv ? Math.round(vv.offsetLeft) : 0, vy: vv ? Math.round(vv.offsetTop) : 0,
+            rs: document.readyState
+          });
+        }
+        snap('Start');
+        var n = 0, last = '';
+        (function frame() {
+          var key = [innerWidth, innerHeight, outerWidth, outerHeight, screenX, screenY].join();
+          if (key !== last && log.length < 60) { last = key; snap('Änderung'); }
+          if (++n < 240) requestAnimationFrame(frame);
+        })();
+        ['resize', 'orientationchange', 'pageshow', 'visibilitychange', 'focus'].forEach(function (e) {
+          addEventListener(e, function () { if (log.length < 60) snap(e); });
+        });
+      })();
+    </script>
+    <meta name="theme-color" content="#1d6b58" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Road to GM" />
+    <link rel="icon" type="image/svg+xml" href="/Laurens-Road-to-GM/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/Laurens-Road-to-GM/icons/apple-touch-icon.png" />
+    <!-- iOS-Startbild vor dem Start der App (nur beim Hinzufügen zum Home-Bildschirm gelesen). iPad Pro 12,9": 1024×1366 Punkte, Faktor 2 -->
+    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/Laurens-Road-to-GM/launch/ipad-pro-12-9-portrait.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="/Laurens-Road-to-GM/launch/ipad-pro-12-9-landscape.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/Laurens-Road-to-GM/launch/iphone-13-portrait.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="/Laurens-Road-to-GM/launch/iphone-13-landscape.png" />
+    <title>Road to GM</title>
+    <script>
+      // Startfarbe vor dem ersten Bild, damit beim Öffnen nichts weiß aufblitzt (außer das Startbild ist abgeschaltet)
+      try {
+        if (JSON.parse(localStorage.getItem('road-to-gm-device-v1') || '{}').splash !== false) document.documentElement.style.background = '#0d2c24';
+      } catch (e) {
+        document.documentElement.style.background = '#0d2c24';
+      }
+    </script>
+    <script type="module" crossorigin src="/Laurens-Road-to-GM/assets/index-DEYZJrH4.js"></script>
+    <link rel="stylesheet" crossorigin href="/Laurens-Road-to-GM/assets/index-8f-JZF4F.css">
+  <link rel="manifest" href="/Laurens-Road-to-GM/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/Laurens-Road-to-GM/registerSW.js"></script></head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
