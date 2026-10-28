@@ -245,7 +245,8 @@ describe('Auswertung für Claude', () => {
     expect(r.saetze30Tage).toMatchObject({ gesamt: 2, fertig: 1, abgebrochen: 1 });
     expect(r.pruefsatz).toEqual({ groesse: 2, schonGesehen: ['c'] });
     expect(r.varianten14Tage).toEqual({ antworten: expect.any(Number), geoeffnet: 0, minutenDarin: 0 });
-    expect(r.dauerbrenner).toEqual([{ id: 'b', fehlversuche: 3, antworten: 1, art: 'Matt übersehen' }]);
+    expect(r.dauerbrenner).toEqual([{ id: 'b', fehlversuche: 3, antworten: 1, art: 'Matt übersehen', zuege: ['– falsch'] }]);
+    expect(r.abgleich).toBeUndefined();
     expect(r.pausen).toEqual([{ tage: 5, trainingstageInDenErsten3Tagen: 1 }]);
     expect(JSON.stringify(r)).not.toMatch(/opp_name|https?:/);
   });

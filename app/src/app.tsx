@@ -40,11 +40,13 @@ export function App() {
 
   useEffect(() => {
     startUpdater(() => reloadSafe.current);
-    void loadState().then(() => {
-      initSync();
-      void initGames();
-      setStateReady(true);
-    });
+    loadState()
+      .then(() => {
+        initSync();
+        void initGames();
+        setStateReady(true);
+      })
+      .catch((e: Error) => setError(e.message));
     loadData()
       .then(setData)
       .catch((e: Error) => setError(e.message));

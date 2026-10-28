@@ -22,7 +22,16 @@ export interface ReportContext {
   queue: QueueCounts;
   /** dasselbe für "Sicher gewinnen" und "Endspiel" (fehlt in älteren Aufrufen) */
   queueBy?: Partial<Record<'sicher' | 'endspiel', QueueCounts>>;
+  /** Abgleich: eingerichtet, letzter erfolgreicher Abgleich, Fehler. Ohne Abgleich enthält die Auswertung nur dieses Gerät. */
+  sync?: { on: boolean; last: number | null; error: string | null };
 }
+
+const VERDICT_WORD: Record<string, string> = { best: 'bester', equal: 'gleichwertig', playable: 'spielbar', wrong: 'falsch', gaveup: 'Lösung angezeigt' };
+
+const stamp = (ts: number) => {
+  const d = new Date(ts);
+  return `${dayKey(ts)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
 
 const DAY = 86400000;
 
@@ -91,13 +100,24 @@ export function usageReport(state: AppState, c: ReportContext) {
   const seenHold = [...new Set(log.filter((e) => holdSet.has(e.id)).map((e) => e.id))];
   const stubborn = Object.entries(state.cards)
     .filter(([, r]) => r.lapses >= 3)
-    .map(([id, r]) => ({ id, fehlversuche: r.lapses, antworten: r.reviews, art: c.byId.get(id)?.cat ?? '?' }))
+    // mit deinen Zügen: Derselbe falsche Zug immer wieder ist ein blinder Fleck, wechselnde knapp daneben eher eine strenge Wertung
+    .map(([id, r]) => ({
+      id,
+      fehlversuche: r.lapses,
+      antworten: r.reviews,
+      art: c.byId.get(id)?.cat ?? '?',
+      zuege: log.filter((e) => e.id === id).map((e) => `${e.san ?? '–'} ${VERDICT_WORD[e.verdict] ?? e.verdict}`),
+    }))
     .sort((x, y) => y.fehlversuche - x.fehlversuche)
     .slice(0, 30);
 
   return {
     app: { version: c.appVersion, build: c.build, datenstand: c.dataVersion },
     stand: dayKey(now),
+    // Ohne Abgleich steht hier nur dieses Gerät: Die Zahlen gelten dann nicht für das Training insgesamt
+    abgleich: c.sync
+      ? { aktiv: c.sync.on, letzter: c.sync.last ? stamp(c.sync.last) : null, ...(c.sync.error ? { fehler: c.sync.error } : {}), umfasst: c.sync.on ? 'alle abgeglichenen Geräte' : 'nur dieses Gerät' }
+      : undefined,
     geraete: Object.fromEntries(Object.entries(state.devices).map(([n, d]) => [n, { version: d.v, zuletzt: dayKey(d.ts) }])),
     antwortenGesamt: log.length,
     trainingstageProWoche: weeks,

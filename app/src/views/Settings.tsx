@@ -1,11 +1,11 @@
 import { useState } from 'preact/hooks';
-import { exportJson, importJson, replaceState, update, useAppState } from '../lib/store';
+import { exportJson, getState, importJson, replaceState, update, useAppState } from '../lib/store';
 import { hiddenCount } from '../lib/queue';
 import { Segmented } from './Segmented';
 import { SoundCard } from './SoundCard';
 import { setPrefs, usePrefs } from '../lib/device';
 import { SyncCard } from './SyncCard';
-import { useSyncStatus } from '../lib/syncRunner';
+import { getSyncStatus, isConnected, syncNow, useSyncStatus } from '../lib/syncRunner';
 import { clearActive } from '../lib/sets';
 import { diagText } from '../lib/diag';
 import { count, n0 } from '../lib/format';
@@ -70,23 +70,49 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
   };
 
   const doReport = async () => {
-    const text = usageReportText(state, {
-      now: new Date(),
-      appVersion: __APP_VERSION__,
-      build: __BUILD__,
-      dataVersion,
-      holdoutIds: holdout.map((e) => e.id),
-      byId,
-      queue: counts(exercises, state, new Date()),
-      queueBy: { sicher: counts(exercises, state, new Date(), 'sicher'), endspiel: counts(exercises, state, new Date(), 'endspiel') },
-    });
+    setReportMsg(null);
+    setReportText('');
+    const connected = isConnected();
+    // Erst abgleichen (höchstens 10 s), dann aus dem neuesten Stand rechnen: So enthält die Auswertung auch die Antworten des anderen Geräts
+    const build = async () => {
+      if (connected) await Promise.race([syncNow(), new Promise((r) => setTimeout(r, 10000))]);
+      const st = getState();
+      const ss = getSyncStatus();
+      const now = new Date();
+      const text = usageReportText(st, {
+        now,
+        appVersion: __APP_VERSION__,
+        build: __BUILD__,
+        dataVersion,
+        holdoutIds: holdout.map((e) => e.id),
+        byId,
+        queue: counts(exercises, st, now),
+        queueBy: { sicher: counts(exercises, st, now, 'sicher'), endspiel: counts(exercises, st, now, 'endspiel') },
+        sync: { on: connected, last: ss.last, error: ss.state === 'error' || ss.state === 'offline' ? ss.message : null },
+      });
+      const devices = Object.keys(st.devices).length;
+      const note = !connected
+        ? ' Achtung: Sie enthält nur dieses Gerät, der Abgleich ist nicht eingerichtet.'
+        : ss.state === 'error' || ss.state === 'offline'
+          ? ' Achtung: Der Abgleich hat gerade nicht geklappt, neue Antworten vom anderen Gerät fehlen vielleicht.'
+          : devices >= 2
+            ? ` Sie umfasst alle ${n0(devices)} abgeglichenen Geräte.`
+            : ' Bisher gleicht nur dieses Gerät ab: Richte den Abgleich auch auf dem anderen ein.';
+      return { text, note };
+    };
+    const job = build();
     try {
-      await navigator.clipboard.writeText(text);
-      setReportMsg('Auswertung kopiert. Füge sie in den Chat mit Claude ein. Sie enthält nur Zahlen, keine Partien.');
-      setReportText('');
+      // Safari erlaubt das Kopieren nur direkt nach dem Tippen: Der Inhalt kommt deshalb als Versprechen mit, der Abgleich darf dauern
+      if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': job.then((j) => new Blob([j.text], { type: 'text/plain' })) })]);
+      } else {
+        await navigator.clipboard.writeText((await job).text);
+      }
+      setReportMsg(`Auswertung kopiert. Füge sie in den Chat mit Claude ein.${(await job).note}`);
     } catch {
-      setReportText(text);
-      setReportMsg('Markiere den Text und kopiere ihn in den Chat mit Claude.');
+      const j = await job;
+      setReportText(j.text);
+      setReportMsg(`Markiere den Text und kopiere ihn in den Chat mit Claude.${j.note}`);
     }
   };
 
@@ -421,7 +447,7 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
         <h2>Auswertung für Claude</h2>
         <p class="muted">
           Kopiert Zahlen zur Nutzung (Trainingstage, Minuten, Sätze, Dauerbrenner), ohne Partien und Namen. Damit entscheiden wir im Chat,
-          was als Nächstes gebaut wird. Zum Beispiel alle zwei Wochen.
+          was als Nächstes gebaut wird. Vorher gleicht sie ab, damit beide Geräte drin sind. Claude erinnert dich jeden Sonntag daran.
         </p>
         <button class="btn secondary" onClick={doReport}>
           Auswertung kopieren

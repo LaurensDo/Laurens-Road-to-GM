@@ -9,6 +9,7 @@ const BASE = 'http://localhost:4174/Laurens-Road-to-GM/';
 const OUT = process.argv[2] ?? '/tmp/e2e-sync';
 mkdirSync(OUT, { recursive: true });
 const data = JSON.parse(readFileSync(new URL('../public/data/exercises.json', import.meta.url)));
+const byIdAll = new Map(data.exercises.map((e) => [e.id, e]));
 const results = [];
 const ok = (cond, msg) => { results.push(`${cond ? 'OK  ' : 'FAIL'} ${msg}`); if (!cond) process.exitCode = 1; };
 
@@ -38,6 +39,8 @@ async function solveFirstNew(d, ex) {
   await d.page.click('text=/Fehler-Training (starten|weiter)/');
   await d.page.waitForSelector('.board-wrap[data-live="1"]');
   await d.page.waitForTimeout(300);
+  // ohne Vorgabe die Aufgabe, die gerade gezeigt wird
+  if (!ex) ex = byIdAll.get(await d.page.getAttribute('.board-wrap', 'data-ex'));
   const white = ex.turn === 'w';
   const box = await d.page.locator('.board cg-board').boundingBox();
   const pt = (sq) => {
@@ -159,12 +162,34 @@ await syncNowClick(phone);
 await syncNowClick(ipad);
 ok((await doneCount(phone)) === 2 && (await doneCount(ipad)) === 2 && remoteLog().length === 2, 'Sicherung nach dem Zurücksetzen bringt den Stand auf beiden Geräten zurück');
 
+// Auswertung: gleicht vorher ab und sagt, welche Geräte drin sind
+async function report(d) {
+  await openSettings(d);
+  await d.page.getByRole('button', { name: 'Auswertung kopieren', exact: true }).click();
+  const notice = d.page.locator('.notice', { hasText: /Auswertung kopiert|Markiere den Text/ });
+  await notice.waitFor({ timeout: 15000 });
+  const note = await notice.textContent();
+  const area = d.page.getByLabel('Auswertung');
+  const txt = (await area.count()) ? await area.inputValue() : await d.page.evaluate(() => navigator.clipboard.readText());
+  return { note, json: JSON.parse(txt.slice(txt.indexOf('{'))) };
+}
+await solveFirstNew(ipad); // dritte Antwort, noch nicht abgeglichen
+const rIpad = await report(ipad);
+ok(remoteLog().length === 3 && rIpad.json.antwortenGesamt === 3, `Auswertung gleicht vorher ab: die neue iPad-Antwort steht danach im Repository (${remoteLog().length})`);
+const rPhone = await report(phone);
+ok(rPhone.json.antwortenGesamt === 3 && rPhone.json.abgleich?.aktiv === true && Object.keys(rPhone.json.geraete).length === 3 && /alle 3 abgeglichenen Geräte/.test(rPhone.note),
+  `Auswertung auf dem iPhone enthält alle Geräte (${rPhone.json.antwortenGesamt} Antworten, ${Object.keys(rPhone.json.geraete).length} Geräte, "${rPhone.note.trim()}")`);
+
 // Trennen
 await openSettings(ipad2);
 await ipad2.page.getByRole('button', { name: 'Verbindung trennen' }).click();
 await ipad2.page.getByRole('button', { name: 'Trennen', exact: true }).click();
 await ipad2.page.waitForSelector('text=Mit iPhone und iPad abgleichen', { timeout: 3000 }).catch(() => {});
 ok(await ipad2.page.locator('#sync-repo').count() === 1, 'Trennen zeigt wieder das Einrichtungsformular');
+{
+  const r = await report(ipad2);
+  ok(r.json.abgleich?.umfasst === 'nur dieses Gerät' && /nur dieses Gerät/.test(r.note), `Ohne Abgleich warnt die Auswertung: nur dieses Gerät ("${r.note.trim()}")`);
+}
 
 ok(errors.length === 0, `Keine Konsolenfehler ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
 await browser.close();

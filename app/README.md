@@ -53,6 +53,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.13.1: Auswertung über beide Geräte, Schutz des Speichers
+
+- **Auswertung über alle Geräte.** „Auswertung kopieren“ gleicht vorher ab (höchstens 10 s), rechnet dann aus dem zusammengeführten Stand und sagt, was drin ist: „Sie umfasst alle 2 abgeglichenen Geräte“ oder „Achtung: Sie enthält nur dieses Gerät“. Im Text steht `abgleich` (aktiv, letzter Abgleich, Fehler, umfasst). Das Kopieren läuft unter iOS mit verzögertem Inhalt (ClipboardItem mit Versprechen), weil Safari sonst nach dem Abgleich nicht mehr kopieren dürfte.
+- **Dauerbrenner mit deinen Zügen** (`zuege`: „Nc7 falsch“, „Re8 bester“): Derselbe falsche Zug immer wieder ist ein blinder Fleck, wechselnde knapp daneben eher eine strenge Wertung.
+- **Speicher nie leer überschreiben** (`store.ts`). Konnte die App ihren Stand beim Start nicht lesen, startete sie früher leer, und das nächste Speichern überschrieb den echten Stand. Jetzt: zwei weitere Versuche, sonst eine Meldung („App ganz schließen und neu öffnen, es wurde nichts überschrieben“). Unlesbarer Inhalt wird unter einem eigenen Schlüssel aufgehoben.
+
 ## Version 1.13: Heute auf einen Blick
 
 - **Je Art ein Knopf mit einer Zahl:** „Fehler-Training starten · 54 offen“ statt der Reihe Satz/Fällig/Lernen/Neu. Die Zahl ist alles, was heute noch dran ist (Wiederholungen, Lernschritte und neue zusammen), die Satzgröße steht in den Einstellungen. Ein pausierter Satz zeigt seinen Stand als Punktreihe im Knopf („weiter“, ●●●●○○○○○○ 4 von 10).

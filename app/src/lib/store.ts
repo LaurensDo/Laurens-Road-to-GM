@@ -13,13 +13,35 @@ function notify() {
   listeners.forEach((l) => l());
 }
 
+/** Meldung, wenn der Speicher sich nicht lesen ließ. Die App startet dann nicht, damit nichts den echten Stand überschreibt. */
+export const READ_FAILED = 'Der Trainingsstand auf diesem Gerät ließ sich gerade nicht lesen. Schließe die App ganz und öffne sie neu. Es wurde nichts überschrieben.';
+
+/**
+ * Lädt den Stand. Ein Lesefehler (IndexedDB unter iOS gelegentlich nach dem Aufwachen) wird wiederholt und endet sonst mit einem Fehler:
+ * Früher startete die App dann leer, und das nächste Speichern überschrieb den echten Stand. Unlesbarer Inhalt wird beiseitegelegt, nicht gelöscht.
+ */
 export async function loadState(): Promise<void> {
-  try {
-    const stored = await get<string>(KEY);
-    if (stored) state = normalize(JSON.parse(stored));
-  } catch {
-    // Beschädigter oder nicht lesbarer Speicher: mit leerem Stand starten
-    state = emptyState();
+  let stored: string | undefined;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      stored = await get<string>(KEY);
+      break;
+    } catch {
+      if (attempt >= 2) throw new Error(READ_FAILED);
+      await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+    }
+  }
+  if (stored) {
+    try {
+      state = normalize(JSON.parse(stored));
+    } catch {
+      try {
+        await set(`${KEY}-defekt-${Date.now()}`, stored);
+      } catch {
+        throw new Error(READ_FAILED);
+      }
+      state = emptyState();
+    }
   }
   loaded = true;
   try {
