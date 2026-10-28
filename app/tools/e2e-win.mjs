@@ -182,7 +182,7 @@ const currentEx = async (page) => byId.get(await page.getAttribute('.board-wrap'
   await page.waitForSelector('text=Satz beenden?');
   await page.getByRole('button', { name: 'Später weitermachen', exact: true }).click();
   await page.waitForSelector('.hero');
-  ok((await page.locator('text=Sicher gewinnen weiter (1 von 10)').count()) === 1, 'C: Ein angefangener Satz lässt sich bei seiner Art fortsetzen');
+  ok(/1 von 10/.test((await page.locator('.start-mode', { hasText: 'Sicher gewinnen weiter' }).textContent()) ?? ''), 'C: Ein angefangener Satz lässt sich bei seiner Art fortsetzen');
   ok((await page.locator('text=Fehler-Training starten').count()) === 1, 'C: Der Knopf der anderen Art bleibt "starten"');
   await ctx.close();
 }

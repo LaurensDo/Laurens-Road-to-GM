@@ -228,8 +228,12 @@ Auf Wunsch von Laurens: zwei Spielmodi. Wer unter 10 Sekunden zieht, kann nicht 
 
 - **Durchsicht von 1.8 bis 1.11** mit Korrekturen: Kosten des Fehlzugs ab der Stellung vor dem Zug, Umwandlung als „neue Dame“, Gewinn nur wenn er hält; Endspiel-Stellungen im Fehler-Training durch Tablebase-Aufgaben ersetzt; laufender Satz und „5 weitere neue“ je Art getrennt; Einstellungen im Abgleich deterministisch und ohne Rückfall auf Vorgaben durch ältere Geräte.
 
+## 9m. Version 1.13 (umgesetzt)
+
+- **Heute auf einen Blick:** je Art ein Startknopf mit einer Zahl (heute offen), pausierter Satz als Punktreihe; erledigte Sätze als Zeichenreihe je Aufgabe (richtig, zu langsam, falsch, offen) und eine Summenzeile statt Zahlenblöcken.
+
 ## 10. Reihenfolge
 
-1. **Version 1 bis 1.12 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
+1. **Version 1 bis 1.13 (gebaut):** Heute, Fehler-Trainer (mit Wiederholung), Fortschritt (Training), offline, Sicherung, Abgleich, Aufgabensätze, Töne, Layouts für iPhone und iPad.
 2. **Phase 2 (Funktionen):** Uhr-Coach mit Gewinn-Drill, Taktik-Sprint, Stockfish-Prüfer.
 3. **Version 2:** Eröffnungs-Lecks, automatischer Import, Wochenbericht, Endspiel-Prüfung mit der Syzygy-Datenbank.

@@ -1,9 +1,10 @@
 import { activeFilters, counts } from '../lib/queue';
-import { count, dayKey, n0, n1, pct } from '../lib/format';
+import { count, dayKey, n0, pct } from '../lib/format';
 import { KingMark } from './Mark';
 import { applyUpdate, useUpdateReady } from '../lib/updater';
 import { GamesCard } from './Games';
-import { listSets, loadActive, rateOf } from '../lib/sets';
+import { listSets, loadActive } from '../lib/sets';
+import { Dots, DotsLegend, markOf, type Mark } from './Dots';
 import { today } from '../lib/stats';
 import { useAppState } from '../lib/store';
 import { SyncBadge } from './SyncCard';
@@ -62,38 +63,41 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
               <i style={{ width: `${done * 100}%` }} />
             </div>
             <span class="mono">
-              {n1(t.minutes)} von {n0(goal)} Min
+              {n0(Math.floor(t.minutes))} von {n0(goal)} Min
             </span>
           </div>
           {TASK_TYPES.map((mode) => {
             const cc = byMode[mode];
             // Arten ohne Aufgaben (ältere Daten) bekommen keinen Knopf
             if (cc.total === 0 && mode !== 'fehler') return null;
+            // eine Zahl je Art: was heute noch dran ist (Wiederholungen, Lernschritte und neue zusammen); die Satzgröße steht in den Einstellungen
+            const open = cc.due + cc.learning + cc.newAvailable;
+            const a = resumable(mode) ? active[mode] : null;
+            const marks: Mark[] = a ? [...Array<Mark>(a.done).fill('done'), ...Array<Mark>(Math.max(0, a.size - a.done)).fill('open')] : [];
             return (
               <div class="start-mode" key={mode}>
-                <button class={`btn light${mode !== 'fehler' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
-                  {resumable(mode)
-                    ? `${TASK_LABEL[mode]} weiter (${n0(active[mode]!.done)} von ${n0(active[mode]!.size)})`
-                    : `${TASK_LABEL[mode]} starten`}
+                <button class={`mode-btn${mode !== 'fehler' ? ' alt' : ''}`} onClick={() => onStart(mode)} disabled={!startable(cc)}>
+                  <span class="mode-name">
+                    {TASK_LABEL[mode]} {a ? 'weiter' : 'starten'}
+                  </span>{' '}
+                  <span class="mode-open">
+                    {open > 0 ? (
+                      <>
+                        <b class="mono">{n0(open)}</b> offen
+                      </>
+                    ) : (
+                      'erledigt'
+                    )}
+                  </span>{' '}
+                  {a && (
+                    <span class="mode-progress">
+                      <Dots marks={marks} />{' '}
+                      <span class="mode-progress-text">
+                        {n0(a.done)} von {n0(a.size)}
+                      </span>
+                    </span>
+                  )}
                 </button>
-                <dl class="hero-facts-small" aria-label={`${TASK_LABEL[mode]} heute im Vorrat`}>
-                  <div>
-                    <dt>Satz</dt>
-                    <dd class="mono">{n0(state.settings.setSize)}</dd>
-                  </div>
-                  <div>
-                    <dt>Fällig</dt>
-                    <dd class="mono">{n0(cc.due)}</dd>
-                  </div>
-                  <div>
-                    <dt>Lernen</dt>
-                    <dd class="mono">{n0(cc.learning)}</dd>
-                  </div>
-                  <div>
-                    <dt>Neu</dt>
-                    <dd class="mono">{n0(cc.newAvailable)}</dd>
-                  </div>
-                </dl>
               </div>
             );
           })}
@@ -116,34 +120,26 @@ export function Today({ exercises, meta, regel, onStart, onOpenSettings }: Props
 
       <div class="card">
         <h2>Heute erledigt</h2>
-        {todaySets.length > 0 && (
-          <ul class="plain sets-today">
-            {todaySets.map((r) => (
-              <li key={r.id}>
-                <span class="mono">{new Date(r.startTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>{' '}
-                {TASK_LABEL[modeOfEntries(r.entries, byId)]}, {count(r.entries.length, 'Aufgabe', 'Aufgaben')}: <b class="mono">{pct(rateOf(r))}</b> richtig
-                {r.entries.length < r.planned && <span class="muted"> (nicht fertig)</span>}
-              </li>
-            ))}
-          </ul>
-        )}
         {t.n === 0 ? (
           <p class="muted">Noch keine Aufgabe. Fünf Minuten reichen für den Anfang.</p>
         ) : (
-          <dl class="facts">
-            <div>
-              <dt>Aufgaben</dt>
-              <dd class="mono">{n0(t.n)}</dd>
-            </div>
-            <div>
-              <dt>Richtig</dt>
-              <dd class="mono">{t.rate !== null ? pct(t.rate) : '–'}</dd>
-            </div>
-            <div>
-              <dt>Ø Zeit</dt>
-              <dd class="mono">{t.avgMs !== null ? `${n1(t.avgMs / 1000)} s` : '–'}</dd>
-            </div>
-          </dl>
+          <>
+            {todaySets.length > 0 && (
+              <ul class="plain set-strips">
+                {todaySets.map((r) => (
+                  <li key={r.id}>
+                    <span class="set-mode">{TASK_LABEL[modeOfEntries(r.entries, byId)]}</span>{' '}
+                    <Dots marks={[...r.entries.map(markOf), ...Array<Mark>(Math.max(0, r.planned - r.entries.length)).fill('open')]} />
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p class="muted small">
+              {count(t.n, 'Aufgabe', 'Aufgaben')} · {t.rate !== null ? `${pct(t.rate)} richtig` : '–'}
+              {t.avgMs !== null ? ` · Ø ${n0(t.avgMs / 1000)} s` : ''}
+            </p>
+            {todaySets.length > 0 && <DotsLegend />}
+          </>
         )}
       </div>
 

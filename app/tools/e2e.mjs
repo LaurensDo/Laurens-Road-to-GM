@@ -56,7 +56,8 @@ await page.waitForSelector('#splash[data-ready="1"]');
 await page.waitForTimeout(1300);
 await page.screenshot({ path: `${OUT}/0-startbild.png` });
 ok((await page.textContent('#splash .splash-quote p')).length > 10 && /Big Dog/.test(await page.textContent('#splash .splash-author')), 'Startbild zeigt ein Zitat von Big Dog');
-await page.mouse.click(200, 400);
+// auf eine Stelle, unter der auf Heute kein Knopf liegt: Endet das Startbild gerade von selbst, ginge der Tipp sonst an die Seite
+await page.mouse.click(200, 120);
 await page.waitForSelector('#splash', { state: 'detached', timeout: 2000 });
 ok(true, 'Tippen überspringt das Startbild');
 ok(await page.locator('.hero h1').textContent() === 'Heute' && await page.locator('.hero-sub').count() === 0, 'Heute ohne Begrüßung und Serie');
@@ -84,12 +85,17 @@ await page.screenshot({ path: `${OUT}/1-heute.png` });
 ok(await page.locator('text=Fehler-Training starten').count() === 1, 'Heute zeigt "Fehler-Training starten"');
 await chooseSetSize(5);
 await page.locator('nav').getByText('Heute').click();
-ok((await page.locator('.start-mode').first().locator('.hero-facts-small div').first().textContent()).replace(/\s+/g, '') === 'Satz5', 'Satzgröße 5 wird übernommen (Heute zeigt "Satz 5")');
+{
+  // Heute zeigt je Art nur noch eine Zahl (offen), keine Zahlenreihe
+  const btn0 = (await page.locator('.start-mode').first().textContent()).replace(/\s+/g, ' ');
+  ok(/Fehler-Training starten \d+ offen/.test(btn0) && (await page.locator('.hero dl').count()) === 0, `Startknopf mit einer Zahl, ohne Satz/Fällig/Lernen/Neu (${btn0.trim()})`);
+}
 
 // ---- Aufgabe 1: letzter Zug, Tippen, Töne
 await sfxClear();
 await page.click('text=Fehler-Training starten');
 await page.waitForSelector('.board-wrap[data-live="0"]');
+ok((await taskNo()).includes('von 5'), 'Satzgröße 5 wird übernommen');
 ok(/0,0 s/.test(await page.textContent('.timer')), 'Vor der Freigabe läuft die Zeit noch nicht');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 await page.waitForTimeout(300);
@@ -226,8 +232,13 @@ await page.waitForSelector('text=Satz beenden?');
 await page.screenshot({ path: `${OUT}/5c-dialog.png` });
 await btn('Später weitermachen').click();
 await page.waitForSelector('.hero');
-ok(await page.locator('text=Fehler-Training weiter (1 von 5)').count() === 1, 'Pausierter Satz lässt sich fortsetzen');
-await page.click('text=Fehler-Training weiter (1 von 5)');
+{
+  const resume = page.locator('.start-mode', { hasText: 'Fehler-Training weiter' });
+  const txt = (await resume.textContent()).replace(/\s+/g, ' ');
+  const pips = await resume.locator('.pips .pip').count();
+  ok((await resume.count()) === 1 && /1 von 5/.test(txt) && pips === 5, `Pausierter Satz lässt sich fortsetzen, Stand als Punktreihe (${txt.trim()}, ${pips} Punkte)`);
+}
+await page.click('text=Fehler-Training weiter');
 await page.waitForSelector('.board-wrap[data-live="1"]');
 ok((await taskNo()).includes('Aufgabe 2 von 5'), 'Fortgesetzt wird bei Aufgabe 2');
 await page.getByRole('button', { name: 'Training beenden' }).click();
@@ -243,8 +254,11 @@ await page.waitForTimeout(500);
 await page.reload({ waitUntil: 'networkidle' });
 await page.waitForSelector('.hero');
 {
-  const done = (await page.locator('text=Heute erledigt').locator('..').textContent()).replace(/\s+/g, ' ');
-  ok(/Fehler-Training, 5 Aufgaben/.test(done) && /Fehler-Training, 1 Aufgabe:/.test(done), `Heutige Sätze bleiben nach dem Neuladen erhalten (${done.slice(0, 120)})`);
+  const rows = page.locator('.set-strips > li');
+  const labels = await rows.locator('.pips').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const total = (await page.locator('text=Heute erledigt').locator('..').textContent()).replace(/\s+/g, ' ');
+  ok(labels.length === 2 && !/offen/.test(labels[0]) && /4 offen/.test(labels[1]) && /6 Aufgaben/.test(total),
+    `Heutige Sätze bleiben nach dem Neuladen erhalten, je Satz eine Zeichenreihe (${labels.join(' | ')})`);
 }
 await page.locator('nav').getByText('Fortschritt').click();
 await page.waitForSelector('text=Letzte 14 Tage');

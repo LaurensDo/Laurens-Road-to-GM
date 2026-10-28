@@ -61,7 +61,7 @@ async function solveFirstNew(d, ex) {
 const doneCount = async (d) => {
   await d.page.click('nav >> text=Heute');
   const t = await d.page.locator('text=Heute erledigt').locator('..').textContent();
-  const m = t.match(/Aufgaben\s*(\d+)/);
+  const m = t.match(/(\d+)\s*Aufgabe/);
   return m ? Number(m[1]) : 0;
 };
 // Abgleich auslösen und abwarten: erst muss die Anfrage beim Mock ankommen, sonst stünde noch der alte "Zuletzt abgeglichen"-Text da

@@ -53,6 +53,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.13: Heute auf einen Blick
+
+- **Je Art ein Knopf mit einer Zahl:** „Fehler-Training starten · 54 offen“ statt der Reihe Satz/Fällig/Lernen/Neu. Die Zahl ist alles, was heute noch dran ist (Wiederholungen, Lernschritte und neue zusammen), die Satzgröße steht in den Einstellungen. Ein pausierter Satz zeigt seinen Stand als Punktreihe im Knopf („weiter“, ●●●●○○○○○○ 4 von 10).
+- **Heute erledigt als Zeichenreihe:** je Satz eine Reihe mit einem Zeichen pro Aufgabe (● richtig, ○ zu langsam, × falsch, · offen), darunter eine Zeile mit Aufgaben, Quote und Ø Zeit. Die Bedeutung steckt in der Form, die Farbe hilft nur, deshalb bleibt es auch bei Rot-Grün-Schwäche und im Dunkelmodus lesbar (`src/views/Dots.tsx`).
+- **Startbild:** fängt Tipps auch beim Ausblenden ab, ein Tipp zum Überspringen landet nicht mehr auf dem Knopf darunter.
+
 ## Version 1.12: Durchsicht von 1.8 bis 1.11
 
 Drei unabhängige Prüfungen (Logik, Bedienung im Browser auf iPhone- und iPad-Größe, Daten) und die Korrekturen daraus:
