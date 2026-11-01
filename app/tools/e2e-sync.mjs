@@ -177,7 +177,7 @@ await solveFirstNew(ipad); // dritte Antwort, noch nicht abgeglichen
 const rIpad = await report(ipad);
 ok(remoteLog().length === 3 && rIpad.json.antwortenGesamt === 3, `Auswertung gleicht vorher ab: die neue iPad-Antwort steht danach im Repository (${remoteLog().length})`);
 const rPhone = await report(phone);
-ok(rPhone.json.antwortenGesamt === 3 && rPhone.json.abgleich?.aktiv === true && Object.keys(rPhone.json.geraete).length === 3 && /alle 3 abgeglichenen Geräte/.test(rPhone.note),
+ok(rPhone.json.antwortenGesamt === 3 && rPhone.json.abgleich?.aktiv === true && Object.keys(rPhone.json.geraete).length === 3 && (rPhone.note.match(/\(heute\)/g) ?? []).length === 3 && /^Enthalten:/.test(rPhone.note.split('ein. ')[1] ?? ''),
   `Auswertung auf dem iPhone enthält alle Geräte (${rPhone.json.antwortenGesamt} Antworten, ${Object.keys(rPhone.json.geraete).length} Geräte, "${rPhone.note.trim()}")`);
 
 // Trennen

@@ -11,7 +11,7 @@ import { diagText } from '../lib/diag';
 import { count, n0 } from '../lib/format';
 import { counts } from '../lib/queue';
 import { fetchGamesNow, resetGames, useGamesStatus } from '../lib/gamesStore';
-import { usageReportText } from '../lib/report';
+import { syncedDevices, usageReportText } from '../lib/report';
 import { emptyState, type Exercise, type Filters, type ThemeSetting } from '../lib/types';
 
 interface Props {
@@ -90,13 +90,14 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
         queueBy: { sicher: counts(exercises, st, now, 'sicher'), endspiel: counts(exercises, st, now, 'endspiel') },
         sync: { on: connected, last: ss.last, error: ss.state === 'error' || ss.state === 'offline' ? ss.message : null },
       });
-      const devices = Object.keys(st.devices).length;
+      // Art und Datum je Gerät: Fehlt das iPad in der Liste, sieht man es sofort
+      const seen = syncedDevices(st.devices, now);
       const note = !connected
         ? ' Achtung: Sie enthält nur dieses Gerät, der Abgleich ist nicht eingerichtet.'
         : ss.state === 'error' || ss.state === 'offline'
           ? ' Achtung: Der Abgleich hat gerade nicht geklappt, neue Antworten vom anderen Gerät fehlen vielleicht.'
-          : devices >= 2
-            ? ` Sie umfasst alle ${n0(devices)} abgeglichenen Geräte.`
+          : seen.length >= 2
+            ? ` Enthalten: ${seen.join(', ')}.`
             : ' Bisher gleicht nur dieses Gerät ab: Richte den Abgleich auch auf dem anderen ein.';
       return { text, note };
     };

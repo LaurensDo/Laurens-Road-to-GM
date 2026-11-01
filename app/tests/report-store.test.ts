@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { usageReport } from '../src/lib/report';
+import { syncedDevices, usageReport } from '../src/lib/report';
 import { emptyState, type AppState, type Exercise, type ReviewEntry } from '../src/lib/types';
 
 /** Auswertung über beide Geräte und Schutz des gespeicherten Stands (1.13.1) */
@@ -38,9 +38,23 @@ describe('Auswertung: welche Geräte und welche Züge', () => {
     const off = usageReport(emptyState(), { ...ctx, sync: { on: false, last: null, error: null } });
     expect(off.abgleich).toEqual({ aktiv: false, letzter: null, umfasst: 'nur dieses Gerät' });
     const on = usageReport(emptyState(), { ...ctx, sync: { on: true, last: new Date('2026-10-28T11:58:00').getTime(), error: null } });
-    expect(on.abgleich).toEqual({ aktiv: true, letzter: '2026-10-28 11:58', umfasst: 'alle abgeglichenen Geräte' });
+    expect(on.abgleich).toEqual({ aktiv: true, letzter: '2026-10-28 11:58', umfasst: [] });
     const failed = usageReport(emptyState(), { ...ctx, sync: { on: true, last: null, error: 'Offline.' } });
     expect(failed.abgleich).toMatchObject({ aktiv: true, fehler: 'Offline.' });
+  });
+});
+
+describe('Abgeglichene Geräte', () => {
+  it('nennt Art und Datum, das jüngste zuerst, und lässt Einträge über 30 Tage weg', () => {
+    const now = new Date('2026-11-01T11:00:00');
+    const at = (d: string) => new Date(d).getTime();
+    const devices = {
+      'iPhone-rqe8': { v: '1.5.0', ts: at('2026-10-18T09:00:00') },
+      'iPhone-s4ao': { v: '1.13.1', ts: at('2026-10-31T20:00:00') },
+      'iPad-k2x9': { v: '1.13.1', ts: at('2026-11-01T10:00:00') },
+      'iPad-alt1': { v: '1.2.0', ts: at('2026-09-20T10:00:00') },
+    };
+    expect(syncedDevices(devices, now)).toEqual(['iPad (heute)', 'iPhone (gestern)', 'iPhone (vor 14 Tagen)']);
   });
 });
 

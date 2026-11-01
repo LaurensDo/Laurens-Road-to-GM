@@ -26,6 +26,21 @@ export interface ReportContext {
   sync?: { on: boolean; last: number | null; error: string | null };
 }
 
+/**
+ * Geräte, die in den letzten 30 Tagen abgeglichen haben, das jüngste zuerst: "iPhone (heute)", "iPad (vor 3 Tagen)".
+ * Mit Art und Datum statt einer Zahl: Ein alter Eintrag (etwa das iPhone vor einem Neustart der App-Daten) zählte sonst als zweites Gerät.
+ */
+export function syncedDevices(devices: AppState['devices'], now: Date): string[] {
+  const day = (ts: number) => new Date(new Date(ts).getFullYear(), new Date(ts).getMonth(), new Date(ts).getDate()).getTime();
+  return Object.entries(devices)
+    .filter(([, d]) => now.getTime() - d.ts < 30 * DAY)
+    .sort(([, a], [, b]) => b.ts - a.ts)
+    .map(([name, d]) => {
+      const n = Math.round((day(now.getTime()) - day(d.ts)) / DAY);
+      return `${name.split('-')[0]} (${n <= 0 ? 'heute' : n === 1 ? 'gestern' : `vor ${n} Tagen`})`;
+    });
+}
+
 const VERDICT_WORD: Record<string, string> = { best: 'bester', equal: 'gleichwertig', playable: 'spielbar', wrong: 'falsch', gaveup: 'Lösung angezeigt' };
 
 const stamp = (ts: number) => {
@@ -116,7 +131,12 @@ export function usageReport(state: AppState, c: ReportContext) {
     stand: dayKey(now),
     // Ohne Abgleich steht hier nur dieses Gerät: Die Zahlen gelten dann nicht für das Training insgesamt
     abgleich: c.sync
-      ? { aktiv: c.sync.on, letzter: c.sync.last ? stamp(c.sync.last) : null, ...(c.sync.error ? { fehler: c.sync.error } : {}), umfasst: c.sync.on ? 'alle abgeglichenen Geräte' : 'nur dieses Gerät' }
+      ? {
+          aktiv: c.sync.on,
+          letzter: c.sync.last ? stamp(c.sync.last) : null,
+          ...(c.sync.error ? { fehler: c.sync.error } : {}),
+          umfasst: c.sync.on ? syncedDevices(state.devices, c.now) : 'nur dieses Gerät',
+        }
       : undefined,
     geraete: Object.fromEntries(Object.entries(state.devices).map(([n, d]) => [n, { version: d.v, zuletzt: dayKey(d.ts) }])),
     antwortenGesamt: log.length,

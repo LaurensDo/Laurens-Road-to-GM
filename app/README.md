@@ -53,6 +53,10 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.13.2: Welche Geräte stecken in der Auswertung?
+
+- Der Hinweis nach „Auswertung kopieren“ nennt jedes Gerät mit Art und letztem Abgleich („Enthalten: iPad (heute), iPhone (gestern)“), im Text steht dasselbe unter `abgleich.umfasst`. Vorher zählte er nur Einträge, und ein alter iPhone-Eintrag (App-Daten neu angelegt) galt als zweites Gerät, obwohl das iPad fehlte. Einträge älter als 30 Tage fallen weg.
+
 ## Version 1.13.1: Auswertung über beide Geräte, Schutz des Speichers
 
 - **Auswertung über alle Geräte.** „Auswertung kopieren“ gleicht vorher ab (höchstens 10 s), rechnet dann aus dem zusammengeführten Stand und sagt, was drin ist: „Sie umfasst alle 2 abgeglichenen Geräte“ oder „Achtung: Sie enthält nur dieses Gerät“. Im Text steht `abgleich` (aktiv, letzter Abgleich, Fehler, umfasst). Das Kopieren läuft unter iOS mit verzögertem Inhalt (ClipboardItem mit Versprechen), weil Safari sonst nach dem Abgleich nicht mehr kopieren dürfte.
