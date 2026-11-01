@@ -104,3 +104,103 @@ export function pickQuote(rnd: () => number = Math.random): { text: string; auth
   }
   return { text: QUOTES[index], author: AUTHOR };
 }
+
+/**
+ * Sprüche für die Ergebnisseite, je Lage ein Topf. Big Dog spottet nur über sich, nie über dich. Ein Spruch erscheint höchstens auf jeder
+ * zweiten Ergebnisseite, die sachliche Zeile steht gleich groß daneben (setend.ts).
+ */
+export type Pot = 'geknackt' | 'dritterFehler' | 'perfekt' | 'rueckkehr' | 'vorschnell' | 'langsam' | 'schwer';
+
+export const POTS: Record<Pot, string[]> = {
+  // ein Dauerbrenner endlich richtig und in der Zeit
+  geknackt: [
+    'Endlich geknackt. Für meine Lieblingsstellung habe ich vier Jahre gebraucht. Dann habe ich den Zug wieder vergessen.',
+    'Die Stellung, die dich dreimal erwischt hat, liegt jetzt am Boden. Ich übernehme das Posieren.',
+    'Dauerbrenner erledigt. Ich erledige meine, indem ich sie aus dem Verlauf lösche.',
+    'Endlich in der Zeit. Ich nenne so etwas Durchbruch. Beim nächsten Mal nenne ich es Talent.',
+    'Dreimal daneben, jetzt mitten rein. So sehen Comebacks aus. Meine sehen anders aus.',
+    'Die Stellung hat aufgegeben. Ich wünschte, meine Gegner wären so einsichtig.',
+    'Gelernt ist gelernt. Ich habe das mal gehört und für eine Legende gehalten.',
+    'Erst dreimal falsch, dann richtig und schnell. Bei mir läuft es meistens andersherum.',
+    'Respekt. Ich klopfe dir anerkennend auf die Schulter. Sehr fest. Aus Gewohnheit.',
+    'Dieser Fehler ist erledigt. Ich habe noch ein paar übrig, falls du welche brauchst.',
+  ],
+  // dieselbe Stellung zum dritten Mal falsch
+  dritterFehler: [
+    'Dieselbe Stellung zum dritten Mal falsch. Ich nenne das Treue.',
+    'Dreimal dieselbe Stellung falsch. Ich spiele seit 2021 dieselbe verlorene Eröffnung. Konsequenz ist alles.',
+    'Ein Big Dog gibt nicht auf. Er macht denselben Fehler so lange, bis die Stellung aufgibt.',
+    'Diese Stellung und ich haben eine gemeinsame Geschichte. Eine traurige.',
+    'Beim dritten Mal ist es kein Fehler mehr. Es ist eine Tradition.',
+    'Ich habe einen Lieblingsfehler. Er hat mich auch lieb. Er kommt immer wieder.',
+    'Diese Stellung kenne ich auswendig. Den falschen Zug auch.',
+    'Ich lerne aus Fehlern. Deshalb mache ich sie so oft: Wiederholung ist die Mutter des Lernens.',
+    'Ich ändere meinen Zug nicht, nur weil er falsch ist. Ich bin ein Mann mit Prinzipien.',
+    'Der Zug ist nicht falsch. Die Stellung ist nur noch nicht bereit für ihn.',
+  ],
+  // alles richtig in einem vollen Satz
+  perfekt: [
+    'Alles richtig. So spiele ich auch. In meinen Träumen. Mit Weiß. Gegen meinen Hund.',
+    'Fehlerfrei. Ich hatte auch mal so einen Satz. Dann habe ich weitergespielt.',
+    'Perfekter Satz. Bei mir wäre jetzt der Moment, ein Remisangebot abzulehnen und alles zu verlieren.',
+    'Null Fehler. Mein Rekord liegt bei einem Fehler. Pro Zug.',
+    'So ein Satz verdient einen Brustschlag. Ich übernehme das, ich habe die Brust dafür.',
+    'Makellos. Wie mein Selbstbild, nur mit Belegen.',
+    'Alle richtig. Big Dog nickt anerkennend und tut so, als hätte er es kommen sehen.',
+    'Perfekt. Ich mache jetzt Liegestütze, um mitzuhalten. Ich schaffe drei.',
+    'Fehlerlos. Ich habe nichts zum Meckern gefunden. Das ärgert mich mehr als jede Niederlage.',
+    'Alles richtig. Ich verlange eine Nachzählung. Aus Prinzip.',
+  ],
+  // erster Satz nach einer Pause von mehreren Tagen
+  rueckkehr: [
+    'Wieder da. Ich war auch weg: kalt duschen. Es hat drei Tage gedauert, bis ich mich getraut habe.',
+    'Pause gemacht? Ich mache nie Pause. Ich spiele nur sehr selten Schach.',
+    'Willkommen zurück. Meine längste Pause waren zwei Tage. Dann hat mein Rating mich vermisst und ist gefallen.',
+    'Ein Big Dog kommt immer zurück. Meistens, weil er das Ladekabel vergessen hat.',
+    'Pause ist keine Schwäche, Pause ist Regeneration. Das sage ich auch über die vier Wochen nach meinem letzten Turnier.',
+    'Zurück nach der Pause. Ich habe in meiner Pause Muskeln aufgebaut. Am Daumen. Vom Scrollen.',
+    'Wer Pausen macht, kommt ausgeruht zurück. Wer keine macht, so wie ich, spielt um drei Uhr nachts Bullet.',
+    'Ein paar Tage weg und gleich wieder am Brett. Ich brauche nach einer Pause erst eine Pause von der Pause.',
+    'Wieder da. Ich sage nach jeder Pause, dass ich jetzt richtig anfange. Seit 2019.',
+    'Comeback. Ich hatte auch eins geplant, dann kam ein Remisangebot, und ich musste es ablehnen.',
+  ],
+  // mindestens zwei Fehler in unter drei Sekunden
+  vorschnell: [
+    'Ich ziehe immer sofort. Nachdenken ist was für Leute, die gewinnen wollen.',
+    'Zwei Sekunden für einen Zug? Ich brauche eine. Die zweite brauche ich, um mir die Figur zurückzuwünschen.',
+    'Ich sehe die Drohung immer. Meistens kurz nachdem ich gezogen habe.',
+    'Mein erster Instinkt ist immer richtig. Mein zweiter Instinkt ist, das Brett umzudrehen.',
+    'Big Dogs zögern nicht. Deshalb steht meine Dame so oft da, wo der Springer gerade hinzieht.',
+    'Ich ziehe schneller, als ich denke. Für meine Gegner ist das ein großer Vorteil.',
+    'Prüfen, was der Gegner droht? Ich lasse mich nicht bedrohen. Ich verliere lieber Material.',
+    'Ich habe Reflexe wie eine Katze. Leider auch ihr Schachverständnis.',
+    'Schach, Schlagen, Drohen prüfen? Ich prüfe nur, ob die Maus noch geht.',
+    'Meine Hand war schon auf der Figur. Ein Big Dog nimmt nichts zurück. Auch keine Dame.',
+  ],
+  // mindestens zwei richtige Antworten, aber erst nach der Zielzeit
+  langsam: [
+    'Ich habe 20 Sekunden über einen Bauernzug nachgedacht. Der Bauer war beeindruckt. Die Uhr nicht.',
+    'Ich finde immer den besten Zug. Meistens in der Partie danach.',
+    'Ich lasse die Uhr laufen, damit der Gegner Angst bekommt. Er bekommt stattdessen Zeit.',
+    'Gründlichkeit ist meine Stärke. Mein Fähnchen ist meine Schwäche.',
+    'Ich rechne alles durch. Auch die Varianten, in denen der Gegner aufgibt. Er gibt nie auf.',
+    'Der Zug war klar. Ich wollte nur sicher sein, dass er nach zwei Minuten immer noch richtig ist.',
+    'Ich mache keine halben Sachen. Nur halbe Minuten auf der Uhr.',
+    'Mein Zug war perfekt. Zu dem Zeitpunkt hatte ich noch vier Sekunden für den Rest der Partie.',
+    'Ich habe den Gewinnzug gefunden und auf Zeit verloren. Moralisch war das ein Sieg.',
+    'Ich vertraue meinem Bauchgefühl. Nachdem ich es eine Minute lang überprüft habe.',
+  ],
+  // weniger als 40 % richtig
+  schwer: [
+    'Schwere Runde. Ich nenne das Trainingsreiz. Mein Rating nennt es anders.',
+    'Weniger als die Hälfte richtig. Bei mir heißt das: ein ganz normaler Dienstag.',
+    'Echte Männer lernen aus Schmerz. Ich lerne seit 2021. Der Schmerz auch.',
+    'Die Stellungen waren unfair. Ich weiß das, weil ich sie auch nicht gelöst hätte.',
+    'Ich verliere nie. Entweder ich gewinne, oder ich sammle Material für die nächste Ausrede.',
+    'Schlechter Satz? Ich hatte mal einen schlechten Monat. Er dauert noch an.',
+    'Ein Big Dog fällt hin und steht wieder auf. Langsam. Mit Ächzen. Aber er steht auf.',
+    'Heute nicht. Morgen vielleicht auch nicht. Aber irgendwann, und dann mit Sonnenbrille.',
+    'Ich habe schon schlechter gespielt. Gestern zum Beispiel. Und vorgestern.',
+    'Wer nie verliert, spielt zu leichte Gegner. Ich spiele seit Jahren nur zu schwere.',
+  ],
+};

@@ -2,7 +2,8 @@ import { dayKey } from './format';
 import { listSets } from './sets';
 import { correct } from './stats';
 import type { QueueCounts } from './queue';
-import type { AppState, Exercise } from './types';
+import { countsForSchedule } from './merge';
+import type { AppState, Exercise, ReviewEntry } from './types';
 
 /**
  * Auswertung für Claude: nur Zahlen zur Nutzung, keine Partien und keine Namen. Wird im Chat eingefügt und zeigt, was in der App
@@ -41,6 +42,12 @@ export function syncedDevices(devices: AppState['devices'], now: Date): string[]
     });
 }
 
+/** Zweite Chance der letzten 30 Tage: wie oft angenommen und wie viele Aufgaben dabei zurückgeholt */
+function zweite(retries: ReviewEntry[], now: number) {
+  const xs = retries.filter((e) => now - e.ts < 30 * DAY);
+  return { saetze: new Set(xs.map((e) => e.retryOf)).size, aufgaben: xs.length, zurueckgeholt: xs.filter(correct).length };
+}
+
 const VERDICT_WORD: Record<string, string> = { best: 'bester', equal: 'gleichwertig', playable: 'spielbar', wrong: 'falsch', gaveup: 'Lösung angezeigt' };
 
 const stamp = (ts: number) => {
@@ -66,7 +73,10 @@ function median(xs: number[]): number | null {
 }
 
 export function usageReport(state: AppState, c: ReportContext) {
-  const log = state.log;
+  // gewertete Antworten; die Zweite Chance zählt nur bei den Minuten und als eigene Zahl
+  const all = state.log;
+  const log = all.filter(countsForSchedule);
+  const retries = all.filter((e) => e.kind === 'retry');
   const days = new Set(log.map((e) => dayKey(e.ts)));
   const now = c.now.getTime();
 
@@ -81,7 +91,7 @@ export function usageReport(state: AppState, c: ReportContext) {
   // Minuten je Tag, die letzten 14 Tage (Summe der gedeckelten Zeit mit den Aufgaben)
   const minutes: Record<string, number> = {};
   for (let i = 13; i >= 0; i--) minutes[key(new Date(c.now.getFullYear(), c.now.getMonth(), c.now.getDate() - i, 12))] = 0;
-  for (const e of log) {
+  for (const e of all) {
     const k = dayKey(e.ts);
     if (k in minutes) minutes[k] += e.dur / 60000;
   }
@@ -121,7 +131,7 @@ export function usageReport(state: AppState, c: ReportContext) {
       fehlversuche: r.lapses,
       antworten: r.reviews,
       art: c.byId.get(id)?.cat ?? '?',
-      zuege: log.filter((e) => e.id === id).map((e) => `${e.san ?? '–'} ${VERDICT_WORD[e.verdict] ?? e.verdict}`),
+      zuege: all.filter((e) => e.id === id).map((e) => `${e.san ?? '–'} ${VERDICT_WORD[e.verdict] ?? e.verdict}${e.kind === 'retry' ? ' (2. Chance)' : ''}`),
     }))
     .sort((x, y) => y.fehlversuche - x.fehlversuche)
     .slice(0, 30);
@@ -140,6 +150,7 @@ export function usageReport(state: AppState, c: ReportContext) {
       : undefined,
     geraete: Object.fromEntries(Object.entries(state.devices).map(([n, d]) => [n, { version: d.v, zuletzt: dayKey(d.ts) }])),
     antwortenGesamt: log.length,
+    ...(retries.length ? { zweiteChance30Tage: zweite(retries, now) } : {}),
     trainingstageProWoche: weeks,
     minutenProTag: minutes,
     saetze30Tage: {

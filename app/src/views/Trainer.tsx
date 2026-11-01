@@ -16,12 +16,13 @@ import { listSets, loadActive, newSetId, rateOf, saveActive, summarize, type Act
 import { play, startCue, timerCue } from '../lib/sound';
 import { applyReview, dueDate } from '../lib/srs';
 import { getState, update, useAppState } from '../lib/store';
-import { today } from '../lib/stats';
+import { correct, today } from '../lib/stats';
 import { MAX_DUR_MS, type Exercise, type Grade, type ReviewEntry, type Verdict } from '../lib/types';
 import { limitFor, modeOfEntries, TASK_LABEL, TASK_TYPES, taskType, type TaskType } from '../lib/limit';
 import { SetBar, SetResult } from './SetResult';
 import { EvalBar, VarBar } from './Variation';
 import { buildVariations, evAt } from '../lib/variation';
+import { bigDogFor, momentOf, retryCandidates, situationOf } from '../lib/setend';
 import { costText, ideaText } from '../lib/why';
 
 interface Props {
@@ -38,7 +39,13 @@ interface Finished {
   s: SetSummary;
   entries: ReviewEntry[];
   moreAvailable: boolean;
+  moment: ReturnType<typeof momentOf>;
+  dog: ReturnType<typeof bigDogFor>;
+  retry: { n: number; right: number } | null;
 }
+
+/** Herkunft der Aufgabe: aus dem Plan (fällig, Lernschritt, neu) oder die Zweite Chance am Satzende (zählt nicht) */
+type Kind = PickKind | 'retry';
 
 function pointOf(e: Event): [number, number] | null {
   const t = e as TouchEvent;
@@ -75,7 +82,7 @@ const VERDICT_TEXT: Record<Verdict, string> = {
 /** Fehlerarten, bei denen eine Drohung des Gegners übersehen wurde (dort zeigt die App sie als Pfeil) */
 const THREAT_CATS = new Set(['Figur eingestellt', 'Gegnerische Taktik übersehen', 'Matt übersehen']);
 
-const KIND_TEXT: Record<PickKind, string> = { due: 'Wiederholung', learning: 'Lernschritt', new: 'Neu' };
+const KIND_TEXT: Record<Kind, string> = { due: 'Wiederholung', learning: 'Lernschritt', new: 'Neu', retry: 'Zweite Chance' };
 
 /** Zeitlimit für diese Aufgabe: Fehler-Training und "Sicher gewinnen" haben je ihre Einstellung. */
 const limitOf = (ex: Exercise | null | undefined): number => limitFor(getState().settings, ex);
@@ -112,7 +119,9 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const state = useAppState();
   const settings = state.settings;
 
-  const [current, setCurrent] = useState<{ ex: Exercise; kind: PickKind } | null>(null);
+  const [current, setCurrent] = useState<{ ex: Exercise; kind: Kind } | null>(null);
+  /** Angebot der Zweiten Chance am Satzende: die Übungen, die noch einmal kämen */
+  const [offer, setOffer] = useState<string[] | null>(null);
   const [phase, setPhase] = useState<'ask' | 'result'>('ask');
   const [result, setResult] = useState<Result | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -138,9 +147,12 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const shownWall = useRef(0);
   const lastShown = useRef<{ id: string; cat: string } | undefined>(undefined);
   const curRef = useRef<Exercise | null>(null);
+  const kindRef = useRef<Kind | null>(null);
   const phaseRef = useRef<'ask' | 'result'>('ask');
   const resultShapes = useRef<DrawShape[]>([]);
   const activeRef = useRef<ActiveSet | null>(null);
+  /** Zweite Chance des Satzes setId: einmal angeboten; queue/pos, solange sie läuft */
+  const retryRef = useRef<{ setId: string; queue: string[]; pos: number } | null>(null);
   const durDone = useRef(false);
   const dragOrig = useRef<string | null>(null);
   const moved = useRef(false);
@@ -152,6 +164,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   phaseRef.current = phase;
   liveRef.current = live;
   curRef.current = current?.ex ?? null;
+  kindRef.current = current?.kind ?? null;
 
   const setEntries = useMemo(
     () => (setId ? state.log.filter((e) => e.set?.id === setId).sort((a, b) => a.ts - b.ts) : []),
@@ -194,6 +207,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     saveActive(mode, act);
     setSetId(act.id);
     setSummary(null);
+    setOffer(null);
     setFinished(false);
   };
 
@@ -208,14 +222,49 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
       .map(rateOf);
     const s = summarize(entries, act.size, byId, { limit: st.settings.timeLimit, winLimit: st.settings.winLimit, endLimit: st.settings.endLimit, previous, tolerance: st.settings.tolerance });
     const moreAvailable = !!pickNext(exercises, st, new Date(), undefined, undefined, mode);
+    // Satzende: Zweite Chance (zählt nicht), Moment des Satzes und Big Dog zur Lage (höchstens jede zweite Seite, einmal je Ergebnis)
+    const retried = st.log.filter((e) => e.kind === 'retry' && e.retryOf === act.id);
+    const retry = retried.length ? { n: retried.length, right: retried.filter(correct).length } : null;
+    const moment = momentOf(entries, byId);
+    const dog = bigDogFor(situationOf(entries, act.size, st.log), getPrefs().bigdog);
+    if (retryRef.current?.setId === act.id) retryRef.current = { ...retryRef.current, queue: [], pos: 0 };
     destroyBoard();
     saveActive(mode, null);
     setCurrent(null);
     setResult(null);
     setPromo(null);
     setPv(null);
-    setSummary({ s, entries, moreAvailable });
+    setOffer(null);
+    setSummary({ s, entries, moreAvailable, moment, dog, retry });
     play('done');
+  };
+
+  /** Satz zu Ende: einmal die Zweite Chance anbieten (falsche Aufgaben, frühestens 30 s alt, Satz unter 15 Minuten), sonst gleich das Ergebnis */
+  const endOfSet = () => {
+    const act = activeRef.current;
+    if (!act) return;
+    if (retryRef.current?.setId !== act.id) {
+      retryRef.current = { setId: act.id, queue: [], pos: 0 };
+      const entries = getState().log.filter((e) => e.set?.id === act.id).sort((a, b) => a.ts - b.ts);
+      const ids = retryCandidates(entries, act.startedAt, Date.now()).filter((id) => byId.has(id));
+      if (ids.length) {
+        destroyBoard();
+        setCurrent(null);
+        setResult(null);
+        setPv(null);
+        setOffer(ids);
+        return;
+      }
+    }
+    showSummary();
+  };
+
+  const startRetry = () => {
+    const act = activeRef.current;
+    if (!act || !offer) return;
+    retryRef.current = { setId: act.id, queue: offer, pos: 0 };
+    setOffer(null);
+    loadNext();
   };
 
   const loadNext = useCallback(() => {
@@ -231,14 +280,30 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
     setResult(null);
     setPhase('ask');
     setElapsed(0);
+    // Zweite Chance läuft: die nächste der angebotenen Aufgaben, danach das Ergebnis
+    const r = retryRef.current;
+    if (r && r.setId === act.id && r.queue.length) {
+      const ex = r.pos < r.queue.length ? byId.get(r.queue[r.pos]) : undefined;
+      if (!ex) {
+        showSummary();
+        return;
+      }
+      retryRef.current = { ...r, pos: r.pos + 1 };
+      lastShown.current = { id: ex.id, cat: ex.cat };
+      setLive(false);
+      setFinished(false);
+      setSummary(null);
+      setCurrent({ ex, kind: 'retry' });
+      return;
+    }
     if (done >= act.size) {
-      showSummary();
+      endOfSet();
       return;
     }
     const next = pickNext(exercises, st, new Date(), lastShown.current, new Set(act.served), mode);
     if (!next) {
       if (done > 0) {
-        showSummary();
+        endOfSet();
       } else {
         destroyBoard();
         setCurrent(null);
@@ -476,7 +541,9 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const record = (ex: Exercise, verdict: Verdict, grade: Grade, ms: number, san: string | null, judgement: Judgement | null) => {
     const now = new Date();
     const act = activeRef.current;
-    const rec = applyReview(getState().cards[ex.id], grade, now);
+    // Zweite Chance: steht im Verlauf (kind 'retry'), aber nicht im Satz, nicht im Wiederholungsplan und nicht in den Quoten
+    const retry = kindRef.current === 'retry';
+    const rec = retry ? getState().cards[ex.id] : applyReview(getState().cards[ex.id], grade, now);
     const entry: ReviewEntry = {
       id: ex.id,
       ts: now.getTime(),
@@ -488,10 +555,10 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
       lim: limitOf(ex),
       dv: dataVersion,
       san: san ?? undefined,
-      ...(act ? { set: { id: act.id, n: act.size } } : {}),
+      ...(retry ? { kind: 'retry', ...(act ? { retryOf: act.id } : {}) } : act ? { set: { id: act.id, n: act.size } } : {}),
     };
-    update((s) => ({ ...s, cards: { ...s.cards, [ex.id]: rec }, log: [...s.log, entry] }));
-    setResult({ verdict, judgement, san, ms, grade, nextDue: dueDate(rec), ts: entry.ts });
+    update((s) => ({ ...s, ...(retry || !rec ? {} : { cards: { ...s.cards, [ex.id]: rec } }), log: [...s.log, entry] }));
+    setResult({ verdict, judgement, san, ms, grade, nextDue: rec ? dueDate(rec) : now, ts: entry.ts });
     setPhase('result');
     // "Lösung zeigen" bei offener Umwandlungswahl: die Auswahl würde sonst das Brett mit der Lösung verdecken
     setPromo(null);
@@ -630,6 +697,11 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
       onExit();
       return;
     }
+    // während der Zweiten Chance (oder ihres Angebots) ist der Satz schon fertig: gleich zum Ergebnis
+    if (offer || current?.kind === 'retry') {
+      showSummary();
+      return;
+    }
     if (answered >= activeRef.current.size) {
       showSummary();
       return;
@@ -713,9 +785,39 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
         byId={byId}
         limit={limit}
         moreAvailable={summary.moreAvailable}
+        label={TASK_LABEL[mode]}
+        moment={summary.moment}
+        dog={summary.dog}
+        retry={summary.retry}
         onNext={nextSet}
         onExit={onExit}
       />
+    );
+  }
+
+  if (offer) {
+    return (
+      <section class="screen">
+        <header class="topbar">
+          <button class="link" onClick={requestExit}>
+            ← Beenden
+          </button>
+        </header>
+        <div class="card center retry-offer">
+          <h2>Zweite Chance</h2>
+          <p>
+            {offer.length === 1 ? 'Eine falsche Aufgabe' : `${n0(offer.length)} falsche Aufgaben`} aus diesem Satz noch einmal
+            {offer.length > 1 ? ', in neuer Reihenfolge' : ''}?
+          </p>
+          <p class="muted small">Zählt nicht für die Quote und nicht für die Wiederholung. Die Aufgaben kommen ohnehin wieder.</p>
+          <button class="btn" onClick={startRetry}>
+            Noch einmal
+          </button>
+          <button class="btn secondary" onClick={showSummary}>
+            Zum Ergebnis
+          </button>
+        </div>
+      </section>
     );
   }
 
@@ -775,7 +877,8 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
   const alts = equalMoves(ex, settings.tolerance);
   const correctNow = result && isCorrect(result.verdict);
   const slow = result && correctNow && result.grade === 2;
-  const lastOfSet = answered >= setSize;
+  const retryRun = current?.kind === 'retry' ? retryRef.current : null;
+  const lastOfSet = retryRun ? retryRun.pos >= retryRun.queue.length : answered >= setSize;
   const refPv = result && result.verdict === 'wrong' ? ex.refs?.find((r) => r[0] === result.san)?.[1] : undefined;
   const refLine = refPv?.slice(0, 3).join(' ');
   const threatLine = result && !correctNow && result.verdict !== 'gaveup' && ex.threat && THREAT_CATS.has(ex.cat) ? ex.threat.san : null;
@@ -798,7 +901,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
         </button>
         <div class="counts" aria-label="Fortschritt im Satz">
           <span>
-            {TASK_LABEL[mode]} · Aufgabe {n0(taskNo)} von {n0(setSize)}
+            {retryRun ? `Zweite Chance · ${n0(retryRun.pos)} von ${n0(retryRun.queue.length)}` : `${TASK_LABEL[mode]} · Aufgabe ${n0(taskNo)} von ${n0(setSize)}`}
           </span>
         </div>
       </header>
@@ -932,7 +1035,7 @@ export function Trainer({ exercises, byId, dataVersion, mode, onExit }: Props) {
           </ul>
 
           <p class="muted small">
-            Nächste Wiederholung {inWords(new Date(), result.nextDue)}. Partie vom {dateLabel(ex.date)}.
+            {current?.kind === 'retry' ? 'Zweite Chance: zählt nicht für Quote und Wiederholung.' : `Nächste Wiederholung ${inWords(new Date(), result.nextDue)}.`} Partie vom {dateLabel(ex.date)}.
           </p>
 
           {!pv && (

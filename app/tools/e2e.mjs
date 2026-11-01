@@ -218,7 +218,7 @@ ok((await sfx()).includes('done'), 'Ton bei geschafftem Satz');
 ok(await page.locator('.tasklist li').count() === 5, 'Ergebnis listet alle 5 Aufgaben');
 ok(await page.locator('h2:has-text("Einordnung")').count() === 1, 'Ergebnis enthält die Einordnung');
 const head = await page.locator('h1').textContent();
-ok(/Satz/.test(head), `Ergebnis hat eine Überschrift (${head})`);
+ok(/Richtwert|erwarteten Bereich|letzten Sätze|von \d+/.test(head), `Ergebnis hat eine Überschrift am Richtwert gemessen (${head})`);
 await page.screenshot({ path: `${OUT}/5b-satzergebnis.png`, fullPage: true });
 
 // ---- Zweiter Satz, pausieren, fortsetzen, beenden

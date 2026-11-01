@@ -1,5 +1,6 @@
 import { correct, slowCorrect } from './stats';
-import { n0, n1 } from './format';
+import { countsForSchedule } from './merge';
+import { n0, n1, pct } from './format';
 import { expectedOf } from './skill';
 import { TASK_LABEL, TASK_TYPES, taskType, type TaskType } from './limit';
 import type { Exercise, ReviewEntry } from './types';
@@ -72,7 +73,7 @@ export interface SetRun {
 export function listSets(log: ReviewEntry[]): SetRun[] {
   const runs = new Map<string, SetRun>();
   for (const e of log) {
-    if (!e.set) continue;
+    if (!e.set || !countsForSchedule(e)) continue;
     let r = runs.get(e.set.id);
     if (!r) {
       r = { id: e.set.id, planned: e.set.n, entries: [], startTs: e.ts, endTs: e.ts };
@@ -111,7 +112,10 @@ export interface SetSummary {
   /** Richtwert der Quote für Spieler deiner Stärke, Prozent. null, wenn zu wenige Maia-Werte vorliegen. */
   expected: number | null;
   tier: Tier;
+  /** gemessen am Richtwert ("Über dem Richtwert"), ohne Richtwert an den eigenen letzten Sätzen; keine festen Stufen wie "Durchwachsener Satz" */
   headline: string;
+  /** der eine Satz unter der großen Zahl */
+  sentence: string;
   lines: string[];
   strong: Group | null;
   weak: Group | null;
@@ -133,12 +137,6 @@ export interface SummaryOptions {
 /** Fehler, die schneller als so viele Millisekunden kamen, gelten als vorschnell */
 export const QUICK_MS = 3000;
 
-const HEADLINES: Record<Tier, string> = {
-  strong: 'Starker Satz',
-  solid: 'Solider Satz',
-  mixed: 'Durchwachsener Satz',
-  hard: 'Schwerer Satz',
-};
 
 function groupsOf(entries: ReviewEntry[], byId: Map<string, Exercise>): Group[] {
   const acc = new Map<string, Group>();
@@ -261,6 +259,24 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
   }
   if (n < 5) lines.push('Kurzer Satz, die Einordnung ist nur eine grobe Momentaufnahme.');
 
+  // Überschrift und ein Satz: gegen den Richtwert für Spieler deiner Stärke, sonst gegen deine letzten Sätze derselben Art
+  const verb = byType.length === 1 && byType[0].t === 'sicher' ? 'sicher gewonnen' : byType.length === 1 && byType[0].t === 'endspiel' ? 'Ergebnis gehalten' : 'richtig';
+  let headline: string;
+  let sentence: string;
+  if (expected !== null) {
+    const diff = rateRated - expected;
+    headline = diff >= 15 ? 'Über dem Richtwert' : diff >= -10 ? 'Im erwarteten Bereich' : 'Unter dem Richtwert';
+    sentence = `${pct(rateRated)} richtig, erwartet für Spieler deiner Stärke: ${pct(expected)}.`;
+  } else if (prev.length >= 2) {
+    const avg = prev.reduce((a, x) => a + x, 0) / prev.length;
+    const d = rate - avg;
+    headline = d >= 10 ? 'Besser als deine letzten Sätze' : d <= -10 ? 'Schwächer als deine letzten Sätze' : 'Wie deine letzten Sätze';
+    sentence = `${pct(rate)} ${verb}, deine letzten Sätze im Schnitt ${pct(avg)}.`;
+  } else {
+    headline = `${n0(right)} von ${n0(n)} ${verb}`;
+    sentence = `Im Schnitt ${n1(avgMs / 1000)} s je Aufgabe.`;
+  }
+
   return {
     n,
     planned,
@@ -275,7 +291,8 @@ export function summarize(entries: ReviewEntry[], planned: number, byId: Map<str
     avgMs,
     expected,
     tier,
-    headline: HEADLINES[tier],
+    headline,
+    sentence,
     lines,
     strong,
     weak,

@@ -18,6 +18,8 @@ export interface DevicePrefs {
   ignoreMute: boolean;
   /** Startbild beim Öffnen der App */
   splash: boolean;
+  /** Big-Dog-Spruch auf der Ergebnisseite (höchstens jede zweite Seite) */
+  bigdog: boolean;
   evalbar: EvalBarMode;
   /** Eigene Partien beim Öffnen automatisch holen (chess.com und lichess) */
   games: boolean;
@@ -32,6 +34,7 @@ export const DEFAULT_PREFS: DevicePrefs = {
   timerSound: 'standard',
   ignoreMute: false,
   splash: true,
+  bigdog: true,
   evalbar: 'result',
   games: true,
   chesscom: 'laurens3495',
@@ -60,6 +63,7 @@ export function clean(raw: unknown): DevicePrefs {
     timerSound: r.timerSound === 'off' || r.timerSound === 'end' || r.timerSound === 'standard' || r.timerSound === 'every' ? r.timerSound : DEFAULT_PREFS.timerSound,
     ignoreMute: typeof r.ignoreMute === 'boolean' ? r.ignoreMute : DEFAULT_PREFS.ignoreMute,
     splash: typeof r.splash === 'boolean' ? r.splash : DEFAULT_PREFS.splash,
+    bigdog: typeof r.bigdog === 'boolean' ? r.bigdog : DEFAULT_PREFS.bigdog,
     evalbar: r.evalbar === 'off' || r.evalbar === 'result' || r.evalbar === 'always' ? r.evalbar : DEFAULT_PREFS.evalbar,
     games: typeof r.games === 'boolean' ? r.games : DEFAULT_PREFS.games,
     chesscom: typeof r.chesscom === 'string' ? r.chesscom.trim().slice(0, 40) : DEFAULT_PREFS.chesscom,

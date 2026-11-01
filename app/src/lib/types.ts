@@ -128,6 +128,11 @@ export interface ReviewEntry {
    * Verlauf erhalten, gehen aber nicht in den Wiederholungsplan ein.
    */
   kind?: string;
+  /**
+   * Zweite Chance (kind 'retry'): zu welchem Satz die Wiederholung gehört. Bewusst nicht in `set`, damit auch ältere Versionen sie nicht als
+   * Teil des Satzes zählen. Zählt weder für den Wiederholungsplan noch für Quoten, nur als Trainingszeit.
+   */
+  retryOf?: string;
   /** damals geltendes Zeitlimit in Sekunden (0 = aus), damit sich alte Antworten später richtig einordnen lassen */
   lim?: number;
   /** Datenstand der Übungen bei der Antwort (ExerciseFile.version) */

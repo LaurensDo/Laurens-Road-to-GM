@@ -2,6 +2,7 @@ import { State, cardState, stability } from './srs';
 import { TASK_LABEL, taskType } from './limit';
 import { dayKey, dayKeyBefore } from './format';
 import { isCorrect } from './judge';
+import { countsForSchedule } from './merge';
 import type { AppState, Exercise, ReviewEntry } from './types';
 
 export const correct = (e: ReviewEntry) => isCorrect(e.verdict);
@@ -28,10 +29,12 @@ export function lastDays(log: ReviewEntry[], days: number, now: Date): DayStat[]
   for (const e of log) {
     const s = index.get(dayKey(e.ts));
     if (!s) continue;
+    // Die Zeit zählt immer, Aufgaben und Quote nur aus gewerteten Antworten (nicht aus der Zweiten Chance)
+    s.dur += e.dur;
+    if (!countsForSchedule(e)) continue;
     s.n++;
     if (correct(e)) s.right++;
     s.ms += e.ms;
-    s.dur += e.dur;
   }
   return out;
 }
@@ -84,7 +87,7 @@ export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field
   };
   for (const e of log) {
     const ex = byId.get(e.id);
-    if (!ex) continue;
+    if (!ex || !countsForSchedule(e)) continue;
     // Fehlerart gibt es nur im Fehler-Training: "Sicher gewinnen" und "Endspiel" sind Arten der Aufgabe, keine Fehler
     if (field === 'cat' && taskType(ex) !== 'fehler') continue;
     if (field === 'motif') ex.motifs.forEach((m) => add(m, e));
@@ -97,7 +100,7 @@ export function breakdown(log: ReviewEntry[], byId: Map<string, Exercise>, field
 }
 
 export function windowStats(log: ReviewEntry[], fromTs: number, toTs: number) {
-  const xs = log.filter((e) => e.ts >= fromTs && e.ts < toTs);
+  const xs = log.filter((e) => e.ts >= fromTs && e.ts < toTs && countsForSchedule(e));
   if (!xs.length) return null;
   return {
     n: xs.length,

@@ -260,6 +260,7 @@ describe('Schlagzug und Geräteeinstellungen', () => {
       timerSound: 'off',
       ignoreMute: true,
       splash: false,
+      bigdog: DEFAULT_PREFS.bigdog,
       evalbar: DEFAULT_PREFS.evalbar,
       games: DEFAULT_PREFS.games,
       chesscom: DEFAULT_PREFS.chesscom,

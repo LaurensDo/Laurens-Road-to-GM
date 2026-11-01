@@ -48,10 +48,20 @@ node tools/e2e-judge.mjs /tmp/j    # faires Urteil und Widerlegung mit den echte
 node tools/e2e-endgame.mjs /tmp/eg  # Endspiel: Startknopf, 15 s, exakte Wertung, Fehler aus der Partie mit Widerlegung
 node tools/e2e-win.mjs /tmp/w       # "Sicher gewinnen": Zielzeit, jeder sichere Zug zählt, Wortlaut, Mischung
 node tools/e2e-variation.mjs /tmp/v # Variantenansicht: festes Brett, Auswahl, Bewertungsbalken, Tastatur, Wischen, alle Formate
+node tools/e2e-setend.mjs /tmp/se  # Satzende: Zweite Chance, Moment, Damals-Zeile, Big Dog
 node tools/e2e-games.mjs /tmp/g    # Partien holen (chess.com und lichess nachgebaut), Karten auf Heute und Fortschritt, Offline, Ausschalten
 node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Geräteformaten
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
+
+## Version 1.14: Big Dog am Satzende (Roadmap Schritt 4)
+
+- **Überschrift am Richtwert** statt fester Stufen: „Über dem Richtwert“, „Im erwarteten Bereich“, „Unter dem Richtwert“, darunter die große Zahl und ein Satz („67 % richtig, erwartet für Spieler deiner Stärke: 50 %“). Ohne Richtwert („Sicher gewinnen“, Endspiel) gegen die eigenen letzten Sätze. „Durchwachsener Satz“ entfällt. Die übrige Einordnung lässt sich aufklappen.
+- **Damals-Zeile** bei jeder gelösten Aufgabe: „Damals: Rxa2 nach 1,2 s, 1:31 auf der Uhr, kostete einen Turm. Heute: Rd8 in 0,7 s.“ Bei „Sicher gewinnen“ die Denkzeit, im Endspiel „aus Gewinn wurde Remis“.
+- **Moment des Satzes:** die gelöste Aufgabe, deren Fehler damals am meisten kostete (mindestens 30 Punkte), mit kleinem Brett und Link zur Partie.
+- **Big Dog zur Lage** (`setend.ts`, Töpfe in `quotes.ts`, je 10 Sprüche): Dauerbrenner geknackt, dritter Fehler in derselben Stellung, alles richtig, Rückkehr nach einer Pause, vorschnelle Fehler, langsame richtige Antworten, schwerer Satz. Höchstens auf jeder zweiten Ergebnisseite, die sachliche Zeile gleich groß daneben, Big Dog spottet nur über sich. Pro Gerät abschaltbar (Einstellungen).
+- **Zweite Chance:** Am Satzende bis zu 3 falsche Aufgaben noch einmal, in neuer Reihenfolge, frühestens 30 s nach dem Fehler und nur in den ersten 15 Minuten des Satzes. Zählt weder für Quote noch Wiederholungsplan (`kind: 'retry'`, `retryOf` statt `set`, auch ältere Versionen zählen sie nicht zum Satz), nur als Trainingszeit. Die Ergebnisseite zeigt „1 von 1 zurückgeholt“.
+- Test: `node tools/e2e-setend.mjs` (wartet 31 s).
 
 ## Version 1.13.2: Welche Geräte stecken in der Auswertung?
 

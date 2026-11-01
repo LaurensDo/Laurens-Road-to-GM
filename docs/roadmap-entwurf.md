@@ -70,7 +70,7 @@ Aufwand: L · Kandidaten: K01, K05, K04, neu: Bullet, neu: lichess-Analyse
 
 **Erfolg:** An mindestens 70 % der Spieltage werden die Partien innerhalb von 24 h geholt, und dank lichess ist die Karte an den meisten Spieltagen gefüllt. Die erste Aussage kommt nach 120 3+0-Partien mit Zug 30 bzw. nach 600 Bullet-Partien. Das Ziel für das Ganze steht unter „measurement“. Der Kopierknopf zeigt, dass er die Karte nach Spieltagen tatsächlich ansieht.
 
-### Schritt 4: Big Dog am Satzende, die Ergebnisseite einmal ganz neu (Start nach 2 bis 3 Wochen Nutzungsdaten)
+### Schritt 4: Big Dog am Satzende, die Ergebnisseite einmal ganz neu (gebaut am 01.11.2026, Version 1.14)
 
 Aufwand: M · Kandidaten: K19, K20, K10
 

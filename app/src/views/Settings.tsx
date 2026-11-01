@@ -364,6 +364,19 @@ export function Settings({ exercises, generated, holdout, byId, dataVersion }: P
           />
           <p class="muted small">Gilt nur für dieses Gerät. Tippen überspringt das Startbild.</p>
         </div>
+        <div class="field">
+          <label>Big Dog auf der Ergebnisseite</label>
+          <Segmented
+            label="Big Dog auf der Ergebnisseite"
+            value={prefs.bigdog ? 'an' : 'aus'}
+            options={[
+              { value: 'an', label: 'Zeigen' },
+              { value: 'aus', label: 'Aus' },
+            ]}
+            onChange={(v) => setPrefs({ bigdog: v === 'an' })}
+          />
+          <p class="muted small">Ein Spruch passend zum Satz, höchstens auf jeder zweiten Ergebnisseite. Gilt nur für dieses Gerät.</p>
+        </div>
       </div>
 
       <div class="card">

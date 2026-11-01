@@ -292,11 +292,28 @@ input.mono { font-family: var(--font-mono); font-size: 0.9rem; }
 .miniboard { width: 120px; height: 120px; flex: none; }
 .g-foot .link { white-space: nowrap; flex: none; }
 .g-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.howto-card > summary { cursor: pointer; list-style: none; }
-.howto-card > summary::-webkit-details-marker { display: none; }
-.howto-card > summary h2::after { content: ' ▾'; color: var(--muted); font-size: 0.8em; }
-.howto-card[open] > summary h2::after { content: ' ▴'; }
-.howto-card[open] > summary { margin-bottom: 8px; }
+.howto-card > summary, .einordnung > summary { cursor: pointer; list-style: none; }
+.howto-card > summary::-webkit-details-marker, .einordnung > summary::-webkit-details-marker { display: none; }
+.howto-card > summary h2::after, .einordnung > summary h2::after { content: ' ▾'; color: var(--muted); font-size: 0.8em; }
+.howto-card[open] > summary h2::after, .einordnung[open] > summary h2::after { content: ' ▴'; }
+.howto-card[open] > summary, .einordnung[open] > summary { margin-bottom: 8px; }
+.einordnung:not([open]) { gap: 0; }
+
+/* Ergebnisseite: ein Satz unter der großen Zahl, Moment des Satzes mit kleinem Brett, Big Dog mit der sachlichen Zeile gleich groß daneben */
+.score-sentence { margin: 0; color: var(--ink-2); }
+.moment-body { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.moment-text { display: grid; gap: 8px; }
+.moment-text p { margin: 0; }
+.moment-text a { color: var(--accent); }
+.mini-board { width: 140px; aspect-ratio: 1 / 1; }
+.mini-board .board { box-shadow: 0 0 0 1px var(--rule); }
+@media (min-width: 700px) { .mini-board { width: 180px; } }
+.bigdog { grid-template-columns: 1fr; align-items: center; }
+.dog-quote { margin: 0; display: grid; gap: 6px; }
+.dog-quote p { margin: 0; font: 600 1rem/1.4 var(--font-display); }
+.dog-quote footer { font: 500 0.78rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.dog-fact { margin: 0; font-size: 1rem; color: var(--ink); }
+@media (min-width: 600px) { .bigdog { grid-template-columns: 3fr 2fr; gap: 20px; } .dog-fact { border-left: 1px solid var(--rule); padding-left: 20px; } }
 .verdicts { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; font-size: 0.9rem; }
 .chart .band { fill: var(--accent-soft); }
 .chart .line { stroke: var(--accent); stroke-width: 2; }

@@ -1,4 +1,6 @@
-import { n0, n1, pct, seconds } from '../lib/format';
+import { n0, seconds } from '../lib/format';
+import { thenLine } from '../lib/setend';
+import { MiniBoard } from './MiniBoard';
 import type { SetSummary } from '../lib/sets';
 import { correct, slowCorrect } from '../lib/stats';
 import type { Exercise, ReviewEntry } from '../lib/types';
@@ -24,6 +26,14 @@ interface Props {
   byId: Map<string, Exercise>;
   limit: number;
   moreAvailable: boolean;
+  /** Art des Satzes für die Kopfzeile */
+  label?: string;
+  /** Moment des Satzes: gelöste Aufgabe, deren Fehler damals viel kostete (setend.ts) */
+  moment?: { e: ReviewEntry; ex: Exercise; line: string } | null;
+  /** Big Dog zur Lage, mit der sachlichen Zeile daneben */
+  dog?: { text: string; author: string; fact: string } | null;
+  /** Zweite Chance: wie viele noch einmal gespielt, wie viele davon richtig (zählt nicht) */
+  retry?: { n: number; right: number } | null;
   onNext: () => void;
   onExit: () => void;
 }
@@ -38,11 +48,14 @@ function rowText(e: ReviewEntry, ex: Exercise | undefined): string {
   return `Dein Zug ${e.san ?? '–'} · bester Zug ${best}`;
 }
 
-export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onNext, onExit }: Props) {
+export function SetResult({ summary: s, entries, byId, moreAvailable, label, moment, dog, retry, onNext, onExit }: Props) {
   return (
     <section class="screen setresult">
       <header class="page-head">
-        <div class="eyebrow">{s.complete ? 'Satz geschafft' : `Satz beendet nach ${n0(s.n)} von ${n0(s.planned)}`}</div>
+        <div class="eyebrow">
+          {label ? `${label} · ` : ''}
+          {s.complete ? 'Satz geschafft' : `Satz beendet nach ${n0(s.n)} von ${n0(s.planned)}`}
+        </div>
         <h1>{s.headline}</h1>
       </header>
 
@@ -54,25 +67,44 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
           </span>
           <span class="muted">richtig</span>
         </div>
+        <p class="score-sentence">{s.sentence}</p>
         <SetBar size={s.n} entries={entries} />
-        <dl class="facts">
-          <div>
-            <dt>Quote</dt>
-            <dd class="mono">{pct(s.rate)}</dd>
-          </div>
-          <div>
-            <dt>Im Limit</dt>
-            <dd class="mono">{s.timed ? `${n0(s.inTime)}/${n0(s.n)}` : '–'}</dd>
-          </div>
-          <div>
-            <dt>Ø Zeit</dt>
-            <dd class="mono">{n1(s.avgMs / 1000)} s</dd>
-          </div>
-        </dl>
+        {retry && retry.n > 0 && (
+          <p class="muted small">
+            Zweite Chance: {n0(retry.right)} von {n0(retry.n)} zurückgeholt. Zählt nicht für Quote und Wiederholung.
+          </p>
+        )}
       </div>
 
-      <div class="card">
-        <h2>Einordnung</h2>
+      {moment && moment.e.san && (
+        <div class="card moment">
+          <h2>Moment des Satzes</h2>
+          <div class="moment-body">
+            <MiniBoard fen={moment.ex.fen} san={moment.e.san} orientation={moment.ex.turn === 'w' ? 'white' : 'black'} />
+            <div class="moment-text">
+              <p>{moment.line}</p>
+              <a href={moment.ex.url} target="_blank" rel="noopener noreferrer">
+                Partie ansehen
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {dog && (
+        <div class="card bigdog">
+          <blockquote class="dog-quote">
+            <p>„{dog.text}“</p>
+            <footer>{dog.author}</footer>
+          </blockquote>
+          <p class="dog-fact">{dog.fact}</p>
+        </div>
+      )}
+
+      <details class="card einordnung">
+        <summary>
+          <h2>Einordnung</h2>
+        </summary>
         <ul class="plain">
           {s.lines.map((l) => (
             <li key={l}>{l}</li>
@@ -88,7 +120,7 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
           <b>Tipp:</b> {s.tip}
         </p>
         <p class="muted small">Die Einordnung folgt festen Regeln aus deinen Antworten und den Maia-Werten der Aufgaben, keine KI.</p>
-      </div>
+      </details>
 
       <div class="card">
         <h2>Die Aufgaben</h2>
@@ -108,7 +140,8 @@ export function SetResult({ summary: s, entries, byId, limit, moreAvailable, onN
                   </span>
                   {ex && (
                     <span class="task-sub muted small">
-                      {ex.phase} · {ex.cat}
+                      {/* bei gelösten Aufgaben die Damals-Zeile: was der Zug in der Partie kostete, und heute */}
+                      {thenLine(ex, e) ?? `${ex.phase} · ${ex.cat}`}
                     </span>
                   )}
                 </span>
