@@ -1,0 +1,173 @@
+{
+ "version": 1,
+ "note": "Eingefrorene Basis der Uhr-Auswertung. Erzeugt mit tools/make-baseline.mjs aus den Partien vor dem 15.10.2026, mit denselben Funktionen wie die App.",
+ "cut": "2026-10-15",
+ "check": {
+  "before20": 119.7,
+  "before30": 65.2,
+  "diagnose": {
+   "before20": 119.6,
+   "before30": 65.4
+  }
+ },
+ "chesscom30": {
+  "n": 299,
+  "reach30": 206,
+  "own1629": {
+   "mean": 74,
+   "sd": 27
+  },
+  "lead30": {
+   "mean": -11.3,
+   "sd": 34.6
+  },
+  "lead20": {
+   "mean": -5.4,
+   "sd": 26.5
+  },
+  "pauses": {
+   "mean": 2.62,
+   "sd": 1.62,
+   "opp": 1.73
+  },
+  "budget20": 59,
+  "budget30": 41,
+  "timeLosses": 65,
+  "losses": 145,
+  "lostOnTimeAhead": 14,
+  "brake": {
+   "fast": 2415,
+   "bad": 60,
+   "per100": 2.48
+  },
+  "period": [
+   "2026-07-28",
+   "2026-10-14"
+  ]
+ },
+ "lichess10": {
+  "n": 599,
+  "reach30": 360,
+  "own1629": {
+   "mean": 31.1,
+   "sd": 7.5
+  },
+  "lead30": {
+   "mean": -4.3,
+   "sd": 10
+  },
+  "lead20": {
+   "mean": -2.9,
+   "sd": 9.2
+  },
+  "pauses": {
+   "mean": 0.27,
+   "sd": 0.47,
+   "opp": 0.11
+  },
+  "budget20": null,
+  "budget30": null,
+  "timeLosses": 4,
+  "losses": 301,
+  "lostOnTimeAhead": 0,
+  "brake": {
+   "fast": 3089,
+   "bad": 57,
+   "per100": 1.85
+  },
+  "period": [
+   "2026-09-16",
+   "2026-10-14"
+  ]
+ },
+ "monthly": {
+  "months": [
+   {
+    "month": "2025-01",
+    "n": 50,
+    "lead30": -13.3,
+    "own1629": 74.9,
+    "pauses": 2.96
+   },
+   {
+    "month": "2025-10",
+    "n": 59,
+    "lead30": -14,
+    "own1629": 80.7,
+    "pauses": 3.2
+   },
+   {
+    "month": "2026-01",
+    "n": 41,
+    "lead30": -16,
+    "own1629": 74.3,
+    "pauses": 2.32
+   },
+   {
+    "month": "2026-03",
+    "n": 77,
+    "lead30": -21.7,
+    "own1629": 81.4,
+    "pauses": 3.1
+   },
+   {
+    "month": "2026-04",
+    "n": 44,
+    "lead30": -11.4,
+    "own1629": 68.7,
+    "pauses": 2.23
+   },
+   {
+    "month": "2026-05",
+    "n": 131,
+    "lead30": -15.8,
+    "own1629": 78.8,
+    "pauses": 2.98
+   },
+   {
+    "month": "2026-06",
+    "n": 58,
+    "lead30": -17.4,
+    "own1629": 77.1,
+    "pauses": 2.71
+   },
+   {
+    "month": "2026-07",
+    "n": 261,
+    "lead30": -16,
+    "own1629": 77.9,
+    "pauses": 3.02
+   },
+   {
+    "month": "2026-08",
+    "n": 145,
+    "lead30": -6.3,
+    "own1629": 69.8,
+    "pauses": 2.5
+   },
+   {
+    "month": "2026-10",
+    "n": 49,
+    "lead30": -21.8,
+    "own1629": 82.6,
+    "pauses": 2.65
+   }
+  ],
+  "lead30": {
+   "lo": -21.8,
+   "hi": -6.3
+  },
+  "own1629": {
+   "lo": 68.7,
+   "hi": 82.6
+  },
+  "pauses": {
+   "lo": 2.23,
+   "hi": 3.2
+  }
+ },
+ "minGames": {
+  "chesscom30": 120,
+  "lichess10": 600
+ }
+}
