@@ -148,3 +148,31 @@ describe('Satzauswertung je Art', () => {
     expect(s.lines.join(' ')).toMatch(/innerhalb von 20 s/);
   });
 });
+
+describe('Weniger Wiederholungen derselben Stellung (1.14.1)', () => {
+  it('eine Aufgabe kommt höchstens zweimal am Tag, nach dem zweiten Fehler erst morgen', async () => {
+    const { pickNext, counts, MAX_PER_DAY } = await import('../src/lib/queue');
+    const { replay } = await import('../src/lib/merge');
+    const exs = [ex('a')];
+    const t = DAY.getTime();
+    const log = [entry('a', t - 30 * 60000, 1), entry('a', t - 15 * 60000, 1)];
+    expect(MAX_PER_DAY).toBe(2);
+    const st: AppState = { ...emptyState(), log, cards: replay(log) };
+    expect(pickNext(exs, st, DAY)).toBeNull();
+    expect(counts(exs, st, DAY).due).toBe(0);
+    // am nächsten Tag ist sie wieder da
+    expect(pickNext(exs, st, new Date(t + 86400000))?.ex.id).toBe('a');
+    // nach nur einem Fehler kommt sie heute noch einmal
+    const one = [log[0]];
+    expect(pickNext(exs, { ...emptyState(), log: one, cards: replay(one) }, DAY)?.ex.id).toBe('a');
+  });
+
+  it('im Satz möglichst keine zwei Aufgaben aus derselben Partie', async () => {
+    const { pickNext } = await import('../src/lib/queue');
+    const exs = [ex('a', { url: 'https://example.org/1' }), ex('b', { url: 'https://example.org/1' }), ex('c', { url: 'https://example.org/2' })];
+    const next = pickNext(exs, emptyState(), DAY, undefined, new Set(['a']));
+    expect(next?.ex.id).toBe('c');
+    // gibt es nur noch Aufgaben aus derselben Partie, kommen sie trotzdem
+    expect(pickNext(exs, emptyState(), DAY, undefined, new Set(['a', 'c']))?.ex.id).toBe('b');
+  });
+});

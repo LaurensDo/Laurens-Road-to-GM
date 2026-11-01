@@ -132,6 +132,27 @@ def priority(e):
     return score
 
 
+NEAR_MOVES = 3  # Stellungen derselben Partie, die höchstens so viele Züge auseinanderliegen, wirken beim Üben wie dieselbe
+
+
+def thin_out(exercises):
+    """Gleiche Stellung (auch aus verschiedenen Partien, etwa derselbe Eröffnungsfehler) und Stellungen derselben Partie, die höchstens
+    NEAR_MOVES Züge auseinanderliegen, wirken beim Üben wie Wiederholungen (Laurens am 01.11.2026). Von jeder solchen Gruppe bleibt eine:
+    die aus dem Prüfsatz, sonst die vorderste nach Priorität (die er am ehesten schon geübt hat). Die Reihenfolge bleibt."""
+    seen_pos, per_game, keep = set(), {}, set()
+    for e in sorted(exercises, key=lambda e: not e.get("hold")):  # stabil: Prüfsatz zuerst, sonst Priorität
+        pos = " ".join(e["fen"].split()[:4])
+        mv = fullmove(e["fen"])
+        moves = per_game.setdefault(e["url"], [])
+        # der Prüfsatz bleibt immer vollständig, er sperrt aber nahe Übungen
+        if not e.get("hold") and (pos in seen_pos or any(abs(mv - m) <= NEAR_MOVES for m in moves)):
+            continue
+        seen_pos.add(pos)
+        moves.append(mv)
+        keep.add(e["id"])
+    return [e for e in exercises if e["id"] in keep]
+
+
 def order_by_priority(exercises):
     """Reihenfolge nach Priorität, mit Regeln je Block von 10: höchstens 1 "Gegnerfehler nicht bestraft", höchstens 2 "Positioneller
     Fehler" ohne Motiv, mindestens 3 der Maia-Klasse "Nächste Stufe". So bleibt die Mischung abwechslungsreich und fordernd."""
@@ -276,8 +297,10 @@ def main():
     no_prev = 0
     # Endspiele mit höchstens 7 Steinen kennt die Tablebase exakt: Ihre Übung ersetzt die Stockfish-Übung derselben Stellung (außer im Prüfsatz,
     # der bleibt fest), und ein Partiezug, der laut Tablebase das Ergebnis hält, ist kein Fehler
-    ends = endgame_exercises(set(holdout))
-    end_ids = {e["id"] for e in ends}
+    # ersetzt werden alle Stockfish-Übungen mit Tablebase-Fassung, auch wenn diese danach als fast gleich wegfällt
+    ends_all = endgame_exercises(set(holdout))
+    end_ids = {e["id"] for e in ends_all}
+    ends = thin_out(ends_all)
     tb_path = DATA / "tablebase.jsonl"
     tb_rows = {(r["fen"], r["uci"]): r for r in map(json.loads, tb_path.open())} if tb_path.exists() else {}
     for line in (DATA / "solutions.jsonl").open():
@@ -345,6 +368,9 @@ def main():
             **({"hold": True} if ex_id(s["key"]) in holdout else {}),
         })
     exercises = order_by_priority(exercises)
+    before_thin = len(exercises)
+    exercises = thin_out(exercises)
+    dropped["fast_gleich"] = before_thin - len(exercises)
     wins = win_exercises({e["id"] for e in exercises} | end_ids)
     exercises = exercises + wins + ends  # eigene Modi in der App ("Sicher gewinnen", "Endspiel")
     # Warum der beste Zug richtig ist (analysis/why.py, rechnet auf der fertigen Datei: nach neuen Übungen why.py und diesen Build noch einmal)

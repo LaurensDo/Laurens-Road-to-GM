@@ -54,6 +54,12 @@ node tools/layouts.mjs /tmp/lay    # Bildschirmfotos aller Ansichten in sechs Ge
 npx vite --port 4175 &  node tools/sound-check.mjs   # Pegelprüfung der Töne, ohne Lautsprecher
 ```
 
+## Version 1.14.1: weniger Wiederholungen derselben Stellung
+
+- **Fast gleiche Stellungen ausgedünnt** (`thin_out` in `build_exercises.py`): Gleiche Stellung aus verschiedenen Partien (derselbe Eröffnungsfehler) und Stellungen derselben Partie, die höchstens 3 Züge auseinanderliegen, wirkten beim Üben wie Wiederholungen. Von jeder Gruppe bleibt eine (Prüfsatz zuerst, sonst die vorderste nach Priorität). 176 Übungen entfallen (143 Fehler-Training, 33 Endspiel), keine Stellung kommt mehr doppelt vor, der Prüfsatz bleibt vollständig und hat keine Trainingsaufgabe mehr direkt daneben.
+- **Höchstens zweimal am Tag dieselbe Aufgabe** (`MAX_PER_DAY`): Eine immer wieder falsche Aufgabe kam vorher alle 10 Minuten zurück und wurde auswendig gelernt. Nach dem zweiten Mal wartet sie bis morgen.
+- **Im Satz möglichst nicht zwei Aufgaben aus derselben Partie** (nur bevorzugt, nie ausgeschlossen).
+
 ## Version 1.14: Big Dog am Satzende (Roadmap Schritt 4)
 
 - **Überschrift am Richtwert** statt fester Stufen: „Über dem Richtwert“, „Im erwarteten Bereich“, „Unter dem Richtwert“, darunter die große Zahl und ein Satz („67 % richtig, erwartet für Spieler deiner Stärke: 50 %“). Ohne Richtwert („Sicher gewinnen“, Endspiel) gegen die eigenen letzten Sätze. „Durchwachsener Satz“ entfällt. Die übrige Einordnung lässt sich aufklappen.

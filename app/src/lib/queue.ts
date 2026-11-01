@@ -38,6 +38,12 @@ export const COMEBACK_DAYS = 4;
 /** So viele sichere Karten zum Wiedereinstieg. */
 export const COMEBACK_CARDS = 5;
 
+/**
+ * Höchstens so oft dieselbe Aufgabe an einem Tag. Ohne Grenze kam eine Aufgabe, die er immer wieder falsch löst, alle 10 Minuten zurück
+ * (Lernschritt) und wurde auswendig gelernt statt verstanden. Nach dem zweiten Mal wartet sie bis morgen.
+ */
+export const MAX_PER_DAY = 2;
+
 /** Mindestens so viele neue Aufgaben am Tag, auch wenn die Wiederholungen das Tagesziel schon füllen würden */
 export const MIN_NEW = 3;
 /** Annahme für die Zeit je Aufgabe, solange zu wenige Antworten vorliegen */
@@ -154,12 +160,16 @@ function scan(pool: Exercise[], state: AppState, now: Date, ofMode: ReadonlySet<
   const dueLearn: Scan['dueLearn'] = [];
   const ahead: Scan['ahead'] = [];
   const fresh: Exercise[] = [];
+  const todayKey = dayKey(t);
+  const shownToday = new Map<string, number>();
+  for (const e of state.log) if (countsForSchedule(e) && dayKey(e.ts) === todayKey) shownToday.set(e.id, (shownToday.get(e.id) ?? 0) + 1);
   for (const ex of pool) {
     const rec = state.cards[ex.id];
     if (!rec) {
       fresh.push(ex);
       continue;
     }
+    if ((shownToday.get(ex.id) ?? 0) >= MAX_PER_DAY) continue;
     const d = dueDate(rec).getTime();
     const review = cardState(rec) === State.Review;
     if (d <= t) (review ? dueReview : dueLearn).push({ ex, d });
@@ -223,7 +233,10 @@ export function pickNext(
   const pool = poolOf(exercises, state, mode).filter((e) => !exclude?.has(e.id));
   const sc = scan(pool, state, now, idsOf(exercises, mode), mode);
 
-  const notLast = <T extends { ex: Exercise }>(xs: T[]) => xs.find((x) => x.ex.id !== last?.id) ?? xs[0];
+  // Stellungen aus derselben Partie sehen sich ähnlich: im Satz möglichst nicht zwei aus einer Partie (nur bevorzugt, nie ausgeschlossen)
+  const usedGames = exclude?.size ? new Set(exercises.filter((e) => exclude.has(e.id)).map((e) => e.url)) : new Set<string>();
+  const notLast = <T extends { ex: Exercise }>(xs: T[]) =>
+    xs.find((x) => x.ex.id !== last?.id && !usedGames.has(x.ex.url)) ?? xs.find((x) => x.ex.id !== last?.id) ?? xs[0];
 
   // Learnschritte nach einem Fehler zuerst, dann Wiederholungen (gedeckelt)
   if (sc.dueLearn.length) return { ex: notLast(sc.dueLearn).ex, kind: 'due' };
@@ -240,7 +253,8 @@ export function pickNext(
   if (sc.newQuota > 0 && sc.fresh.length) {
     // leicht durchmischen: unter den nächsten Kandidaten eine andere Fehlerart als zuletzt
     const window = sc.fresh.slice(0, 8);
-    const pick = window.find((e) => e.cat !== last?.cat) ?? window[0];
+    const otherGame = sc.fresh.slice(0, 30).filter((e) => !usedGames.has(e.url));
+    const pick = otherGame.slice(0, 8).find((e) => e.cat !== last?.cat) ?? otherGame[0] ?? window.find((e) => e.cat !== last?.cat) ?? window[0];
     return { ex: pick, kind: 'new' };
   }
   // Nichts mehr fällig und nichts Neues: Lernschritte der nächsten Minuten vorziehen, damit die Sitzung sauber endet
