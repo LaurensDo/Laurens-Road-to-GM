@@ -117,7 +117,8 @@ def main():
 
     cols = ["week", "partial", "games", "score_pct", "rating_end", "rating_change", "clock20_s", "budget20_pct", "clock30_s", "budget30_pct",
             "pauses_per_game", "blunders_per100", "blunders_tt_per100", "tt_moves_pct", "opp_blunders_per100", "timeouts_per100",
-            "timeouts_notlost_per100"]
+            "timeouts_notlost_per100", "wins", "draws", "losses", "timeouts", "timeouts_notlost", "n20", "ok20", "n30", "ok30",
+            "moves", "blunders", "moves_tt", "blunders_tt", "opp_moves", "opp_blunders"]
     prev_rating = None
     rows = []
     for k in range(args.weeks):
@@ -139,6 +140,13 @@ def main():
             "opp_blunders_per100": s.get("gegner_patzer_je_100"),
             "timeouts_per100": round(100 * s["zeitverluste"] / n, 1) if n else None,
             "timeouts_notlost_per100": round(100 * s["zeitverluste_nicht_verloren"] / n, 1) if n else None,
+            # Zählwerte hinter den Quoten (für "in 6 von 64 Partien")
+            "wins": s.get("siege"), "draws": s.get("remis"), "losses": s.get("niederlagen"),
+            "timeouts": s.get("zeitverluste"), "timeouts_notlost": s.get("zeitverluste_nicht_verloren"),
+            "n20": s.get("n_zug20"), "ok20": s.get("ok_zug20"), "n30": s.get("n_zug30"), "ok30": s.get("ok_zug30"),
+            "moves": s.get("zuege_ohne_zeitnot"), "blunders": s.get("patzer_ohne_zeitnot"),
+            "moves_tt": s.get("zuege_in_zeitnot"), "blunders_tt": s.get("patzer_in_zeitnot"),
+            "opp_moves": s.get("gegner_zuege"), "opp_blunders": s.get("gegner_patzer"),
         })
     with (OUT / "weeks.csv").open("w", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")

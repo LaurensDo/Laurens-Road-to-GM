@@ -189,6 +189,11 @@ def stats(games, evals):
         "gegner_patzer_je_100": per100(opp["patzer"], opp["n"]),
         "zeitverluste": lot,
         "zeitverluste_nicht_verloren": lot_ok,
+        # Zählwerte hinter den Quoten, damit eine Anzeige "6 von 64 Partien" sagen kann
+        "n_zug20": len(c20), "ok_zug20": ok20, "n_zug30": len(c30), "ok_zug30": ok30,
+        "zuege_ohne_zeitnot": mine["n"], "patzer_ohne_zeitnot": mine["patzer"],
+        "zuege_in_zeitnot": mine["n_tt"], "patzer_in_zeitnot": mine["patzer_tt"],
+        "gegner_zuege": opp["n"], "gegner_patzer": opp["patzer"],
     })
     return s
 
