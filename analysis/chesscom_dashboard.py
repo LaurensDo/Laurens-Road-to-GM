@@ -21,6 +21,7 @@ import datetime as dt
 import json
 import multiprocessing as mp
 import time
+from pathlib import Path
 
 import fetch_games as fg
 from weekly_games import CHESSCOM, DATA, _evaluate, _init, stats
@@ -72,6 +73,8 @@ def main():
     ap.add_argument("--weeks", type=int, default=12)
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--nodes", type=int, default=40000)
+    ap.add_argument("--base", help="bisherige weeks.csv (aus dem Dashboard): ältere Wochen daraus übernehmen, nur die letzten --recent Wochen neu rechnen")
+    ap.add_argument("--recent", type=int, default=2)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     blitz = games_all()
@@ -93,9 +96,15 @@ def main():
     # Kennzahlen: nur 3+0, letzte N Wochen
     this_monday = monday(time.time())
     first = this_monday - dt.timedelta(weeks=args.weeks - 1)
+    # mit --base: Wochen vor den letzten --recent übernehmen (spart die Stockfish-Bewertung der älteren Partien)
+    base_rows = {}
+    if args.base and Path(args.base).exists():
+        with open(args.base, newline="") as f:
+            base_rows = {r["week"]: r for r in csv.DictReader(f)}
+    reuse_before = this_monday - dt.timedelta(weeks=args.recent - 1) if base_rows else first
     games = []
     for g in blitz:
-        if g["tc"] != "180" or monday(g["end_ts"]) < first:
+        if g["tc"] != "180" or monday(g["end_ts"]) < reuse_before:
             continue
         _h, moves = fg.moves_with_clocks(g["pgn"])
         if moves:
@@ -123,6 +132,9 @@ def main():
     rows = []
     for k in range(args.weeks):
         w = first + dt.timedelta(weeks=k)
+        if w < reuse_before and w.isoformat() in base_rows:
+            rows.append({c: (base_rows[w.isoformat()].get(c) or None) for c in cols})
+            continue
         gs = [g for g in games if monday(g["end_ts"]) == w]
         before = [x["rating"] for x in blitz if monday(x["end_ts"]) < w and x["rating"]]
         prev_rating = before[-1] if before else prev_rating
@@ -154,7 +166,7 @@ def main():
         for r in rows:
             wr.writerow({c: ("" if r[c] is None else r[c]) for c in cols})
     for r in rows:
-        print(r["week"], r["games"], r["score_pct"], r["rating_end"], r["budget20_pct"], r["budget30_pct"], r["blunders_per100"], r["timeouts_notlost_per100"])
+        print(r["week"], r.get("games"), r["score_pct"], r["rating_end"], r["budget20_pct"], r["budget30_pct"], r["blunders_per100"], r["timeouts_notlost_per100"])
 
 
 if __name__ == "__main__":
